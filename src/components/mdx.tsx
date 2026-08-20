@@ -4,6 +4,8 @@ import { InstallationTabs } from './installation-tabs';
 import { PreviewComponent } from './preview-component';
 import { ButtonDemo } from '../../registry/demos/button-demo';
 import { Button } from '../../registry/ui/button';
+import { TextFieldDemo } from '../registry/demos/text-field-demo';
+import { TextFieldPlaygroundDemo } from '../registry/demos/text-field-playground-demo';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -14,6 +16,8 @@ export function getMDXComponents(components?: MDXComponents) {
     ComponentPreview: PreviewComponent,
     ButtonDemo,
     Button,
+    TextFieldDemo,
+    TextFieldPlaygroundDemo,
   } satisfies MDXComponents;
 }
 
