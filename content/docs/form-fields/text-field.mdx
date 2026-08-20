@@ -1,0 +1,61 @@
+---
+title: TextField 
+description: A labeled text input with support for descriptions, validation errors, and leading or trailing icons.
+---
+import { TextFieldDemo } from "../../../src/registry/demos/text-field-demo"
+import { TextFieldPlaygroundDemo } from "../../../src/registry/demos/text-field-playground-demo"
+
+`TextField` wraps the base `Input` component with a `Field` layout: a label, an optional description, and error handling in one piece. Reach for it any time a form needs a single-line text input with built-in accessibility wiring.
+
+## Installation
+
+<InstallationTabs componentName="text-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/text-field-demo.tsx">
+  <TextFieldDemo />
+</ComponentPreview>
+
+## Playground
+
+Every prop that changes how `TextField` looks or behaves is exposed here. Toggle orientation, the asterisk, icons, or drop in an error message to see how the field responds.
+
+
+<TextFieldPlaygroundDemo />
+
+
+## Accessibility
+
+`TextField` connects the label, description, and error message to the input for you:
+
+- The label uses `htmlFor`, so clicking it focuses the input.
+- `aria-describedby` points to the description, but only while there's no error. Screen readers shouldn't hear a stale description read alongside an active error.
+- The error message is wired through `aria-errormessage` instead, and `aria-invalid` flips to `true` whenever `error` is set.
+- `leftSection` and `rightSection` render with `aria-hidden="true"`. Treat them as decoration only. If an icon carries meaning on its own, add visually hidden text next to it.
+
+<Callout type="info">
+  `wrapperClassName` still works but is deprecated. Use `fieldClassName` in new code.
+</Callout>
+
+## API Reference
+
+### TextField
+
+`TextField` accepts every native `<input>` attribute in addition to the props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the input. |
+| `description` | `string` | — | Helper text shown below the input. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `leftSection` | `React.ReactNode` | — | Icon or element positioned inside the input, on the left. |
+| `rightSection` | `React.ReactNode` | — | Icon or element positioned inside the input, on the right. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the input. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `wrapperClassName` | `string` | — | **Deprecated.** Use `fieldClassName` instead. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `inputClassName` | `string` | — | Class name applied to the `Input` element, merged after `className`. |
+| `className` | `string` | — | Class name applied to the `Input` element. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the input and dims the label. |
