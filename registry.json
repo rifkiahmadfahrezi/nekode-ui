@@ -4,33 +4,24 @@
   "homepage": "https://super-shadcn.rifkiaf.com",
   "items": [
     {
-      "name": "button",
+      "name": "text-field",
       "type": "registry:ui",
-      "title": "Button",
-      "description": "A simple button component.",
+      "title": "Text Field",
+      "description": "A composed shadcn text input with field component",
       "dependencies": [
         "@base-ui/react",
         "class-variance-authority"
       ],
+      "registryDependencies": [
+        "field",
+        "input",
+        "label"
+      ],
       "files": [
         {
-          "path": "registry/ui/button.tsx",
+          "path": "./src/registry/ui/text-field.tsx",
           "type": "registry:ui",
-          "target": "components/ui/button.tsx"
-        }
-      ]
-    },
-    {
-      "name": "button-demo",
-      "type": "registry:example",
-      "title": "Button Demo",
-      "description": "Example demo for the button component.",
-      "registryDependencies": ["button"],
-      "files": [
-        {
-          "path": "registry/demos/button-demo.tsx",
-          "type": "registry:example",
-          "target": "components/demos/button-demo.tsx"
+          "target": "components/ui/text-field.tsx"
         }
       ]
     }
