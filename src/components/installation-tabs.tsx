@@ -3,7 +3,6 @@
 import { Tabs, Tab } from "fumadocs-ui/components/tabs"
 import type { Packages } from "@/lib/constants"
 import { packages } from "@/lib/constants"
-import { registryBaseUrl } from "@/lib/constants"
 import { useCopy } from "@/hooks/use-copy"
 import { Clipboard, Check } from "lucide-react"
 
@@ -17,8 +16,9 @@ const commandTemplates : Record<Packages, string> = {
 
 export function InstallationTabs({ componentName }: { componentName: string }) {
     const [copied, copy] = useCopy()
+    const registryBaseUrl = typeof window !== 'undefined' ? `${window.location.origin}` : import.meta.env.VITE_BASE_URL
     const getCommand = (pkg: Packages) => {
-        return `${commandTemplates[pkg]} ${registryBaseUrl}${componentName}.json`
+        return `${commandTemplates[pkg]} ${registryBaseUrl}/r/${componentName}.json`
     }
 
     return (
