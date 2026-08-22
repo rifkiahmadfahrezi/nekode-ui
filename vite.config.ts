@@ -4,12 +4,14 @@ import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { fumadocsMdx } from 'fumadocs-mdx/vite';
 import { nitro } from 'nitro/vite';
+import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
   server: {
     port: 3000,
   },
   plugins: [
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
     fumadocsMdx(),
     tailwindcss(),
     tanstackStart({
