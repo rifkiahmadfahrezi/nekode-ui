@@ -7,4 +7,5 @@
 	"observability": {
 		"enabled": true,
 	},
+	"auxiliaryWorkers": [],
 }

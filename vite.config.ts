@@ -31,4 +31,9 @@ export default defineConfig({
       tslib: 'tslib/tslib.es6.js',
     },
   },
+  build: {
+    rolldownOptions: {
+      external: ['env', 'wasi_snapshot_preview1'],
+    },
+  },
 });
