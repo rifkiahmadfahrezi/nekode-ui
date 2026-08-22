@@ -3,6 +3,7 @@ import * as React from 'react';
 import appCss from '@/styles/app.css?url';
 import { RootProvider } from 'fumadocs-ui/provider/tanstack';
 import { appName } from '@/lib/shared';
+import { Toaster } from '@/components/ui/sonner';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -32,6 +33,7 @@ function RootComponent() {
       <body className="flex flex-col min-h-screen">
         <RootProvider>
           <Outlet />
+          <Toaster position="bottom-right" />
         </RootProvider>
         <Scripts />
       </body>
