@@ -24,6 +24,28 @@
           "target": "components/ui/text-field.tsx"
         }
       ]
+    },
+    {
+      "name": "number-field",
+      "type": "registry:ui",
+      "title": "Number Field",
+      "description": "A composed shadcn number input with field component",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "field",
+        "input",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/number-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/number-field.tsx"
+        }
+      ]
     }
   ]
 }
