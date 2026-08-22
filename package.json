@@ -13,7 +13,8 @@
     "format": "biome format --write",
     "shadcn:build": "shadcn build",
     "deploy": "bun run build && wrangler deploy",
-		"cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "postinstall": "node scripts/patch-cloudflare-vite-plugin.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -45,6 +46,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.5",
     "nitro": "3.0.260610-beta",
+    "patch-package": "^8.0.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vite": "^8.2.1",
