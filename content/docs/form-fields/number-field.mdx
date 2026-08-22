@@ -1,0 +1,84 @@
+---
+title: NumberField
+description: A numeric text input with decimal precision control, min/max clamping, and increment/decrement steppers.
+---
+
+
+`NumberField` builds on the same `Field` layout as [`TextField`](/docs/components/text-field), but manages numeric input directly: typing is sanitized as it happens, values clamp to `min`/`max` on blur, and a stepper lets people click instead of type. It renders `type="text"` under the hood rather than `type="number"`, since native number inputs can't restrict decimal places while the user is still typing.
+
+## Installation
+
+<InstallationTabs componentName="number-field" />
+
+## Usage
+
+<ComponentPreview path="src/registry/demos/number-field-demo.tsx">
+  <NumberFieldDemo />
+</ComponentPreview>
+
+## Playground
+
+<NumberFieldPlaygroundDemo />
+
+## Behavior
+
+- **Typing is sanitized live.** Characters that don't belong in a number are stripped as they're typed, not just on submit. With `decimal={false}`, the `.` key does nothing.
+- **`decimalPlaces` truncates, it doesn't round.** While typing, digits past the limit are cut off so a partial value like `1.5` isn't rewritten mid-keystroke. The same limit is used to format the value on blur (e.g. `12` becomes `12.00`).
+- **`min`/`max` only apply on blur**, not on every keystroke, so the field never blocks someone from typing a value like `95` toward a `min={100}` field one digit at a time. Set `clampOnBlur={false}` to turn this off entirely and validate elsewhere instead.
+- **An empty or incomplete value (`""`, `"-"`, `"1."`) falls back to `0`** on blur when `clampOnBlur` is on, then still respects `min`/`max`.
+- **`allowNegative` defaults to `true`**, unless `min` is `0` or higher, in which case it defaults to `false`.
+- **The stepper only shows when `rightSection` is empty.** Pass a `rightSection` (a currency code, a unit label, an icon) and it replaces the up/down buttons — the two aren't meant to share the space.
+- **`onValueChange` receives a parsed `number`, or `undefined`** while the field is in an incomplete state (empty, a lone `-`, or a trailing `.`). Use `onChange` instead if you need the raw, sanitized string.
+
+## Examples
+
+### With TanStack Form and Zod
+
+`NumberField` keeps its own display buffer internally, so it won't get clobbered by a form value flickering to `undefined` mid-keystroke. That makes wiring it to `@tanstack/react-form` straightforward: pass the field's current value in, forward `onValueChange` back into `field.handleChange`, and read validation errors from `field.state.meta.errors`.
+
+
+<ComponentPreview path="src/registry/demos/number-field-form-demo.tsx">
+  <NumberFieldFormDemo />
+</ComponentPreview>
+
+<Callout type="warn">
+  `onValueChange` reports `undefined` while a value is mid-typing (e.g. right after the user types the `-` in `-5`). The example above falls back to `0` so the form always holds a `number`. If you'd rather let the field genuinely be empty, type it as `z.number().optional()` and skip the fallback.
+</Callout>
+
+## Accessibility
+
+- The input carries `role="spinbutton"` with `aria-valuemin`, `aria-valuemax`, and `aria-valuenow`, so assistive tech announces it as a numeric control with bounds.
+- Label, description, and error wiring follow the same pattern as `TextField`: `aria-describedby` points at the description only while there's no error, and the error is announced separately through `aria-errormessage`.
+- The stepper buttons are `tabIndex={-1}` and `aria-hidden`. They're a pointer convenience, not a keyboard path — keyboard users type the value directly, or use the spinner arrows most browsers already attach to an `inputMode="numeric"` field.
+
+## API Reference
+
+### NumberField
+
+`NumberField` accepts every native `<input>` attribute except `type`, `value`, `defaultValue`, and `onChange`, which are redefined below to work with numbers.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the input. |
+| `description` | `string` | — | Helper text shown below the input. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `value` | `number \| string` | — | Controlled value. |
+| `defaultValue` | `number \| string` | — | Initial value for uncontrolled use. |
+| `min` | `number` | — | Minimum value, enforced on blur (and by the down stepper). |
+| `max` | `number` | — | Maximum value, enforced on blur (and by the up stepper). |
+| `step` | `number` | `1` | Amount added or subtracted per stepper click. |
+| `decimal` | `boolean` | `true` | Allows a decimal point. Set `false` to restrict the field to integers. |
+| `decimalPlaces` | `number` | `2` | Max digits after the decimal point. Truncates while typing; used to format the value on blur. |
+| `allowNegative` | `boolean` | `true`, unless `min >= 0` | Allows a leading `-`. |
+| `clampOnBlur` | `boolean` | `true` | Snaps out-of-range values to `min`/`max` and formats the value on blur. |
+| `onValueChange` | `(value: number \| undefined) => void` | — | Fires with the parsed number, or `undefined` while the value is incomplete. |
+| `onChange` | `React.ChangeEventHandler<HTMLInputElement>` | — | Native change handler. Receives the event with the sanitized string already applied to `target.value`. |
+| `leftSection` | `React.ReactNode` | — | Icon or element positioned inside the input, on the left. |
+| `rightSection` | `React.ReactNode` | — | Icon or element positioned inside the input, on the right. Replaces the stepper when set. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the input. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `inputClassName` | `string` | — | Class name applied to the `Input` element, merged after `className`. |
+| `className` | `string` | — | Class name applied to the `Input` element. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the input, stepper, and dims the label. |
