@@ -31,7 +31,6 @@ export function NumberFieldFormDemo() {
       toast("Form submitted!`", {
         description: <pre className="font-mono p-1 border m-2">{JSON.stringify(value, null, 2)}</pre>,
         closeButton: true,
-
       })
     },
   })

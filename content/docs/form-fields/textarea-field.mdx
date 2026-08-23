@@ -1,0 +1,66 @@
+---
+title: TextareaField
+description: A labeled multi-line text input with a character counter and auto-resize support.
+---
+
+`TextareaField` wraps the base `Textarea` component with the same `Field` layout as `TextField`: a label, an optional description, and error handling in one piece. It adds two things a single-line input doesn't need — a live character counter and auto-growing height — for whenever a form needs more than one line of text.
+
+## Installation
+
+<InstallationTabs componentName="textarea-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/textarea-field-demo.tsx">
+  <TextareaFieldDemo />
+</ComponentPreview>
+
+## Playground
+
+Every prop that changes how `TextareaField` looks or behaves is exposed here. Toggle the character count, auto-resize, or drop in an error message to see how the field responds.
+
+<TextareaFieldPlaygroundDemo />
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/textarea-field-form-demo.tsx">
+  <TextareaFieldFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+`TextareaField` connects the label, description, error message, and counter to the textarea for you:
+
+- The label uses `htmlFor`, so clicking it focuses the textarea.
+- `aria-describedby` points to the description and the counter (when `showCount` is on), so both are announced as extra context. It skips the description while there's an active error.
+- The error message is wired through `aria-errormessage` instead, and `aria-invalid` flips to `true` whenever `error` is set.
+- The counter turns red once `count` passes `maxLength`, but that's a visual cue only — screen readers get the same text either way, so pair it with a real error message if the limit is a hard requirement.
+
+<Callout type="info">
+  `showCount` only toggles the counter UI. It doesn't cap input length on its own — pass `maxLength` alongside it if you want typing to actually stop at the limit.
+</Callout>
+
+## API Reference
+
+### TextareaField
+
+`TextareaField` accepts every native `<textarea>` attribute in addition to the props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the textarea. |
+| `description` | `string` | — | Helper text shown below the textarea. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `showCount` | `boolean` | `false` | Shows a live character counter. Combine with `maxLength` to also cap input length. |
+| `autoResize` | `boolean` | `false` | Grows the textarea's height to fit its content instead of scrolling. |
+| `maxRows` | `number` | — | Caps how tall `autoResize` can grow the textarea, in rows. Ignored when `autoResize` is off. |
+| `rows` | `number` | `3` | Initial visible row count. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the textarea. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `textareaClassName` | `string` | — | Class name applied to the `Textarea` element, merged after `className`. |
+| `className` | `string` | — | Class name applied to the `Textarea` element. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the textarea and dims the label. |

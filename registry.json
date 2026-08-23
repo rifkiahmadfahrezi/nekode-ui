@@ -46,6 +46,28 @@
           "target": "components/ui/number-field.tsx"
         }
       ]
+    },
+    {
+      "name": "textarea-field",
+      "type": "registry:ui",
+      "title": "Textarea Field",
+      "description": "A composed shadcn textarea input with field component",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "field",
+        "textarea",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/textarea-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/textarea-field.tsx"
+        }
+      ]
     }
   ]
 }
