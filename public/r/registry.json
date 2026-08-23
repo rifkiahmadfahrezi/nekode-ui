@@ -68,6 +68,28 @@
           "target": "components/ui/textarea-field.tsx"
         }
       ]
+    },
+    {
+      "name": "password-field",
+      "type": "registry:ui",
+      "title": "Password Field",
+      "description": "A composed shadcn password input with field component",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "field",
+        "input",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/password-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/password-field.tsx"
+        }
+      ]
     }
   ]
 }
