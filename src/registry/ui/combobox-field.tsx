@@ -142,6 +142,17 @@ export const ComboboxField = React.forwardRef<
               aria-errormessage={errorId}
               showClear={loading ? false : showClear}
               className={cn("w-full", loading && "pr-9", inputClassName)}
+              disabled={loading || disabled}
+              children={
+                loading && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute right-3 flex items-center text-muted-foreground pointer-events-none"
+                  >
+                    <Loader2Icon className="size-4 animate-spin" />
+                  </div>
+                )
+              }
             />
             <ComboboxContent>
               <ComboboxEmpty>{emptyText}</ComboboxEmpty>
@@ -158,15 +169,6 @@ export const ComboboxField = React.forwardRef<
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
-
-          {loading && (
-            <div
-              aria-hidden="true"
-              className="absolute right-3 flex items-center text-muted-foreground pointer-events-none"
-            >
-              <Loader2Icon className="size-4 animate-spin" />
-            </div>
-          )}
         </div>
 
         {description && !error && (
