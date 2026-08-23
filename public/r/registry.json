@@ -76,7 +76,8 @@
       "description": "A composed shadcn password input with field component",
       "dependencies": [
         "@base-ui/react",
-        "class-variance-authority"
+        "class-variance-authority",
+        "lucide-react"
       ],
       "registryDependencies": [
         "field",
@@ -88,6 +89,28 @@
           "path": "./src/registry/ui/password-field.tsx",
           "type": "registry:ui",
           "target": "components/ui/password-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "select-field",
+      "type": "registry:ui",
+      "title": "Select Field",
+      "description": "A composed shadcn select with field component",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "field",
+        "select",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/select-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/select-field.tsx"
         }
       ]
     }

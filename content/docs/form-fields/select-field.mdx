@@ -1,0 +1,91 @@
+---
+title: SelectField
+description: A labeled dropdown select with flat or grouped options, built on Base UI's Select primitives.
+---
+
+`SelectField` wraps the Base UI `Select` primitives with the same `Field` layout as `TextField`: a label, an optional description, and error handling in one piece. Pass a flat `options` array for a simple dropdown, or `groups` when the options need labeled sections.
+
+## Installation
+
+<InstallationTabs componentName="select-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/select-field-demo.tsx">
+  <SelectFieldDemo />
+</ComponentPreview>
+
+## Playground
+
+Every prop that changes how `SelectField` looks or behaves is exposed here. Switch between flat and grouped options, or drop in an error message to see how the field responds.
+
+<SelectFieldPlaygroundDemo />
+
+## Examples
+
+### With TanStack Form and Zod
+
+Base UI's `Select` only ever works with string values, so a "number" select is really a string select whose value is coerced back into a number at the schema level. This example wires up one field of each kind — `role` stays a string end to end, and `teamSize` round-trips through `String()`/`Number()` on the way in and out.
+
+<ComponentPreview path="src/registry/demos/select-field-form-demo.tsx">
+  <SelectFieldFormDemo />
+</ComponentPreview>
+
+<Callout type="warn">
+  For the number field, `value` is `field.state.value ? String(field.state.value) : undefined` and `onValueChange` calls `field.handleChange(Number(value))`. Skipping that conversion either passes a `number` where `SelectField` expects a `string` (TypeScript will catch this), or leaves your form state holding `"20"` instead of `20` (TypeScript won't catch this if the schema field is loosely typed).
+</Callout>
+
+## Accessibility
+
+`SelectField` connects the label, description, and error message to the trigger button the same way `TextField` does:
+
+- The label uses `htmlFor`, so clicking it opens the select.
+- `aria-describedby` points to the description, but only while there's no error, so screen readers don't hear a stale description read alongside an active error.
+- The error message is wired through `aria-errormessage` instead, and `aria-invalid` flips to `true` whenever `error` is set.
+- Keyboard navigation, typeahead, and focus handling all come from Base UI's `Select` primitive underneath — `SelectField` doesn't add or override any of it.
+- `leftSection` renders with `aria-hidden="true"` and sits behind the trigger's own click target. Treat it as decoration only.
+
+<Callout type="info">
+  `groups` takes priority over `options` when both are passed. Pick one per field rather than mixing them.
+</Callout>
+
+## API Reference
+
+### SelectField
+
+Unlike `TextField` and `PasswordField`, `SelectField`'s props aren't a superset of a native HTML element's attributes — the component only accepts the props listed below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the select. |
+| `description` | `string` | — | Helper text shown below the select. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `placeholder` | `string` | `"Select an option"` | Shown in the trigger when no value is selected. |
+| `options` | `SelectFieldOption[]` | — | Flat list of options. Ignored if `groups` is also passed. |
+| `groups` | `SelectFieldGroup[]` | — | Labeled option groups, rendered with separators between them. Takes priority over `options`. |
+| `value` | `string` | — | Controlled value. |
+| `defaultValue` | `string` | — | Initial value for uncontrolled use. |
+| `onValueChange` | `(value: string) => void` | — | Fires with the newly selected value. |
+| `name` | `string` | — | Forwarded to the underlying `Select`, for native form submission. |
+| `leftSection` | `React.ReactNode` | — | Icon or element positioned inside the trigger, on the left. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the select. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `triggerClassName` | `string` | — | Class name applied to the `SelectTrigger`. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the select and dims the label. |
+
+### SelectFieldOption
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Text shown in the option list. |
+| `value` | `string` | — | Value passed to `onValueChange` when selected. |
+| `disabled` | `boolean` | `false` | Prevents this option from being selected. |
+
+### SelectFieldGroup
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Optional heading rendered above the group's options. |
+| `options` | `SelectFieldOption[]` | — | Options belonging to this group. |
