@@ -113,6 +113,56 @@
           "target": "components/ui/select-field.tsx"
         }
       ]
+    },
+    {
+      "name": "date-picker-field",
+      "type": "registry:ui",
+      "title": "Date Picker Field",
+      "description": "A labeled date picker built on Calendar and Popover with field layout.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "date-fns",
+        "lucide-react",
+        "react-day-picker"
+      ],
+      "registryDependencies": [
+        "field",
+        "calendar",
+        "popover",
+        "button",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/date-picker-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/date-picker-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "time-picker-field",
+      "type": "registry:ui",
+      "title": "Time Picker Field",
+      "description": "A labeled time input supporting 12h (AM/PM) and 24h formats with field layout.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "field",
+        "input",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/time-picker-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/time-picker-field.tsx"
+        }
+      ]
     }
   ]
 }

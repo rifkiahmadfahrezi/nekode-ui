@@ -1,0 +1,66 @@
+---
+title: TimePickerField
+description: A labeled time input supporting 12-hour (AM/PM) and 24-hour formats, with description and error handling in one piece.
+---
+
+`TimePickerField` wraps a time input with the same `Field` layout as `TextField`. Switch between `timeFormat="24h"` for a native `<input type="time">` or `timeFormat="12h"` for a custom HH:mm + AM/PM toggle — both read and write values as `"HH:mm"` strings.
+
+## Installation
+
+<InstallationTabs componentName="time-picker-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/time-picker-field-demo.tsx">
+  <TimePickerFieldDemo />
+</ComponentPreview>
+
+## Playground
+
+Toggle between 24h and 12h formats, orientation, and other props to see how the field responds.
+
+<TimePickerFieldPlaygroundDemo />
+
+## Examples
+
+### With TanStack Form and Zod
+
+`TimePickerField` always stores and emits values as `"HH:mm"` strings, regardless of the `timeFormat` prop. This makes it simple to validate with Zod's `z.string().regex(...)`.
+
+<ComponentPreview path="src/registry/demos/time-picker-field-form-demo.tsx">
+  <TimePickerFieldFormDemo />
+</ComponentPreview>
+
+<Callout type="info">
+  `value` and `onValueChange` always use 24-hour `"HH:mm"` strings internally — even in 12h mode. The AM/PM toggle is a display concern only.
+</Callout>
+
+## Accessibility
+
+- The label uses `htmlFor`, so clicking it focuses the time input.
+- `aria-describedby` points to the description, suppressed when an error is active.
+- `aria-errormessage` and `aria-invalid` are set when `error` is provided.
+- In 12h mode, the hour and minute inputs have `aria-label` attributes; the AM/PM toggle has an `aria-label` describing the action it will perform.
+- In 24h mode, the native `<input type="time">` carries full browser and assistive-technology support.
+- Arrow keys increment/decrement hours and minutes in 12h mode.
+
+## API Reference
+
+### TimePickerField
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the input. |
+| `description` | `string` | — | Helper text shown below the input. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `string` | — | Controlled value as a `"HH:mm"` string (always 24-hour internally). |
+| `defaultValue` | `string` | `"00:00"` | Initial value for uncontrolled use. |
+| `onValueChange` | `(value: string) => void` | — | Fires with the new `"HH:mm"` value when the user changes the time. |
+| `timeFormat` | `"24h" \| "12h"` | `"24h"` | Render a native `<input type="time">` (`24h`) or a custom HH:mm + AM/PM toggle (`12h`). |
+| `name` | `string` | — | Forwarded to the underlying input for native form submission. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the input. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `inputClassName` | `string` | — | Class name applied to the time input element. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the input and dims the label. |
