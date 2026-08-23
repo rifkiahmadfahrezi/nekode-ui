@@ -3,9 +3,7 @@
   "name": "button-demo",
   "title": "Button Demo",
   "description": "Example demo for the button component.",
-  "registryDependencies": [
-    "button"
-  ],
+  "registryDependencies": ["button"],
   "files": [
     {
       "path": "registry/demos/button-demo.tsx",

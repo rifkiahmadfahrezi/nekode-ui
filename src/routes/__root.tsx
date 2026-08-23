@@ -1,32 +1,36 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
-import * as React from 'react';
-import appCss from '@/styles/app.css?url';
-import { RootProvider } from 'fumadocs-ui/provider/tanstack';
-import { appName } from '@/lib/shared';
-import { Toaster } from '@/components/ui/sonner';
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  Scripts,
+} from "@tanstack/react-router";
+import { RootProvider } from "fumadocs-ui/provider/tanstack";
+import { Toaster } from "@/components/ui/sonner";
+import { appName } from "@/lib/shared";
+import appCss from "@/styles/app.css?url";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        charSet: 'utf-8',
+        charSet: "utf-8",
       },
       {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
       },
       {
         title: appName,
       },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootComponent,
 });
 
 function RootComponent() {
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

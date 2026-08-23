@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { toast } from "sonner"
-import { DatePickerField } from "@/registry/ui/date-picker-field"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { DatePickerField } from "@/registry/ui/date-picker-field";
 
 const formSchema = z.object({
   birthdate: z.date({ error: "Please select a date" }),
   appointmentDate: z.date({ error: "Please select an appointment date" }),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 export function DatePickerFieldFormDemo() {
   const form = useForm({
@@ -33,21 +33,21 @@ export function DatePickerFieldFormDemo() {
                   .split("T")[0],
               },
               null,
-              2
+              2,
             )}
           </pre>
         ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="flex w-72 flex-col gap-4"
     >
@@ -92,5 +92,5 @@ export function DatePickerFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }

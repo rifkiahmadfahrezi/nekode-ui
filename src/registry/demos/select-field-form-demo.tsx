@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { toast } from "sonner"
-import { SelectField } from "@/registry/ui/select-field"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { SelectField } from "@/registry/ui/select-field";
 
 const settingsSchema = z.object({
   role: z.string().min(1, "Select a role"),
   teamSize: z
     .number({ error: "Select a team size" })
     .min(1, "Select a team size"),
-})
+});
 
-type SettingsFormValues = z.infer<typeof settingsSchema>
+type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 export function SelectFieldFormDemo() {
   const form = useForm({
@@ -31,16 +31,16 @@ export function SelectFieldFormDemo() {
           </pre>
         ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="flex w-72 flex-col gap-4"
     >
@@ -83,7 +83,9 @@ export function SelectFieldFormDemo() {
         )}
       </form.Field>
 
-      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting] as const}
+      >
         {([canSubmit, isSubmitting]) => (
           <button
             type="submit"
@@ -95,5 +97,5 @@ export function SelectFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }

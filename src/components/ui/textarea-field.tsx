@@ -1,1 +1,1 @@
-export * from "@/registry/ui/textarea-field"
+export * from "@/registry/ui/textarea-field";

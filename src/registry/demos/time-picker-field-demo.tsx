@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { TimePickerField } from "@/registry/ui/time-picker-field"
+import { TimePickerField } from "@/registry/ui/time-picker-field";
 
 export function TimePickerFieldDemo() {
   return (
@@ -16,5 +16,5 @@ export function TimePickerFieldDemo() {
         timeFormat="12h"
       />
     </div>
-  )
+  );
 }

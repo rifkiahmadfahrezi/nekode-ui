@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { SelectField } from "@/components/ui/select-field"
+import { SelectField } from "@/components/ui/select-field";
 
 export function SelectFieldDemo() {
   return (
@@ -15,5 +15,5 @@ export function SelectFieldDemo() {
       ]}
       triggerClassName="w-72"
     />
-  )
+  );
 }

@@ -1,1 +1,5 @@
-export { PreviewComponent, ComponentPreview, default } from "./preview-component";
+export {
+  ComponentPreview,
+  default,
+  PreviewComponent,
+} from "./preview-component";

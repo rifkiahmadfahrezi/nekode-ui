@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Input } from "@/components/ui/input"
+import * as React from "react";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
-} from "@/components/ui/field"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export interface TextFieldProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string
-  description?: string
-  error?: string
-  leftSection?: React.ReactNode
-  rightSection?: React.ReactNode
+  label?: string;
+  description?: string;
+  error?: string;
+  leftSection?: React.ReactNode;
+  rightSection?: React.ReactNode;
   /** Passed to the underlying `Field` wrapper (e.g. orientation, data-invalid overrides). */
-  fieldClassName?: string
+  fieldClassName?: string;
   /** @deprecated use `fieldClassName` */
-  wrapperClassName?: string
-  labelClassName?: string
-  inputClassName?: string
-  orientation?: "vertical" | "horizontal" | "responsive"
+  wrapperClassName?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  orientation?: "vertical" | "horizontal" | "responsive";
 }
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
@@ -45,17 +45,17 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       required,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const generatedId = React.useId()
-    const inputId = id ?? generatedId
-    const descriptionId = description ? `${inputId}-description` : undefined
-    const errorId = error ? `${inputId}-error` : undefined
+    const generatedId = React.useId();
+    const inputId = id ?? generatedId;
+    const descriptionId = description ? `${inputId}-description` : undefined;
+    const errorId = error ? `${inputId}-error` : undefined;
 
     // aria-describedby only points to the description (extra context).
     // The error is wired separately via aria-errormessage so screen
     // readers don't read both a stale description and an error at once.
-    const describedBy = description ? descriptionId : undefined
+    const describedBy = description ? descriptionId : undefined;
 
     return (
       <Field
@@ -69,7 +69,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
             className={cn(
               error && "text-destructive",
               disabled && "opacity-70 cursor-not-allowed",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -107,7 +107,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
               leftSection && "pl-9",
               rightSection && "pr-9",
               className,
-              inputClassName
+              inputClassName,
             )}
             {...props}
           />
@@ -123,15 +123,13 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
         </div>
 
         {description && !error && (
-          <FieldDescription id={descriptionId}>
-            {description}
-          </FieldDescription>
+          <FieldDescription id={descriptionId}>{description}</FieldDescription>
         )}
 
         {error && <FieldError id={errorId}>{error}</FieldError>}
       </Field>
-    )
-  }
-)
+    );
+  },
+);
 
-TextField.displayName = "TextField"
+TextField.displayName = "TextField";

@@ -1,6 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -10,50 +16,47 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export interface SelectFieldOption {
-  label: string
-  value: string
-  disabled?: boolean
+  label: string;
+  value: string;
+  disabled?: boolean;
 }
 
 export interface SelectFieldGroup {
-  label?: string
-  options: SelectFieldOption[]
+  label?: string;
+  options: SelectFieldOption[];
 }
 
 export interface SelectFieldProps {
-  label?: string
-  description?: string
-  error?: string
-  placeholder?: string
+  label?: string;
+  description?: string;
+  error?: string;
+  placeholder?: string;
   /** Flat list of options. Use `groups` instead if you need labeled option groups. */
-  options?: SelectFieldOption[]
-  groups?: SelectFieldGroup[]
-  name?: string
-  id?: string
-  value?: string
-  defaultValue?: string
-  onValueChange?: (value: string) => void
-  disabled?: boolean
-  required?: boolean
+  options?: SelectFieldOption[];
+  groups?: SelectFieldGroup[];
+  name?: string;
+  id?: string;
+  value?: string;
+  defaultValue?: string;
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
+  required?: boolean;
   /** Passed to the underlying `Field` wrapper (e.g. orientation, data-invalid overrides). */
-  fieldClassName?: string
-  labelClassName?: string
-  triggerClassName?: string
-  orientation?: "vertical" | "horizontal" | "responsive"
-  leftSection?: React.ReactNode
+  fieldClassName?: string;
+  labelClassName?: string;
+  triggerClassName?: string;
+  orientation?: "vertical" | "horizontal" | "responsive";
+  leftSection?: React.ReactNode;
 }
 
-export const SelectField = React.forwardRef<HTMLButtonElement, SelectFieldProps>(
+export const SelectField = React.forwardRef<
+  HTMLButtonElement,
+  SelectFieldProps
+>(
   (
     {
       label,
@@ -75,21 +78,21 @@ export const SelectField = React.forwardRef<HTMLButtonElement, SelectFieldProps>
       orientation = "vertical",
       leftSection,
     },
-    ref
+    ref,
   ) => {
-    const generatedId = React.useId()
-    const inputId = id ?? generatedId
-    const descriptionId = description ? `${inputId}-description` : undefined
-    const errorId = error ? `${inputId}-error` : undefined
+    const generatedId = React.useId();
+    const inputId = id ?? generatedId;
+    const descriptionId = description ? `${inputId}-description` : undefined;
+    const errorId = error ? `${inputId}-error` : undefined;
 
-    const describedBy = description ? descriptionId : undefined
+    const describedBy = description ? descriptionId : undefined;
 
     const renderOptions = (opts: SelectFieldOption[]) =>
       opts.map((opt) => (
         <SelectItem key={opt.value} value={opt.value} disabled={opt.disabled}>
           {opt.label}
         </SelectItem>
-      ))
+      ));
 
     return (
       <Field
@@ -103,7 +106,7 @@ export const SelectField = React.forwardRef<HTMLButtonElement, SelectFieldProps>
             className={cn(
               error && "text-destructive",
               disabled && "opacity-70 cursor-not-allowed",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -132,7 +135,7 @@ export const SelectField = React.forwardRef<HTMLButtonElement, SelectFieldProps>
             name={name}
             value={value}
             defaultValue={defaultValue}
-            onValueChange={value => onValueChange?.(value as string)}
+            onValueChange={(value) => onValueChange?.(value as string)}
             disabled={disabled}
             required={required}
           >
@@ -153,7 +156,9 @@ export const SelectField = React.forwardRef<HTMLButtonElement, SelectFieldProps>
                     <React.Fragment key={group.label ?? i}>
                       {i > 0 && <SelectSeparator />}
                       <SelectGroup>
-                        {group.label && <SelectLabel>{group.label}</SelectLabel>}
+                        {group.label && (
+                          <SelectLabel>{group.label}</SelectLabel>
+                        )}
                         {renderOptions(group.options)}
                       </SelectGroup>
                     </React.Fragment>
@@ -169,8 +174,8 @@ export const SelectField = React.forwardRef<HTMLButtonElement, SelectFieldProps>
 
         {error && <FieldError id={errorId}>{error}</FieldError>}
       </Field>
-    )
-  }
-)
+    );
+  },
+);
 
-SelectField.displayName = "SelectField"
+SelectField.displayName = "SelectField";

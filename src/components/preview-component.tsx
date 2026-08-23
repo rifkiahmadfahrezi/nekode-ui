@@ -1,12 +1,12 @@
-import { Suspense, lazy, use, useMemo } from "react";
-import { Tabs, Tab } from "fumadocs-ui/components/tabs";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import { lazy, Suspense, use, useMemo } from "react";
 import { readComponentSource } from "@/lib/read-source";
 
 // Lazy load DynamicCodeBlock so syntax highlighter dependencies (shiki / fumadocs) are loaded on-demand
 const DynamicCodeBlock = lazy(() =>
   import("fumadocs-ui/components/dynamic-codeblock").then((mod) => ({
     default: mod.DynamicCodeBlock,
-  }))
+  })),
 );
 
 export interface ComponentPreviewProps {
@@ -30,7 +30,13 @@ function getComponentSourcePromise(path: string): Promise<string> {
   return promise;
 }
 
-function CodeTabContent({ path, lang = "tsx" }: { path: string; lang?: string }) {
+function CodeTabContent({
+  path,
+  lang = "tsx",
+}: {
+  path: string;
+  lang?: string;
+}) {
   const promise = useMemo(() => getComponentSourcePromise(path), [path]);
   const source = use(promise);
 

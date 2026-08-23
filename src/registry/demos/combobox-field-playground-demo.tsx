@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ComboboxField } from "@/components/ui/combobox-field"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { ComboboxField } from "@/components/ui/combobox-field";
+import { cn } from "@/lib/utils";
 
-type Orientation = "vertical" | "horizontal" | "responsive"
+type Orientation = "vertical" | "horizontal" | "responsive";
 
-const orientations: Orientation[] = ["vertical", "horizontal", "responsive"]
+const orientations: Orientation[] = ["vertical", "horizontal", "responsive"];
 
 const frameworks = [
   { label: "Next.js", value: "nextjs" },
@@ -14,16 +14,16 @@ const frameworks = [
   { label: "Astro", value: "astro" },
   { label: "SvelteKit", value: "sveltekit" },
   { label: "Nuxt", value: "nuxt", disabled: true },
-]
+];
 
 function SegmentedControl<T extends string>({
   value,
   onChange,
   options,
 }: {
-  value: T
-  onChange: (value: T) => void
-  options: T[]
+  value: T;
+  onChange: (value: T) => void;
+  options: T[];
 }) {
   return (
     <div className="inline-flex rounded-md bg-fd-muted p-0.5">
@@ -36,14 +36,14 @@ function SegmentedControl<T extends string>({
             "rounded-[5px] px-3 py-1.5 text-sm capitalize transition-colors",
             value === option
               ? "bg-fd-background text-fd-foreground shadow-sm"
-              : "text-fd-muted-foreground hover:text-fd-foreground"
+              : "text-fd-muted-foreground hover:text-fd-foreground",
           )}
         >
           {option}
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 function Toggle({
@@ -51,9 +51,9 @@ function Toggle({
   onChange,
   label,
 }: {
-  checked: boolean
-  onChange: (checked: boolean) => void
-  label: string
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2">
@@ -64,46 +64,54 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={cn(
           "relative h-5 w-9 shrink-0 rounded-full transition-colors",
-          checked ? "bg-blue-500" : "bg-fd-muted"
+          checked ? "bg-blue-500" : "bg-fd-muted",
         )}
       >
         <span
           className={cn(
             "absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
-            checked && "translate-x-4"
+            checked && "translate-x-4",
           )}
         />
       </button>
       <span className="text-sm text-fd-foreground">{label}</span>
     </label>
-  )
+  );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1.5">
       <p className="text-sm font-medium text-fd-foreground">{label}</p>
       {children}
     </div>
-  )
+  );
 }
 
 export function ComboboxFieldPlaygroundDemo() {
-  const [orientation, setOrientation] = React.useState<Orientation>("vertical")
-  const [label, setLabel] = React.useState("Framework")
-  const [description, setDescription] = React.useState("Search or pick from the list.")
-  const [error, setError] = React.useState("")
-  const [placeholder, setPlaceholder] = React.useState("Select a framework")
-  const [emptyText, setEmptyText] = React.useState("No results found.")
-  const [required, setRequired] = React.useState(false)
-  const [disabled, setDisabled] = React.useState(false)
-  const [loading, setLoading] = React.useState(false)
-  const [showClear, setShowClear] = React.useState(true)
-  const [autoHighlight, setAutoHighlight] = React.useState(false)
-  const [value, setValue] = React.useState<string | undefined>("nextjs")
+  const [orientation, setOrientation] = React.useState<Orientation>("vertical");
+  const [label, setLabel] = React.useState("Framework");
+  const [description, setDescription] = React.useState(
+    "Search or pick from the list.",
+  );
+  const [error, setError] = React.useState("");
+  const [placeholder, setPlaceholder] = React.useState("Select a framework");
+  const [emptyText, setEmptyText] = React.useState("No results found.");
+  const [required, setRequired] = React.useState(false);
+  const [disabled, setDisabled] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [showClear, setShowClear] = React.useState(true);
+  const [autoHighlight, setAutoHighlight] = React.useState(false);
+  const [value, setValue] = React.useState<string | undefined>("nextjs");
 
   const inputStyle =
-    "w-full rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-sm text-fd-foreground placeholder:text-fd-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
+    "w-full rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-sm text-fd-foreground placeholder:text-fd-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-500";
 
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-fd-border md:flex-row">
@@ -129,11 +137,19 @@ export function ComboboxFieldPlaygroundDemo() {
 
       <div className="w-full shrink-0 space-y-5 border-t border-fd-border bg-fd-muted/20 p-5 md:w-72 md:border-l md:border-t-0">
         <Field label="Orientation">
-          <SegmentedControl value={orientation} onChange={setOrientation} options={orientations} />
+          <SegmentedControl
+            value={orientation}
+            onChange={setOrientation}
+            options={orientations}
+          />
         </Field>
 
         <Field label="Label">
-          <input className={inputStyle} value={label} onChange={(e) => setLabel(e.target.value)} />
+          <input
+            className={inputStyle}
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+          />
         </Field>
 
         <Field label="Placeholder">
@@ -144,11 +160,23 @@ export function ComboboxFieldPlaygroundDemo() {
           />
         </Field>
 
-        <Toggle checked={required} onChange={setRequired} label="With asterisk" />
+        <Toggle
+          checked={required}
+          onChange={setRequired}
+          label="With asterisk"
+        />
         <Toggle checked={disabled} onChange={setDisabled} label="Disabled" />
         <Toggle checked={loading} onChange={setLoading} label="Loading" />
-        <Toggle checked={showClear} onChange={setShowClear} label="Show clear button" />
-        <Toggle checked={autoHighlight} onChange={setAutoHighlight} label="Auto highlight" />
+        <Toggle
+          checked={showClear}
+          onChange={setShowClear}
+          label="Show clear button"
+        />
+        <Toggle
+          checked={autoHighlight}
+          onChange={setAutoHighlight}
+          label="Auto highlight"
+        />
 
         <Field label="Empty text">
           <input
@@ -177,5 +205,5 @@ export function ComboboxFieldPlaygroundDemo() {
         </Field>
       </div>
     </div>
-  )
+  );
 }

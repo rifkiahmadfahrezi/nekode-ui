@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { TimePickerField } from "@/registry/ui/time-picker-field"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { TimePickerField } from "@/registry/ui/time-picker-field";
 
-type Orientation = "vertical" | "horizontal" | "responsive"
-type TimeFormat = "24h" | "12h"
+type Orientation = "vertical" | "horizontal" | "responsive";
+type TimeFormat = "24h" | "12h";
 
-const orientations: Orientation[] = ["vertical", "horizontal", "responsive"]
-const formats: TimeFormat[] = ["24h", "12h"]
+const orientations: Orientation[] = ["vertical", "horizontal", "responsive"];
+const formats: TimeFormat[] = ["24h", "12h"];
 
 function SegmentedControl<T extends string>({
   value,
   onChange,
   options,
 }: {
-  value: T
-  onChange: (value: T) => void
-  options: T[]
+  value: T;
+  onChange: (value: T) => void;
+  options: T[];
 }) {
   return (
     <div className="inline-flex rounded-md bg-fd-muted p-0.5">
@@ -30,14 +30,14 @@ function SegmentedControl<T extends string>({
             "rounded-[5px] px-3 py-1.5 text-sm capitalize transition-colors",
             value === option
               ? "bg-fd-background text-fd-foreground shadow-sm"
-              : "text-fd-muted-foreground hover:text-fd-foreground"
+              : "text-fd-muted-foreground hover:text-fd-foreground",
           )}
         >
           {option}
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 function Toggle({
@@ -45,9 +45,9 @@ function Toggle({
   onChange,
   label,
 }: {
-  checked: boolean
-  onChange: (checked: boolean) => void
-  label: string
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2">
@@ -58,49 +58,49 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={cn(
           "relative h-5 w-9 shrink-0 rounded-full transition-colors",
-          checked ? "bg-blue-500" : "bg-fd-muted"
+          checked ? "bg-blue-500" : "bg-fd-muted",
         )}
       >
         <span
           className={cn(
             "absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
-            checked && "translate-x-4"
+            checked && "translate-x-4",
           )}
         />
       </button>
       <span className="text-sm text-fd-foreground">{label}</span>
     </label>
-  )
+  );
 }
 
 function ControlField({
   label,
   children,
 }: {
-  label: string
-  children: React.ReactNode
+  label: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
       <p className="text-sm font-medium text-fd-foreground">{label}</p>
       {children}
     </div>
-  )
+  );
 }
 
 export function TimePickerFieldPlaygroundDemo() {
-  const [orientation, setOrientation] = React.useState<Orientation>("vertical")
-  const [timeFormat, setTimeFormat] = React.useState<TimeFormat>("24h")
-  const [label, setLabel] = React.useState("Meeting time")
+  const [orientation, setOrientation] = React.useState<Orientation>("vertical");
+  const [timeFormat, setTimeFormat] = React.useState<TimeFormat>("24h");
+  const [label, setLabel] = React.useState("Meeting time");
   const [description, setDescription] = React.useState(
-    "Select a time for the meeting."
-  )
-  const [error, setError] = React.useState("")
-  const [required, setRequired] = React.useState(false)
-  const [disabled, setDisabled] = React.useState(false)
+    "Select a time for the meeting.",
+  );
+  const [error, setError] = React.useState("");
+  const [required, setRequired] = React.useState(false);
+  const [disabled, setDisabled] = React.useState(false);
 
   const inputStyle =
-    "w-full rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-sm text-fd-foreground placeholder:text-fd-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
+    "w-full rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-sm text-fd-foreground placeholder:text-fd-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-500";
 
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-fd-border md:flex-row">
@@ -142,7 +142,11 @@ export function TimePickerFieldPlaygroundDemo() {
           />
         </ControlField>
 
-        <Toggle checked={required} onChange={setRequired} label="With asterisk" />
+        <Toggle
+          checked={required}
+          onChange={setRequired}
+          label="With asterisk"
+        />
         <Toggle checked={disabled} onChange={setDisabled} label="Disabled" />
 
         <ControlField label="Description">
@@ -164,5 +168,5 @@ export function TimePickerFieldPlaygroundDemo() {
         </ControlField>
       </div>
     </div>
-  )
+  );
 }

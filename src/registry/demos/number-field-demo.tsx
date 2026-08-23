@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { NumberField } from "@/components/ui/number-field"
+import { NumberField } from "@/components/ui/number-field";
 
 export function NumberFieldDemo() {
   return (
@@ -13,5 +13,5 @@ export function NumberFieldDemo() {
       defaultValue={0}
       fieldClassName="max-w-[400px]"
     />
-  )
+  );
 }

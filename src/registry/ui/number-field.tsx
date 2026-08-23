@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Input } from "@/components/ui/input"
+import * as React from "react";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
-} from "@/components/ui/field"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 /** Used to format on blur (e.g. "0.00") when `decimal` is true but `decimalPlaces` wasn't set. */
-const DEFAULT_DECIMAL_PLACES = 2
+const DEFAULT_DECIMAL_PLACES = 2;
 
 export interface NumberFieldProps
   extends Omit<
     React.InputHTMLAttributes<HTMLInputElement>,
     "type" | "onChange" | "value" | "defaultValue"
   > {
-  label?: string
-  description?: string
-  error?: string
-  leftSection?: React.ReactNode
-  rightSection?: React.ReactNode
+  label?: string;
+  description?: string;
+  error?: string;
+  leftSection?: React.ReactNode;
+  rightSection?: React.ReactNode;
   /** Passed to the underlying `Field` wrapper (e.g. orientation, data-invalid overrides). */
-  fieldClassName?: string
-  labelClassName?: string
-  inputClassName?: string
-  orientation?: "vertical" | "horizontal" | "responsive"
-  value?: number | string
-  defaultValue?: number | string
-  min?: number
-  max?: number
-  step?: number
+  fieldClassName?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  orientation?: "vertical" | "horizontal" | "responsive";
+  value?: number | string;
+  defaultValue?: number | string;
+  min?: number;
+  max?: number;
+  step?: number;
   /**
    * Allow decimal (float) input at all. Defaults to `true`.
    * Set to `false` to restrict the field to integers only.
    */
-  decimal?: boolean
+  decimal?: boolean;
   /**
    * Max digits allowed after the decimal point, e.g. `2` for `12.34`.
    * Only applies when `decimal` is `true`. Extra digits are truncated
@@ -45,64 +45,64 @@ export interface NumberFieldProps
    * clobbered mid-typing. Also used to format the value on blur
    * (defaults to 2, e.g. `0.00`) when `decimal` is `true`.
    */
-  decimalPlaces?: number
+  decimalPlaces?: number;
   /** Allow a leading `-`. Defaults to `true` unless `min` is `>= 0`. */
-  allowNegative?: boolean
+  allowNegative?: boolean;
   /**
    * On blur: snap an out-of-range value to the nearest bound (`min`/`max`),
    * and fall back an empty/incomplete value to `0` (formatted as `0.00`
    * when `decimal` is true). Defaults to `true`.
    */
-  clampOnBlur?: boolean
+  clampOnBlur?: boolean;
   /** Called with a parsed number (or `undefined` when the field is cleared / not a valid number). */
-  onValueChange?: (value: number | undefined) => void
-  onChange?: React.ChangeEventHandler<HTMLInputElement>
+  onValueChange?: (value: number | undefined) => void;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 /** Strips/limits characters so the raw string always matches the field's numeric shape. */
 function sanitizeNumberString(
   raw: string,
-  opts: { decimal: boolean; decimalPlaces?: number; allowNegative: boolean }
+  opts: { decimal: boolean; decimalPlaces?: number; allowNegative: boolean },
 ) {
-  const { decimal, decimalPlaces, allowNegative } = opts
-  let value = raw
+  const { decimal, decimalPlaces, allowNegative } = opts;
+  let value = raw;
 
   // Only digits, one leading "-", and (if decimal) one "."
-  value = value.replace(decimal ? /[^\d.-]/g : /[^\d-]/g, "")
+  value = value.replace(decimal ? /[^\d.-]/g : /[^\d-]/g, "");
 
   // Collapse to a single leading "-"
-  const negative = allowNegative && value.startsWith("-")
-  value = value.replace(/-/g, "")
-  if (negative) value = `-${value}`
+  const negative = allowNegative && value.startsWith("-");
+  value = value.replace(/-/g, "");
+  if (negative) value = `-${value}`;
 
   if (decimal) {
-    const firstDot = value.indexOf(".")
+    const firstDot = value.indexOf(".");
     if (firstDot !== -1) {
       // Drop any additional "."
       value =
         value.slice(0, firstDot + 1) +
-        value.slice(firstDot + 1).replace(/\./g, "")
+        value.slice(firstDot + 1).replace(/\./g, "");
 
       if (typeof decimalPlaces === "number") {
-        const [intPart, decPart = ""] = value.split(".")
+        const [intPart, decPart = ""] = value.split(".");
         value =
           decimalPlaces <= 0
             ? intPart
-            : `${intPart}.${decPart.slice(0, decimalPlaces)}`
+            : `${intPart}.${decPart.slice(0, decimalPlaces)}`;
       }
     }
   }
 
-  return value
+  return value;
 }
 
 function toDisplayString(value: number | string | undefined) {
-  if (value === undefined || value === null) return ""
-  return String(value)
+  if (value === undefined || value === null) return "";
+  return String(value);
 }
 
 function formatNumber(n: number, decimal: boolean, places: number) {
-  return decimal ? n.toFixed(places) : String(Math.round(n))
+  return decimal ? n.toFixed(places) : String(Math.round(n));
 }
 
 export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
@@ -135,17 +135,18 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
       onFocus,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const generatedId = React.useId()
-    const inputId = id ?? generatedId
-    const descriptionId = description ? `${inputId}-description` : undefined
-    const errorId = error ? `${inputId}-error` : undefined
-    const describedBy = description ? descriptionId : undefined
+    const generatedId = React.useId();
+    const inputId = id ?? generatedId;
+    const descriptionId = description ? `${inputId}-description` : undefined;
+    const errorId = error ? `${inputId}-error` : undefined;
+    const describedBy = description ? descriptionId : undefined;
 
-    const isControlled = value !== undefined
-    const resolvedAllowNegative = allowNegative ?? !(typeof min === "number" && min >= 0)
-    const resolvedPlaces = decimalPlaces ?? DEFAULT_DECIMAL_PLACES
+    const isControlled = value !== undefined;
+    const resolvedAllowNegative =
+      allowNegative ?? !(typeof min === "number" && min >= 0);
+    const resolvedPlaces = decimalPlaces ?? DEFAULT_DECIMAL_PLACES;
 
     // The input's displayed text always lives in local state, even when
     // `value` is controlled. This is what lets the user type an
@@ -154,87 +155,91 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
     // echoes back (e.g. `onValueChange={(v) => setValue(v ?? 0)}` turning
     // a mid-typing `undefined` into `0`).
     const [internalValue, setInternalValue] = React.useState(() =>
-      toDisplayString(value ?? defaultValue)
-    )
-    const [isFocused, setIsFocused] = React.useState(false)
+      toDisplayString(value ?? defaultValue),
+    );
+    const [isFocused, setIsFocused] = React.useState(false);
 
     // Re-sync from the external `value` prop — but only while the field
     // isn't focused. While the user is actively typing we trust the local
     // buffer; syncing mid-keystroke is what causes the reset-to-0 bug.
     React.useEffect(() => {
-      if (!isControlled || isFocused) return
-      setInternalValue(toDisplayString(value))
-    }, [isControlled, isFocused, value])
+      if (!isControlled || isFocused) return;
+      setInternalValue(toDisplayString(value));
+    }, [isControlled, isFocused, value]);
 
-    const displayValue = internalValue
+    const displayValue = internalValue;
 
     const commit = (next: string, parsed: number | undefined) => {
-      setInternalValue(next)
-      onValueChange?.(parsed)
-    }
+      setInternalValue(next);
+      onValueChange?.(parsed);
+    };
 
-    const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const handleChange: React.ChangeEventHandler<HTMLInputElement> = (
+      event,
+    ) => {
       const sanitized = sanitizeNumberString(event.target.value, {
         decimal,
         decimalPlaces,
         allowNegative: resolvedAllowNegative,
-      })
+      });
       // Reflect the sanitized value back onto the event so consumers using
       // plain `onChange` (instead of `onValueChange`) see the clamped text.
-      event.target.value = sanitized
-      onChange?.(event)
+      event.target.value = sanitized;
+      onChange?.(event);
 
       const isIncomplete =
-        sanitized === "" || sanitized === "-" || sanitized.endsWith(".")
-      commit(sanitized, isIncomplete ? undefined : Number(sanitized))
-    }
+        sanitized === "" || sanitized === "-" || sanitized.endsWith(".");
+      commit(sanitized, isIncomplete ? undefined : Number(sanitized));
+    };
 
     const handleFocus: React.FocusEventHandler<HTMLInputElement> = (event) => {
-      setIsFocused(true)
-      onFocus?.(event)
-    }
+      setIsFocused(true);
+      onFocus?.(event);
+    };
 
     const handleBlur: React.FocusEventHandler<HTMLInputElement> = (event) => {
-      setIsFocused(false)
-      onBlur?.(event)
-      if (!clampOnBlur) return
+      setIsFocused(false);
+      onBlur?.(event);
+      if (!clampOnBlur) return;
 
       const isIncomplete =
-        displayValue === "" || displayValue === "-" || displayValue.endsWith(".")
+        displayValue === "" ||
+        displayValue === "-" ||
+        displayValue.endsWith(".");
 
-      let next: number
+      let next: number;
       if (isIncomplete) {
         // Nothing usable was typed — fall back to 0, still respecting bounds.
-        next = 0
-        if (typeof min === "number" && min > next) next = min
-        if (typeof max === "number" && max < next) next = max
+        next = 0;
+        if (typeof min === "number" && min > next) next = min;
+        if (typeof max === "number" && max < next) next = max;
       } else {
-        next = Number(displayValue)
-        if (typeof min === "number" && next < min) next = min
-        if (typeof max === "number" && next > max) next = max
+        next = Number(displayValue);
+        if (typeof min === "number" && next < min) next = min;
+        if (typeof max === "number" && next > max) next = max;
       }
 
-      const formatted = formatNumber(next, decimal, resolvedPlaces)
+      const formatted = formatNumber(next, decimal, resolvedPlaces);
       // Only touch the field if something actually needed correcting/formatting.
-      if (formatted !== displayValue) commit(formatted, Number(formatted))
-    }
+      if (formatted !== displayValue) commit(formatted, Number(formatted));
+    };
 
     const clamp = (n: number) => {
-      let next = n
-      if (typeof min === "number") next = Math.max(min, next)
-      if (typeof max === "number") next = Math.min(max, next)
-      if (decimal) next = Number(next.toFixed(resolvedPlaces))
-      return next
-    }
+      let next = n;
+      if (typeof min === "number") next = Math.max(min, next);
+      if (typeof max === "number") next = Math.min(max, next);
+      if (decimal) next = Number(next.toFixed(resolvedPlaces));
+      return next;
+    };
 
     const step_ = (direction: 1 | -1) => {
-      if (disabled) return
-      const current = Number(displayValue) || 0
-      const next = clamp(current + direction * step)
-      commit(formatNumber(next, decimal, resolvedPlaces), next)
-    }
+      if (disabled) return;
+      const current = Number(displayValue) || 0;
+      const next = clamp(current + direction * step);
+      commit(formatNumber(next, decimal, resolvedPlaces), next);
+    };
 
-    const numericValue = Number(displayValue)
+    const numericValue = Number(displayValue);
 
     return (
       <Field
@@ -248,7 +253,7 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
             className={cn(
               error && "text-destructive",
               disabled && "opacity-70 cursor-not-allowed",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -293,16 +298,14 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
             role="spinbutton"
             aria-valuemin={min}
             aria-valuemax={max}
-            aria-valuenow={Number.isNaN(numericValue) ? undefined : numericValue}
+            aria-valuenow={
+              Number.isNaN(numericValue) ? undefined : numericValue
+            }
             value={displayValue}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className={cn(
-              leftSection && "pl-9",
-              "pr-9",
-              inputClassName,
-            )}
+            className={cn(leftSection && "pl-9", "pr-9", inputClassName)}
             {...props}
           />
 
@@ -319,24 +322,40 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
                 type="button"
                 tabIndex={-1}
                 aria-hidden="true"
-                disabled={disabled || (typeof max === "number" && numericValue >= max)}
+                disabled={
+                  disabled || (typeof max === "number" && numericValue >= max)
+                }
                 onClick={() => step_(1)}
                 className="px-1.5 text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
               >
                 <svg viewBox="0 0 12 12" className="size-3" fill="none">
-                  <path d="M2.5 7L6 3.5L9.5 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M2.5 7L6 3.5L9.5 7"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
               <button
                 type="button"
                 tabIndex={-1}
                 aria-hidden="true"
-                disabled={disabled || (typeof min === "number" && numericValue <= min)}
+                disabled={
+                  disabled || (typeof min === "number" && numericValue <= min)
+                }
                 onClick={() => step_(-1)}
                 className="px-1.5 text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
               >
                 <svg viewBox="0 0 12 12" className="size-3" fill="none">
-                  <path d="M2.5 5L6 8.5L9.5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M2.5 5L6 8.5L9.5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -349,8 +368,8 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
 
         {error && <FieldError id={errorId}>{error}</FieldError>}
       </Field>
-    )
-  }
-)
+    );
+  },
+);
 
-NumberField.displayName = "NumberField"
+NumberField.displayName = "NumberField";

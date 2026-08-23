@@ -1,5 +1,6 @@
-'use client';
+"use client";
 
+import { Tabs as Primitive } from "@base-ui/react/tabs";
 import {
   type ComponentProps,
   createContext,
@@ -9,9 +10,8 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import { Tabs as Primitive } from '@base-ui/react/tabs';
-import { mergeRefs } from '../../lib/merge-refs';
+} from "react";
+import { mergeRefs } from "../../lib/merge-refs";
 
 type ChangeListener = (v: string) => void;
 const listeners = new Map<string, Set<ChangeListener>>();
@@ -48,7 +48,7 @@ const TabsContext = createContext<{
 
 function useTabContext() {
   const ctx = use(TabsContext);
-  if (!ctx) throw new Error('You must wrap your component in <Tabs>');
+  if (!ctx) throw new Error("You must wrap your component in <Tabs>");
   return ctx;
 }
 
@@ -72,8 +72,10 @@ export function Tabs({
   const [value, setValue] =
     _value === undefined
       ? // eslint-disable-next-line react-hooks/rules-of-hooks -- not supposed to change controlled/uncontrolled
+        // biome-ignore lint/correctness/useHookAtTopLevel: conditional hook for controlled/uncontrolled state
         useState(defaultValue)
       : // eslint-disable-next-line react-hooks/rules-of-hooks -- not supposed to change controlled/uncontrolled
+        // biome-ignore lint/correctness/useHookAtTopLevel: conditional hook for controlled/uncontrolled state
         [_value, useEffectEvent((v: string) => _onValueChange?.(v))];
 
   useLayoutEffect(() => {
@@ -119,8 +121,8 @@ export function Tabs({
     };
 
     openFromHash();
-    window.addEventListener('hashchange', openFromHash);
-    return () => window.removeEventListener('hashchange', openFromHash);
+    window.addEventListener("hashchange", openFromHash);
+    return () => window.removeEventListener("hashchange", openFromHash);
   }, [setValue, valueToIdMap, panels]);
 
   return (
@@ -132,7 +134,7 @@ export function Tabs({
           const id = valueToIdMap.get(v);
 
           if (id) {
-            window.history.replaceState(null, '', `#${id}`);
+            window.history.replaceState(null, "", `#${id}`);
           }
         }
 
@@ -150,14 +152,23 @@ export function Tabs({
       }}
       {...props}
     >
-      <TabsContext value={useMemo(() => ({ valueToIdMap, panels }), [valueToIdMap, panels])}>
+      <TabsContext
+        value={useMemo(
+          () => ({ valueToIdMap, panels }),
+          [valueToIdMap, panels],
+        )}
+      >
         {props.children}
       </TabsContext>
     </Primitive.Root>
   );
 }
 
-export function TabsContent({ value, ref, ...props }: ComponentProps<typeof Primitive.Panel>) {
+export function TabsContent({
+  value,
+  ref,
+  ...props
+}: ComponentProps<typeof Primitive.Panel>) {
   const { valueToIdMap, panels } = useTabContext();
 
   if (props.id) {

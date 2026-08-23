@@ -1,1 +1,1 @@
-export * from "@/registry/ui/time-picker-field"
+export * from "@/registry/ui/time-picker-field";

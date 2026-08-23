@@ -1,1 +1,1 @@
-export * from "@/registry/ui/combobox-field"
+export * from "@/registry/ui/combobox-field";

@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { toast } from "sonner"
-import { TimePickerField } from "@/registry/ui/time-picker-field"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { TimePickerField } from "@/registry/ui/time-picker-field";
 
 /** Validate "HH:mm" strings with an optional min/max range. */
 const timeString = z
   .string()
-  .regex(/^\d{2}:\d{2}$/, "Please enter a valid time")
+  .regex(/^\d{2}:\d{2}$/, "Please enter a valid time");
 
 const formSchema = z.object({
   startTime: timeString,
   endTime: timeString,
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 export function TimePickerFieldFormDemo() {
   const form = useForm({
@@ -34,16 +34,16 @@ export function TimePickerFieldFormDemo() {
           </pre>
         ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="flex w-72 flex-col gap-4"
     >
@@ -87,5 +87,5 @@ export function TimePickerFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }

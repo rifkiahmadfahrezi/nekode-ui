@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { PasswordField } from "@/components/ui/password-field"
+import { PasswordField } from "@/components/ui/password-field";
 
 export function PasswordFieldDemo() {
   return (
@@ -10,5 +10,5 @@ export function PasswordFieldDemo() {
       placeholder="Enter your password"
       fieldClassName="w-72"
     />
-  )
+  );
 }

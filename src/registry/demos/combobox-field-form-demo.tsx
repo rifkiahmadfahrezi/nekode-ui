@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { toast } from "sonner"
-import { ComboboxField } from "@/components/ui/combobox-field"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { ComboboxField } from "@/components/ui/combobox-field";
 
 const assignees = [
   { label: "Alex Chen", value: "alex" },
   { label: "Priya Patel", value: "priya" },
   { label: "Jordan Reyes", value: "jordan" },
-]
+];
 
 const labels = [
   { label: "Bug", value: "bug" },
   { label: "Feature", value: "feature" },
   { label: "Chore", value: "chore" },
-]
+];
 
 const issueSchema = z.object({
   assignee: z.string().min(1, "Pick an assignee"),
   // `ComboboxField` reports `undefined` once cleared, so this stays
   // optional rather than requiring a value up front.
   label: z.string().optional(),
-})
+});
 
-type IssueFormValues = z.infer<typeof issueSchema>
+type IssueFormValues = z.infer<typeof issueSchema>;
 
 export function ComboboxFieldFormDemo() {
   const form = useForm({
@@ -43,16 +43,16 @@ export function ComboboxFieldFormDemo() {
           </pre>
         ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="flex w-72 flex-col gap-4"
     >
@@ -84,7 +84,9 @@ export function ComboboxFieldFormDemo() {
         )}
       </form.Field>
 
-      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting] as const}
+      >
         {([canSubmit, isSubmitting]) => (
           <button
             type="submit"
@@ -96,5 +98,5 @@ export function ComboboxFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }

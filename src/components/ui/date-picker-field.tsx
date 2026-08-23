@@ -1,1 +1,1 @@
-export * from "@/registry/ui/date-picker-field"
+export * from "@/registry/ui/date-picker-field";

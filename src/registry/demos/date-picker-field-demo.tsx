@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { DatePickerField } from "@/registry/ui/date-picker-field"
+import { DatePickerField } from "@/registry/ui/date-picker-field";
 
 export function DatePickerFieldDemo() {
   return (
@@ -9,5 +9,5 @@ export function DatePickerFieldDemo() {
       description="Select your date of birth."
       triggerClassName="w-72"
     />
-  )
+  );
 }

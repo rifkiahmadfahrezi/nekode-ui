@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
+import { Loader2Icon } from "lucide-react";
+import * as React from "react";
 import {
   Combobox,
   ComboboxContent,
@@ -9,51 +9,54 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@/components/ui/combobox"
+} from "@/components/ui/combobox";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
-} from "@/components/ui/field"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 
 export interface ComboboxFieldOption {
-  label: string
-  value: string
-  disabled?: boolean
+  label: string;
+  value: string;
+  disabled?: boolean;
 }
 
 export interface ComboboxFieldProps {
-  label?: string
-  description?: string
-  error?: string
-  placeholder?: string
-  emptyText?: string
-  items: ComboboxFieldOption[]
-  name?: string
-  id?: string
-  value: string
-  onValueChange: (value: string | undefined) => void
-  disabled?: boolean
-  required?: boolean
+  label?: string;
+  description?: string;
+  error?: string;
+  placeholder?: string;
+  emptyText?: string;
+  items: ComboboxFieldOption[];
+  name?: string;
+  id?: string;
+  value: string;
+  onValueChange: (value: string | undefined) => void;
+  disabled?: boolean;
+  required?: boolean;
   /**
    * Show a spinner in place of the clear button and disable the field.
    * Use this while options are being fetched asynchronously.
    */
-  loading?: boolean
+  loading?: boolean;
   /** Show a clear ("x") button once a value is selected. Defaults to `true`. */
-  showClear?: boolean
+  showClear?: boolean;
   /** Auto-highlight the first matching item while filtering. */
-  autoHighlight?: boolean
+  autoHighlight?: boolean;
   /** Passed to the underlying `Field` wrapper (e.g. orientation, data-invalid overrides). */
-  fieldClassName?: string
-  labelClassName?: string
-  inputClassName?: string
-  orientation?: "vertical" | "horizontal" | "responsive"
+  fieldClassName?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  orientation?: "vertical" | "horizontal" | "responsive";
 }
 
-export const ComboboxField = React.forwardRef<HTMLInputElement, ComboboxFieldProps>(
+export const ComboboxField = React.forwardRef<
+  HTMLInputElement,
+  ComboboxFieldProps
+>(
   (
     {
       label,
@@ -76,19 +79,19 @@ export const ComboboxField = React.forwardRef<HTMLInputElement, ComboboxFieldPro
       inputClassName,
       orientation = "vertical",
     },
-    ref
+    ref,
   ) => {
-    const generatedId = React.useId()
-    const inputId = id ?? generatedId
-    const descriptionId = description ? `${inputId}-description` : undefined
-    const errorId = error ? `${inputId}-error` : undefined
-    const describedBy = description ? descriptionId : undefined
+    const generatedId = React.useId();
+    const inputId = id ?? generatedId;
+    const descriptionId = description ? `${inputId}-description` : undefined;
+    const errorId = error ? `${inputId}-error` : undefined;
+    const describedBy = description ? descriptionId : undefined;
 
-    const isDisabled = disabled || loading
+    const isDisabled = disabled || loading;
     const selectedItem = React.useMemo(
       () => items.find((item) => item.value === value) ?? null,
-      [items, value]
-    )
+      [items, value],
+    );
 
     return (
       <Field
@@ -102,7 +105,7 @@ export const ComboboxField = React.forwardRef<HTMLInputElement, ComboboxFieldPro
             className={cn(
               error && "text-destructive",
               isDisabled && "opacity-70 cursor-not-allowed",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -119,32 +122,36 @@ export const ComboboxField = React.forwardRef<HTMLInputElement, ComboboxFieldPro
 
         <div className="relative flex items-center">
           <Combobox
-              items={items}
-              itemToStringValue={(item) => item.label}
-              value={selectedItem}
-              onValueChange={(item) =>
-                onValueChange?.(item ? item.value : undefined)
-              }
-              disabled={isDisabled}
-              autoHighlight={autoHighlight}
-            >
-              <ComboboxInput
-                id={inputId}
-                ref={ref}
-                name={name}
-                placeholder={placeholder}
-                aria-required={required || undefined}
-                aria-invalid={!!error}
-                aria-describedby={describedBy}
-                aria-errormessage={errorId}
-                showClear={loading ? false : showClear}
-                className={cn("w-full", loading && "pr-9", inputClassName)}
-              />
+            items={items}
+            itemToStringValue={(item) => item.label}
+            value={selectedItem}
+            onValueChange={(item) =>
+              onValueChange?.(item ? item.value : undefined)
+            }
+            disabled={isDisabled}
+            autoHighlight={autoHighlight}
+          >
+            <ComboboxInput
+              id={inputId}
+              ref={ref}
+              name={name}
+              placeholder={placeholder}
+              aria-required={required || undefined}
+              aria-invalid={!!error}
+              aria-describedby={describedBy}
+              aria-errormessage={errorId}
+              showClear={loading ? false : showClear}
+              className={cn("w-full", loading && "pr-9", inputClassName)}
+            />
             <ComboboxContent>
               <ComboboxEmpty>{emptyText}</ComboboxEmpty>
               <ComboboxList>
                 {(item: ComboboxFieldOption) => (
-                  <ComboboxItem key={item.value} value={item} disabled={item.disabled}>
+                  <ComboboxItem
+                    key={item.value}
+                    value={item}
+                    disabled={item.disabled}
+                  >
                     {item.label}
                   </ComboboxItem>
                 )}
@@ -168,8 +175,8 @@ export const ComboboxField = React.forwardRef<HTMLInputElement, ComboboxFieldPro
 
         {error && <FieldError id={errorId}>{error}</FieldError>}
       </Field>
-    )
-  }
-)
+    );
+  },
+);
 
-ComboboxField.displayName = "ComboboxField"
+ComboboxField.displayName = "ComboboxField";

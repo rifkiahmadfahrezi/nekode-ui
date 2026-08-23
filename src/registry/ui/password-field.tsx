@@ -1,35 +1,38 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Eye, EyeOff } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Eye, EyeOff } from "lucide-react";
+import * as React from "react";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
-} from "@/components/ui/field"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export interface PasswordFieldProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
-  label?: string
-  description?: string
-  error?: string
-  leftSection?: React.ReactNode
+  label?: string;
+  description?: string;
+  error?: string;
+  leftSection?: React.ReactNode;
   /** Passed to the underlying `Field` wrapper (e.g. orientation, data-invalid overrides). */
-  fieldClassName?: string
-  labelClassName?: string
-  inputClassName?: string
-  orientation?: "vertical" | "horizontal" | "responsive"
+  fieldClassName?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  orientation?: "vertical" | "horizontal" | "responsive";
   /** Hide the built-in show/hide toggle button. */
-  hideToggle?: boolean
+  hideToggle?: boolean;
   /** Controlled visibility state. Omit to let the component manage it internally. */
-  visible?: boolean
-  onVisibleChange?: (visible: boolean) => void
+  visible?: boolean;
+  onVisibleChange?: (visible: boolean) => void;
 }
 
-export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldProps>(
+export const PasswordField = React.forwardRef<
+  HTMLInputElement,
+  PasswordFieldProps
+>(
   (
     {
       label,
@@ -49,22 +52,22 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
       autoComplete = "current-password",
       ...props
     },
-    ref
+    ref,
   ) => {
-    const generatedId = React.useId()
-    const inputId = id ?? generatedId
-    const descriptionId = description ? `${inputId}-description` : undefined
-    const errorId = error ? `${inputId}-error` : undefined
+    const generatedId = React.useId();
+    const inputId = id ?? generatedId;
+    const descriptionId = description ? `${inputId}-description` : undefined;
+    const errorId = error ? `${inputId}-error` : undefined;
 
-    const describedBy = description ? descriptionId : undefined
+    const describedBy = description ? descriptionId : undefined;
 
-    const [internalVisible, setInternalVisible] = React.useState(false)
-    const isVisible = visible ?? internalVisible
+    const [internalVisible, setInternalVisible] = React.useState(false);
+    const isVisible = visible ?? internalVisible;
     const toggleVisible = () => {
-      const next = !isVisible
-      onVisibleChange?.(next)
-      if (visible === undefined) setInternalVisible(next)
-    }
+      const next = !isVisible;
+      onVisibleChange?.(next);
+      if (visible === undefined) setInternalVisible(next);
+    };
 
     return (
       <Field
@@ -78,7 +81,7 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
             className={cn(
               error && "text-destructive",
               disabled && "opacity-70 cursor-not-allowed",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -117,7 +120,7 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
             className={cn(
               leftSection && "pl-9",
               !hideToggle && "pr-9",
-              inputClassName
+              inputClassName,
             )}
             {...props}
           />
@@ -147,8 +150,8 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
 
         {error && <FieldError id={errorId}>{error}</FieldError>}
       </Field>
-    )
-  }
-)
+    );
+  },
+);
 
-PasswordField.displayName = "PasswordField"
+PasswordField.displayName = "PasswordField";

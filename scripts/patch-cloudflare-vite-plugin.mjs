@@ -1,11 +1,11 @@
-import { readFileSync, writeFileSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const filePath = resolve(
   __dirname,
-  "../node_modules/@cloudflare/vite-plugin/dist/index.mjs"
+  "../node_modules/@cloudflare/vite-plugin/dist/index.mjs",
 );
 
 const original = "...deployConfig.auxiliaryWorkers]";
@@ -20,7 +20,7 @@ if (content.includes(patched)) {
 
 if (!content.includes(original)) {
   console.warn(
-    "[patch] @cloudflare/vite-plugin: target string not found, patch may not be needed or package changed."
+    "[patch] @cloudflare/vite-plugin: target string not found, patch may not be needed or package changed.",
   );
   process.exit(0);
 }

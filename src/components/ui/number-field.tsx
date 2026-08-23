@@ -1,1 +1,1 @@
-export * from "@/registry/ui/number-field"
+export * from "@/registry/ui/number-field";

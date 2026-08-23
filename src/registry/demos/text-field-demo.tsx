@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { TextField } from "@/registry/ui/text-field"
+import { TextField } from "@/registry/ui/text-field";
 
 export function TextFieldDemo() {
   return (
@@ -10,5 +10,5 @@ export function TextFieldDemo() {
       type="email"
       className="w-72"
     />
-  )
+  );
 }

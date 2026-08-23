@@ -1,1 +1,1 @@
-export * from "@/registry/ui/select-field"
+export * from "@/registry/ui/select-field";

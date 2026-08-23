@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { NumberField } from "@/components/ui/number-field"
-import { toast } from "sonner"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { NumberField } from "@/components/ui/number-field";
 
 const productSchema = z.object({
   price: z
@@ -14,9 +14,9 @@ const productSchema = z.object({
     .number({ error: "Enter a quantity" })
     .int("Quantity must be a whole number")
     .min(1, "At least 1 unit is required"),
-})
+});
 
-type ProductFormValues = z.infer<typeof productSchema>
+type ProductFormValues = z.infer<typeof productSchema>;
 
 export function NumberFieldFormDemo() {
   const form = useForm({
@@ -29,18 +29,22 @@ export function NumberFieldFormDemo() {
     },
     onSubmit: async ({ value }) => {
       toast("Form submitted!`", {
-        description: <pre className="font-mono p-1 border m-2">{JSON.stringify(value, null, 2)}</pre>,
+        description: (
+          <pre className="font-mono p-1 border m-2">
+            {JSON.stringify(value, null, 2)}
+          </pre>
+        ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="grid gap-4"
     >
@@ -75,7 +79,9 @@ export function NumberFieldFormDemo() {
         )}
       </form.Field>
 
-      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting] as const}
+      >
         {([canSubmit, isSubmitting]) => (
           <button
             type="submit"
@@ -87,5 +93,5 @@ export function NumberFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }

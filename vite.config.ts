@@ -1,10 +1,10 @@
-import react from '@vitejs/plugin-react';
-import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import { defineConfig } from 'vite';
-import tailwindcss from '@tailwindcss/vite';
-import { fumadocsMdx } from 'fumadocs-mdx/vite';
 // import { nitro } from 'nitro/vite';
 import { cloudflare } from "@cloudflare/vite-plugin";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import react from "@vitejs/plugin-react";
+import { fumadocsMdx } from "fumadocs-mdx/vite";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
@@ -28,12 +28,12 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
     alias: {
-      tslib: 'tslib/tslib.es6.js',
+      tslib: "tslib/tslib.es6.js",
     },
   },
   build: {
     rolldownOptions: {
-      external: ['env', 'wasi_snapshot_preview1'],
+      external: ["env", "wasi_snapshot_preview1"],
     },
   },
 });

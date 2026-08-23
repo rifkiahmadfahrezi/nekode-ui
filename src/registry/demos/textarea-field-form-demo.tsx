@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { TextareaField } from "@/components/ui/textarea-field"
-import { toast } from "sonner"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { TextareaField } from "@/components/ui/textarea-field";
 
 const feedbackSchema = z.object({
   feedback: z
     .string()
     .min(10, "Give us at least 10 characters")
     .max(280, "Keep it under 280 characters"),
-})
+});
 
-type FeedbackFormValues = z.infer<typeof feedbackSchema>
+type FeedbackFormValues = z.infer<typeof feedbackSchema>;
 
 export function TextareaFieldFormDemo() {
   const form = useForm({
@@ -23,19 +23,23 @@ export function TextareaFieldFormDemo() {
       onChange: feedbackSchema,
     },
     onSubmit: async ({ value }) => {
-     toast("Form submitted!`", {
-        description: <pre className="font-mono p-1 border m-2">{JSON.stringify(value, null, 2)}</pre>,
+      toast("Form submitted!`", {
+        description: (
+          <pre className="font-mono p-1 border m-2">
+            {JSON.stringify(value, null, 2)}
+          </pre>
+        ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="flex w-80 flex-col gap-4"
     >
@@ -54,7 +58,9 @@ export function TextareaFieldFormDemo() {
         )}
       </form.Field>
 
-      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting] as const}
+      >
         {([canSubmit, isSubmitting]) => (
           <button
             type="submit"
@@ -66,5 +72,5 @@ export function TextareaFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }

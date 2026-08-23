@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { TextareaField } from "@/components/ui/textarea-field"
+import { TextareaField } from "@/components/ui/textarea-field";
 
 export function TextareaFieldDemo() {
   return (
@@ -12,5 +12,5 @@ export function TextareaFieldDemo() {
       maxLength={200}
       className="w-80"
     />
-  )
+  );
 }

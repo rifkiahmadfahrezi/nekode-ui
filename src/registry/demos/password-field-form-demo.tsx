@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { toast } from "sonner"
-import { PasswordField } from "@/components/ui/password-field"
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { PasswordField } from "@/components/ui/password-field";
 
 const signUpSchema = z
   .object({
@@ -16,9 +16,9 @@ const signUpSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  })
+  });
 
-type SignUpFormValues = z.infer<typeof signUpSchema>
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export function PasswordFieldFormDemo() {
   const form = useForm({
@@ -37,16 +37,16 @@ export function PasswordFieldFormDemo() {
           </pre>
         ),
         closeButton: true,
-      })
+      });
     },
-  })
+  });
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        form.handleSubmit()
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
       }}
       className="flex w-72 flex-col gap-4"
     >
@@ -76,7 +76,9 @@ export function PasswordFieldFormDemo() {
         )}
       </form.Field>
 
-      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting] as const}
+      >
         {([canSubmit, isSubmitting]) => (
           <button
             type="submit"
@@ -88,5 +90,5 @@ export function PasswordFieldFormDemo() {
         )}
       </form.Subscribe>
     </form>
-  )
+  );
 }
