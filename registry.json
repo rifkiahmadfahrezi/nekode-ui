@@ -163,6 +163,29 @@
           "target": "components/ui/time-picker-field.tsx"
         }
       ]
+    },
+    {
+      "name": "combobox-field",
+      "type": "registry:ui",
+      "title": "Combobox Field",
+      "description": "A labeled combobox input built on Combobox with field layout.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "field",
+        "combobox",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/combobox-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/combobox-field.tsx"
+        }
+      ]
     }
   ]
 }
