@@ -122,7 +122,7 @@ export function ComboboxFieldPlaygroundDemo() {
           error={error || undefined}
           placeholder={placeholder}
           emptyText={emptyText}
-          items={frameworks}
+          options={frameworks}
           required={required}
           disabled={disabled}
           loading={loading}

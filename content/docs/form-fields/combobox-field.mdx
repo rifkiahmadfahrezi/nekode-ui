@@ -68,8 +68,8 @@ Like `SelectField`, `ComboboxField`'s props aren't a superset of a native HTML e
 | `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
 | `placeholder` | `string` | `"Select an option"` | Shown in the input when no value is selected. |
 | `emptyText` | `string` | `"No results found."` | Shown in the list when filtering matches nothing. |
-| `items` | `ComboboxFieldOption[]` | — | **Required.** The full list of selectable options. |
-| `value` | `string` | — | Controlled value, matched against `items` by `value`. |
+| `options` | `ComboboxFieldOption[]` | — | **Required.** The full list of selectable options. |
+| `value` | `string` | — | Controlled value, matched against `options` by `value`. |
 | `onValueChange` | `(value: string \| undefined) => void` | — | Fires with the selected item's value, or `undefined` when cleared. |
 | `name` | `string` | — | Forwarded to the underlying input, for native form submission. |
 | `loading` | `boolean` | `false` | Shows a spinner in place of the clear button and disables the field. Use while `items` is being fetched. |
