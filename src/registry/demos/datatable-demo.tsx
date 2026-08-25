@@ -1,16 +1,5 @@
 "use client";
 
-/**
- * Example usage of the modular <DataTable /> (in ./datatable) with dummy data.
- *
- * Demonstrates: sortable columns, shift-click range selection, declarative
- * column pinning, fixed height (sticky header/body/footer), right-click row
- * context menu, client-side pagination, custom row/header styling,
- * expandable nested rows, a column footer, and refs.
- *
- * Adjust the import path below to wherever you place the `datatable/` folder.
- */
-
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import * as React from "react";
 import {
@@ -289,63 +278,63 @@ export function DataTableDemo() {
   ];
 
   return (
-    // <div className="space-y-4 p-6">
-    //   <div className="flex items-center justify-between">
-    //     <div>
-    //       <h2 className="text-lg font-semibold">Team members</h2>
-    //       <p className="text-sm text-muted-foreground">
-    //         {selected.length > 0
-    //           ? `${selected.length} selected \u2014 try shift-click on a checkbox for a range`
-    //           : `${DUMMY_USERS.length} total`}
-    //       </p>
-    //     </div>
-    //   </div>
-
-    // </div>
-    <DataTable<User>
-      data={pageData}
-      fetching={fetching}
-      idAccessor="id"
-      height={420}
-      columns={columns}
-      sortStatus={sortStatus}
-      onSortStatusChange={(status) => {
-        setSortStatus(status);
-        setPage(1);
-      }}
-      selectedRecords={selected}
-      onSelectedRecordsChange={setSelected}
-      headerClassName="bg-muted/40"
-      rowClassName={(record) =>
-        record.status === "inactive" ? "opacity-50" : undefined
-      }
-      renderRowSubContent={(record) => (
-        <div className="space-y-1">
-          <p className="text-sm">{record.bio}</p>
-          <p className="text-xs text-muted-foreground">
-            Based in {record.location}
+    <div className="space-y-4 p-6 max-w-7xl">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Team members</h2>
+          <p className="text-sm text-muted-foreground">
+            {selected.length > 0
+              ? `${selected.length} selected \u2014 try shift-click on a checkbox for a range`
+              : `${DUMMY_USERS.length} total`}
           </p>
         </div>
-      )}
-      rowContextMenu={(record) => getRowActions(record)}
-      headerRef={headerRef}
-      bodyRef={bodyRef}
-      footerRef={footerRef}
-      tableRef={tableRef}
-      scrollViewportRef={scrollViewportRef}
-      pagination={{
-        page,
-        totalRecords: DUMMY_USERS.length,
-        recordsPerPage,
-        onPageChange: setPage,
-        recordsPerPageOptions: [10, 25, 50],
-        onRecordsPerPageChange: (n) => {
-          setRecordsPerPage(n);
+      </div>
+
+      <DataTable<User>
+        data={pageData}
+        fetching={fetching}
+        idAccessor="id"
+        height={420}
+        columns={columns}
+        sortStatus={sortStatus}
+        onSortStatusChange={(status) => {
+          setSortStatus(status);
           setPage(1);
-        },
-        renderInfo: ({ from, to, totalRecords }) =>
-          `rank ${from} to ${to} of ${totalRecords}`,
-      }}
-    />
+        }}
+        selectedRecords={selected}
+        onSelectedRecordsChange={setSelected}
+        headerClassName="bg-muted/40"
+        rowClassName={(record) =>
+          record.status === "inactive" ? "opacity-50" : undefined
+        }
+        renderRowSubContent={(record) => (
+          <div className="space-y-1">
+            <p className="text-sm">{record.bio}</p>
+            <p className="text-xs text-muted-foreground">
+              Based in {record.location}
+            </p>
+          </div>
+        )}
+        rowContextMenu={(record) => getRowActions(record)}
+        headerRef={headerRef}
+        bodyRef={bodyRef}
+        footerRef={footerRef}
+        tableRef={tableRef}
+        scrollViewportRef={scrollViewportRef}
+        pagination={{
+          page,
+          totalRecords: DUMMY_USERS.length,
+          recordsPerPage,
+          onPageChange: setPage,
+          recordsPerPageOptions: [10, 25, 50],
+          onRecordsPerPageChange: (n) => {
+            setRecordsPerPage(n);
+            setPage(1);
+          },
+          renderInfo: ({ from, to, totalRecords }) =>
+            `rank ${from} to ${to} of ${totalRecords}`,
+        }}
+      />
+    </div>
   );
 }
