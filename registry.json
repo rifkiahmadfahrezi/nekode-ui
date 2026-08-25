@@ -146,6 +146,85 @@
           "target": "components/ui/combobox-field.tsx"
         }
       ]
+    },
+    {
+      "name": "datatable",
+      "type": "registry:ui",
+      "title": "DataTable",
+      "description": "Advanced table component with sorting, selection, pagination, filtering, row expansion, and more.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "checkbox",
+        "label",
+        "button",
+        "popover",
+        "context-menu",
+        "separator",
+        "select",
+        "dropdown-menu",
+        "table"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/datatable/DataTable.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTable.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableAction.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableAction.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableEmptyState.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableEmptyState.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableFooter.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableFooter.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableHeader.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableHeader.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableLoader.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableLoader.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTablePagination.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTablePagination.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableRow.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableRow.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/index.ts",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/index.ts"
+        },
+        {
+          "path": "src/registry/ui/datatable/types.ts",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/types.ts"
+        },
+        {
+          "path": "src/registry/ui/datatable/utils.ts",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/utils.ts"
+        }
+      ]
     }
   ]
 }

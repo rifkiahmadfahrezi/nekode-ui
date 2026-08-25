@@ -1,0 +1,294 @@
+---
+title: DataTable
+description: A data table with sorting, selection, column pinning, expandable rows, row actions, and pagination built in.
+---
+
+`DataTable` renders tabular data without you wiring up sorting, selection, or pagination by hand. It wraps `Table`, `Checkbox`, `Select`, `ContextMenu`, and `DropdownMenu` into one component, and splits its internals into memoized pieces so toggling one row's selection doesn't re-render the other 500. Reach for it whenever a page needs more than a static table: bulk actions, a column pinned while the rest scrolls, or rows that expand into detail.
+
+## Installation
+
+<InstallationTabs componentName="datatable" />
+
+<Callout type="info">
+  This version is built on shadcn/ui's **Base UI** backend (`@base-ui/react`), not Radix. Two differences carry through to the API. `Checkbox` exposes tri-state selection as two separate props, `checked` and `indeterminate`, instead of Radix's single `checked: boolean | "indeterminate"`. Row context menus use Base UI's `render` prop to turn a `<TableRow>` into the menu trigger; Base UI has no `asChild`/Slot mechanism.
+</Callout>
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/datatable-demo.tsx" allowFullscreen>
+  <DataTableDemo />
+</ComponentPreview>
+
+A minimal table needs `data` and `columns`, nothing else. Add [`sortStatus`/`onSortStatusChange`](#sorting) to make a column sortable, and a [`pagination`](#pagination) object to page through results server-side or client-side.
+
+## Examples
+
+### Row selection and shift-click range
+
+Pass the [selection props](#selection), `selectedRecords` and `onSelectedRecordsChange`, to add a checkbox column, a "select all" checkbox in the header with correct indeterminate state, and shift-click range selection. Click one row, shift-click another, and every row between them toggles together.
+
+<ComponentPreview path="src/registry/demos/datatable-selection-demo.tsx" allowFullscreen>
+  <DataTableSelectionDemo />
+</ComponentPreview>
+
+### Column pinning
+
+Set [`pinned`](#datatablecolumn) to `"left"` or `"right"` on any column. Pinned columns group to their edge in the order they appear in `columns`: every `"left"` column first, every `"right"` column last. They also get a subtle shadow divider where they meet the scrolling columns.
+
+<ComponentPreview path="src/registry/demos/datatable-pinning-demo.tsx" allowFullscreen>
+  <DataTablePinningDemo />
+</ComponentPreview>
+
+### Sticky header, scrolling body, and column footers
+
+Set [`height`](#layout--styling) and only the `<tbody>` scrolls; the header and pagination bar stay put. Add [`footer`](#datatablecolumn) to any column to render a `<tfoot>` row automatically; the example below sums a salary column across the current page.
+
+<ComponentPreview path="src/registry/demos/datatable-sticky-demo.tsx" allowFullscreen>
+  <DataTableStickyDemo />
+</ComponentPreview>
+
+<Callout type="warning">
+  Sticky positioning needs the scrolling ancestor to be the element `DataTable` itself controls. shadcn's default `Table` component wraps the `<table>` in its own `overflow-x-auto` div, which creates a second scroll container and breaks `position: sticky` for the header. Comment out that wrapper in your `table.tsx`:
+
+```tsx
+function Table({ className, ...props }: React.ComponentProps<"table">) {
+  return (
+    // <div
+    //   data-slot="table-container"
+    //   className="relative w-full overflow-x-auto"
+    // >
+    <table
+      data-slot="table"
+      className={cn("w-full caption-bottom text-sm", className)}
+      {...props}
+    />
+    // </div>
+  );
+}
+```
+
+  Only do this if you use `DataTable` with `height` set. If other tables in your app rely on the default wrapper for their own horizontal scrolling, scope this change to a variant instead of editing `table.tsx` globally.
+</Callout>
+
+### Expandable rows
+
+Pass [`renderRowSubContent`](#expansion) to add a chevron toggle column. It's called lazily, only for rows that are open, so heavy detail content doesn't slow down rows that stay collapsed.
+
+<ComponentPreview path="src/registry/demos/datatable-expandable-demo.tsx" allowFullscreen>
+  <DataTableExpandableDemo />
+</ComponentPreview>
+
+A few props extend this without changing `renderRowSubContent` itself:
+
+- `singleExpand` collapses any other open row when one expands, for accordion-style behavior.
+- `rowExpandable` hides the toggle on rows that shouldn't expand at all.
+- `expandedRecordIds` and `onExpandedRecordIdsChange` move expansion state outside the table, for cases like "expand this row" from a search result.
+
+### Row actions: context menu and action button
+
+[`rowContextMenu`](#row-interaction) and [`DataTableAction`](#datatableaction) both take a [`RowContextMenuItem[]`](#rowcontextmenuitem): the same shape, so one function can back a right-click menu and a visible "kebab" button at once.
+
+<ComponentPreview path="src/registry/demos/datatable-actions-demo.tsx" allowFullscreen>
+  <DataTableActionsDemo />
+</ComponentPreview>
+
+### Sequence numbering
+
+[`createSequenceColumn`](#utilities) returns a ready-made "No." column that numbers rows correctly across pages. Row 1 on page 2 reads 11, not 1, once you pass `page` and `recordsPerPage`.
+
+<ComponentPreview path="src/registry/demos/datatable-sequence-demo.tsx" allowFullscreen>
+  <DataTableSequenceDemo />
+</ComponentPreview>
+
+### Custom styling
+
+[`variant`](#layout--styling) switches between a bordered table and a flat, borderless one. `rowClassName` and `rowStyle` accept a function for conditional per-row styling: dim inactive rows, highlight overdue ones. `headerClassName`/`headerStyle` style the header row the same way.
+
+<ComponentPreview path="src/registry/demos/datatable-styling-demo.tsx" allowFullscreen>
+  <DataTableStylingDemo />
+</ComponentPreview>
+
+### Refs and scroll shadows
+
+The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `scrollViewportRef`, expose the underlying DOM nodes; `rowRef` fires for every row's `<tr>` as rows mount and unmount. The table also tracks its own scroll position and fades in a shadow on whichever edge still has hidden columns. That's useful feedback once you're pinning columns on a table wider than its container.
+
+<ComponentPreview path="src/registry/demos/datatable-refs-demo.tsx" allowFullscreen>
+  <DataTableRefsDemo />
+</ComponentPreview>
+
+## Accessibility
+
+- The header "select all" checkbox uses `checked` and `indeterminate` as two separate props, matching Base UI's `Checkbox` API. Screen readers announce the mixed state correctly because it comes from the primitive, not a faked `aria-checked` value.
+- Every checkbox carries its own `aria-label`: `"Select all records"` on the header, `"Select record N"` per row.
+- Sort toggles and the expand chevron are real `<button>` elements. They're keyboard-focusable and respond to Enter and Space without extra wiring. The sort direction icons (`ArrowUp`/`ArrowDown`/`ChevronsUpDown`) are purely visual.
+- Context menus and the `DataTableAction` dropdown both render through Base UI's `Menu` primitives, which handle roving focus, arrow-key navigation, `Escape` to close, and correct `role="menu"`/`role="menuitem"` semantics without any extra work on your side.
+- The loading overlay (`fetching`) is visual only. It doesn't announce anything to assistive tech. Wire up your own `aria-live` region around the table if that matters for your users.
+- A row itself (the `<tr>`) is clickable via `onRowClick` or `expandOnRowClick`, but a table row isn't a native interactive element. It's not keyboard-focusable, and screen readers won't announce it as actionable. If a row click is the only way to reach some functionality, also expose it through a real button (the expand chevron, a `DataTableAction` item) so keyboard and screen reader users aren't stuck.
+
+## API Reference
+
+### DataTable
+
+`DataTable<T>` is generic over your record type. Props are grouped below by what they control.
+
+#### Data & columns
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `data` | `T[]` | — | Records to render. Slice this yourself for pagination; the table renders exactly what you pass in. |
+| `columns` | `DataTableColumn<T>[]` | — | Column definitions. See [DataTableColumn](#datatablecolumn). |
+| `idAccessor` | `keyof T \| ((record: T) => React.Key)` | `JSON.stringify(record)` | Extracts a stable id per row. Set this for selection and expansion to survive re-sorts and re-fetches. The JSON fallback works but is slower, and it breaks if field order changes. |
+| `noRecordsText` | `string` | `"No records to show"` | Message shown when `data` is empty and `fetching` is false. |
+
+#### Sorting
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `sortStatus` | `SortStatus<T>` | — | Current sort column and direction. |
+| `onSortStatusChange` | `(status: SortStatus<T>) => void` | — | Called when a sortable column header is clicked. Sorting `data` itself is on you: pass the already-sorted slice back in. |
+
+<Callout type="info">
+  TypeScript requires `sortStatus`/`onSortStatusChange` only when at least one column has `sortable: true`, and only if `columns` is inferred rather than pre-typed. Annotate a separate `columns` array with `satisfies DataTableColumn<T>[]` instead of `: DataTableColumn<T>[]` to keep that check working.
+</Callout>
+
+#### Selection
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `selectedRecords` | `T[]` | — | Currently selected records. |
+| `onSelectedRecordsChange` | `(records: T[]) => void` | — | Providing this enables the checkbox column, the header "select all" control, and shift-click range selection. |
+
+#### Row interaction
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `onRowClick` | `(record: T, rowIndex: number) => void` | — | Called when a row is clicked. Fires alongside expand-on-click if `renderRowSubContent` is set. |
+| `highlightOnHover` | `boolean` | `true` | Adds a hover background to rows. |
+| `rowContextMenu` | `(record: T, rowIndex: number) => RowContextMenuItem[] \| undefined` | — | Right-click menu items for a row. Return `undefined` or `[]` to skip the menu for that row. |
+
+#### Expansion
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `renderRowSubContent` | `(record: T, rowIndex: number) => React.ReactNode` | — | Providing this enables expandable rows and adds the chevron toggle column. Called only for rows that are open. |
+| `rowExpandable` | `(record: T, rowIndex: number) => boolean` | every row expandable | Hides the toggle on rows that shouldn't expand. |
+| `expandOnRowClick` | `boolean` | `true` | Clicking anywhere on the row toggles expansion, not just the chevron. |
+| `singleExpand` | `boolean` | `false` | Expanding a row collapses any other open row. |
+| `expandedRecordIds` | `React.Key[]` | — | Controlled set of expanded row ids. Omit to let the table manage expansion itself. |
+| `onExpandedRecordIdsChange` | `(ids: React.Key[]) => void` | — | Required alongside `expandedRecordIds` for controlled expansion. |
+
+#### Pagination
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `pagination` | `DataTablePaginationProps` | — | Enables the pagination bar. See [DataTablePaginationProps](#datatablepaginationprops). |
+
+#### Layout & styling
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `fetching` | `boolean` | `false` | Shows a loading overlay over the current rows. |
+| `height` | `number` | — | Fixed pixel height. Only the body scrolls; see the [sticky example](#sticky-header-scrolling-body-and-column-footers) for the required `Table` change. |
+| `variant` | `"bordered" \| "borderless"` | `"bordered"` | `"bordered"` shows the outer box border and a divider under the header and every row. `"borderless"` removes both. |
+| `className` | `string` | — | Class applied to the table's outer wrapper. |
+| `rowClassName` | `string \| ((record: T, rowIndex: number) => string \| undefined)` | — | Class for every row, or a function to style specific rows conditionally. |
+| `rowStyle` | `React.CSSProperties \| ((record: T, rowIndex: number) => React.CSSProperties \| undefined)` | — | Same as `rowClassName`, for inline styles. |
+| `headerClassName` | `string` | — | Class applied to the header row, on top of each column's own `className`. |
+| `headerStyle` | `React.CSSProperties` | — | Inline style for the header row. |
+
+#### Refs
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `headerRef` | `React.Ref<HTMLTableSectionElement>` | — | Ref to the `<thead>`. |
+| `bodyRef` | `React.Ref<HTMLTableSectionElement>` | — | Ref to the `<tbody>`. |
+| `footerRef` | `React.Ref<HTMLDivElement>` | — | Ref to the pagination bar's wrapping `<div>`. |
+| `tableRef` | `React.Ref<HTMLTableElement>` | — | Ref to the `<table>` element. |
+| `scrollViewportRef` | `React.Ref<HTMLDivElement>` | — | Ref to the scrolling container — the same element the table watches for scroll shadows. |
+| `rowRef` | `(element: HTMLTableRowElement \| null, record: T, rowIndex: number) => void` | — | Called for every row's `<tr>` as rows mount and unmount. |
+
+### Supporting types
+
+#### DataTableColumn
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `accessor` | `Extract<keyof T, string> \| (string & {})` | — | Field this column reads from `T`. |
+| `id` | `string` | `accessor` | Explicit identity for React keys and pinning. Set this if two columns share the same `accessor`; otherwise they collide. |
+| `title` | `React.ReactNode` | `accessor` | Header content. |
+| `render` | `(record: T, rowIndex: number) => React.ReactNode` | `String(record[accessor])` | Custom cell renderer. |
+| `width` | `number \| string` | — | Fixed column width. |
+| `sortable` | `boolean` | `false` | Shows a sort arrow in the header and makes it clickable. |
+| `pinned` | `"left" \| "right"` | — | Pins the column to an edge. See [Column pinning](#column-pinning). |
+| `footer` | `React.ReactNode \| ((data: T[]) => React.ReactNode)` | — | Footer cell content. Renders a `<tfoot>` row automatically if any column defines one. |
+| `textAlign` | `"left" \| "center" \| "right"` | `"left"` | Text alignment for the header and every cell in this column. |
+| `className` | `string` | — | Class applied to both the `<th>` and every `<td>` in this column. |
+| `style` | `React.CSSProperties` | — | Inline style applied to both the `<th>` and every `<td>`. |
+
+#### RowContextMenuItem
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `key` | `string` | — | Unique key for the item. |
+| `label` | `React.ReactNode` | — | Item content. |
+| `onClick` | `() => void` | — | Called when the item is selected. |
+| `icon` | `React.ReactNode` | — | Icon rendered before the label. |
+| `danger` | `boolean` | `false` | Styles the item as destructive. |
+| `disabled` | `boolean` | `false` | Disables the item. |
+
+#### DataTablePaginationProps
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `page` | `number` | — | Current page, 1-indexed. |
+| `totalRecords` | `number` | — | Total record count across all pages. |
+| `recordsPerPage` | `number` | — | Records shown per page. |
+| `onPageChange` | `(page: number) => void` | — | Called when a page control is clicked. |
+| `recordsPerPageOptions` | `number[]` | `[10, 25, 50, 100]` | Options in the rows-per-page select. |
+| `onRecordsPerPageChange` | `(recordsPerPage: number) => void` | — | Providing this shows the rows-per-page select. |
+| `renderInfo` | `(info) => React.ReactNode` | `"Showing X–Y of Z"` | Custom info text. `info` is `{ from, to, totalRecords, page, totalPages }`. |
+| `siblingCount` | `number` | `1` | Page numbers shown on each side of the current page before collapsing into "…". |
+
+---
+
+## DataTableAction
+
+A "kebab" button, three dots that open a dropdown menu on click, is meant for an actions column. It takes the same `RowContextMenuItem[]` shape as `rowContextMenu`, so a table can share one list of actions between a right-click menu and a visible button, as shown in [Row actions](#row-actions-context-menu-and-action-button).
+
+### Usage Example
+
+<ComponentPreview path="src/registry/demos/datatable-action-standalone-demo.tsx" allowFullscreen>
+  <DataTableActionStandaloneDemo />
+</ComponentPreview>
+
+It stops click propagation on its own, so it's safe to drop into a row that also has `onRowClick` or `expandOnRowClick` without accidentally triggering those.
+
+### API Reference
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `items` | `RowContextMenuItem[]` | — | Menu items. The button renders nothing if this is empty. |
+| `label` | `string` | `"Open menu"` | Accessible label for the trigger button. |
+| `icon` | `React.ReactNode` | a 3-dot icon | Icon shown on the trigger button. |
+| `className` | `string` | — | Class applied to the trigger button. |
+| `align` | `"start" \| "center" \| "end"` | `"end"` | Menu alignment relative to the trigger. |
+| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"bottom"` | Which side of the trigger the menu opens on. |
+
+---
+
+## Utilities
+
+Two helpers from `utils.ts` handle row numbering, exported alongside the components:
+
+```tsx
+// Pure function, if you're computing the number inside a custom `render`:
+getSequenceNumber(rowIndex, page, recordsPerPage); // 1, 2, 3... continuing across pages
+
+// Ready-made column: drop it straight into `columns`:
+columns={[
+  createSequenceColumn({ page, recordsPerPage }), // omit page/recordsPerPage outside pagination
+  ...restOfYourColumns,
+]}
+```
+
+`createSequenceColumn` also accepts `title` (default `"No."`), `width` (default `56`), `pinned`, and `accessor` (default `"__sequence"`, in case that name collides with a real field on `T`).

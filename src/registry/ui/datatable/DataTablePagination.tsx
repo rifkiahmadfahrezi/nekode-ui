@@ -1,9 +1,21 @@
 "use client";
 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  MoreHorizontal,
+} from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MoreHorizontal } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { DataTablePaginationProps } from "./types";
 import { getPaginationRange } from "./utils";
@@ -16,14 +28,34 @@ interface Props {
   fetching?: boolean;
 }
 
-export function DataTablePagination({ pagination, variant, sticky, footerRef, fetching }: Props) {
-  const totalPages = Math.max(1, Math.ceil(pagination.totalRecords / pagination.recordsPerPage));
-  const rangeStart = pagination.totalRecords === 0 ? 0 : (pagination.page - 1) * pagination.recordsPerPage + 1;
-  const rangeEnd = Math.min(pagination.page * pagination.recordsPerPage, pagination.totalRecords);
+export function DataTablePagination({
+  pagination,
+  variant,
+  sticky,
+  footerRef,
+  fetching,
+}: Props) {
+  const totalPages = Math.max(
+    1,
+    Math.ceil(pagination.totalRecords / pagination.recordsPerPage),
+  );
+  const rangeStart =
+    pagination.totalRecords === 0
+      ? 0
+      : (pagination.page - 1) * pagination.recordsPerPage + 1;
+  const rangeEnd = Math.min(
+    pagination.page * pagination.recordsPerPage,
+    pagination.totalRecords,
+  );
 
   const pageNumbers = React.useMemo(
-    () => getPaginationRange(pagination.page, totalPages, pagination.siblingCount ?? 1),
-    [pagination.page, totalPages, pagination.siblingCount]
+    () =>
+      getPaginationRange(
+        pagination.page,
+        totalPages,
+        pagination.siblingCount ?? 1,
+      ),
+    [pagination.page, totalPages, pagination.siblingCount],
   );
 
   return (
@@ -32,7 +64,7 @@ export function DataTablePagination({ pagination, variant, sticky, footerRef, fe
       className={cn(
         "flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
         variant === "bordered" && "border-t",
-        sticky && "shrink-0"
+        sticky && "shrink-0",
       )}
     >
       <div className="text-sm text-muted-foreground">
@@ -45,8 +77,8 @@ export function DataTablePagination({ pagination, variant, sticky, footerRef, fe
               totalPages,
             })
           : pagination.totalRecords === 0
-          ? "No records"
-          : `Showing ${rangeStart}\u2013${rangeEnd} of ${pagination.totalRecords}`}
+            ? "No records"
+            : `Showing ${rangeStart}\u2013${rangeEnd} of ${pagination.totalRecords}`}
       </div>
       <div className="flex items-center gap-4">
         {pagination.onRecordsPerPageChange && (
@@ -54,18 +86,22 @@ export function DataTablePagination({ pagination, variant, sticky, footerRef, fe
             <span className="text-muted-foreground">Rows per page</span>
             <Select
               value={String(pagination.recordsPerPage)}
-              onValueChange={(v) => pagination.onRecordsPerPageChange?.(Number(v))}
+              onValueChange={(v) =>
+                pagination.onRecordsPerPageChange?.(Number(v))
+              }
               disabled={fetching}
             >
               <SelectTrigger className="h-8 w-[70px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(pagination.recordsPerPageOptions ?? [10, 25, 50, 100]).map((n) => (
-                  <SelectItem key={n} value={String(n)}>
-                    {n}
-                  </SelectItem>
-                ))}
+                {(pagination.recordsPerPageOptions ?? [10, 25, 50, 100]).map(
+                  (n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -89,9 +125,12 @@ export function DataTablePagination({ pagination, variant, sticky, footerRef, fe
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          {pageNumbers.map((p, i) =>
+          {pageNumbers.map((p) =>
             p === "ellipsis" ? (
-              <span key={`ellipsis-${i}`} className="flex h-8 w-8 items-center justify-center text-muted-foreground">
+              <span
+                key={`ellipsis-${p}`}
+                className="flex h-8 w-8 items-center justify-center text-muted-foreground"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </span>
             ) : (
@@ -105,7 +144,7 @@ export function DataTablePagination({ pagination, variant, sticky, footerRef, fe
               >
                 {p}
               </Button>
-            )
+            ),
           )}
           <Button
             variant="outline"

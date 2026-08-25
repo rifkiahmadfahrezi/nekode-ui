@@ -11,9 +11,15 @@
  * Adjust the import path below to wherever you place the `datatable/` folder.
  */
 
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import * as React from "react";
-import { DataTable, type DataTableColumn, type SortStatus } from "./datatable";
-import { Eye, Pencil, Trash2, MoreVertical } from "lucide-react";
+import {
+  createSequenceColumn,
+  DataTable,
+  DataTableAction,
+  type DataTableColumn,
+  type SortStatus,
+} from "@/components/ui/datatable";
 
 /* ------------------------------------------------------------------------ */
 /* Dummy data                                                                */
@@ -35,17 +41,49 @@ interface User {
 }
 
 const FIRST_NAMES = [
-  "Andi", "Budi", "Citra", "Dewi", "Eka", "Fajar", "Gita", "Hadi",
-  "Indah", "Joko", "Kartika", "Lestari", "Made", "Nadia", "Oscar",
-  "Putri", "Rian", "Siti", "Tono", "Umar",
+  "Andi",
+  "Budi",
+  "Citra",
+  "Dewi",
+  "Eka",
+  "Fajar",
+  "Gita",
+  "Hadi",
+  "Indah",
+  "Joko",
+  "Kartika",
+  "Lestari",
+  "Made",
+  "Nadia",
+  "Oscar",
+  "Putri",
+  "Rian",
+  "Siti",
+  "Tono",
+  "Umar",
 ];
 const LAST_NAMES = [
-  "Saputra", "Wijaya", "Kusuma", "Pratama", "Wibowo", "Santoso",
-  "Hidayat", "Setiawan", "Ramadhan", "Gunawan",
+  "Saputra",
+  "Wijaya",
+  "Kusuma",
+  "Pratama",
+  "Wibowo",
+  "Santoso",
+  "Hidayat",
+  "Setiawan",
+  "Ramadhan",
+  "Gunawan",
 ];
 const ROLES: Role[] = ["admin", "editor", "viewer"];
 const STATUSES: Status[] = ["active", "invited", "inactive"];
-const CITIES = ["Bekasi", "Jakarta", "Bandung", "Surabaya", "Yogyakarta", "Semarang"];
+const CITIES = [
+  "Bekasi",
+  "Jakarta",
+  "Bandung",
+  "Surabaya",
+  "Yogyakarta",
+  "Semarang",
+];
 
 function seededRandom(seed: number) {
   const x = Math.sin(seed) * 10000;
@@ -84,7 +122,9 @@ function RoleBadge({ role }: { role: Role }) {
     viewer: "bg-slate-100 text-slate-700",
   };
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ${styles[role]}`}>
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ${styles[role]}`}
+    >
       {role}
     </span>
   );
@@ -104,13 +144,17 @@ function StatusDot({ status }: { status: Status }) {
   );
 }
 
-const currency = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+const currency = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
 
 /* ------------------------------------------------------------------------ */
 /* Example page                                                             */
 /* ------------------------------------------------------------------------ */
 
-export default function DataTableExample() {
+export function DataTableDemo() {
   const [fetching, setFetching] = React.useState(false);
   const [selected, setSelected] = React.useState<User[]>([]);
   const [page, setPage] = React.useState(1);
@@ -129,7 +173,7 @@ export default function DataTableExample() {
 
   React.useEffect(() => {
     setFetching(true);
-    const timeout = setTimeout(() => setFetching(false), 5000);
+    const timeout = setTimeout(() => setFetching(false), 500);
     return () => clearTimeout(timeout);
   }, [page, recordsPerPage, sortStatus]);
 
@@ -139,7 +183,10 @@ export default function DataTableExample() {
       const key = sortStatus.columnAccessor as keyof User;
       const av = a[key];
       const bv = b[key];
-      const cmp = typeof av === "number" && typeof bv === "number" ? av - bv : String(av).localeCompare(String(bv));
+      const cmp =
+        typeof av === "number" && typeof bv === "number"
+          ? av - bv
+          : String(av).localeCompare(String(bv));
       return sortStatus.direction === "asc" ? cmp : -cmp;
     });
     return copy;
@@ -150,7 +197,36 @@ export default function DataTableExample() {
     return sorted.slice(start, start + recordsPerPage);
   }, [sorted, page, recordsPerPage]);
 
+  // Shared between the actions-column kebab menu and the right-click
+  // context menu, so both stay in sync automatically.
+  const getRowActions = React.useCallback(
+    (record: User) => [
+      {
+        key: "view",
+        label: "View profile",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: () => alert(`View ${record.name}`),
+      },
+      {
+        key: "edit",
+        label: "Edit",
+        icon: <Pencil className="h-4 w-4" />,
+        onClick: () => alert(`Edit ${record.name}`),
+      },
+      {
+        key: "delete",
+        label: "Delete",
+        icon: <Trash2 className="h-4 w-4" />,
+        danger: true,
+        onClick: () => alert(`Delete ${record.name}`),
+      },
+    ],
+    [],
+  );
+
   const columns: DataTableColumn<User>[] = [
+    // Numbers rows 1, 2, 3... continuing correctly across pages.
+    createSequenceColumn<User>({ page, recordsPerPage }),
     {
       accessor: "name",
       title: "Name",
@@ -185,7 +261,8 @@ export default function DataTableExample() {
       render: (record) => currency.format(record.salary),
       // Sums the salary column across the *current page* — swap for a
       // server-computed total if paginating server-side.
-      footer: (pageRecords) => currency.format(pageRecords.reduce((sum, r) => sum + r.salary, 0)),
+      footer: (pageRecords) =>
+        currency.format(pageRecords.reduce((sum, r) => sum + r.salary, 0)),
     },
     {
       accessor: "joinedAt",
@@ -205,95 +282,70 @@ export default function DataTableExample() {
       title: "",
       width: 60,
       pinned: "right",
-      render: (record) => (
-        <button
-          type="button"
-          className="flex h-7 w-7 items-center justify-center rounded hover:bg-muted"
-          onClick={(e) => {
-            e.stopPropagation();
-            alert(`Actions for ${record.name}`);
-          }}
-        >
-          <MoreVertical className="h-4 w-4" />
-        </button>
-      ),
+      // 3-dot button -> dropdown menu, reusing the same item list as the
+      // row's right-click context menu below.
+      render: (record) => <DataTableAction items={getRowActions(record)} />,
     },
   ];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Team members</h2>
-          <p className="text-sm text-muted-foreground">
-            {selected.length > 0
-              ? `${selected.length} selected \u2014 try shift-click on a checkbox for a range`
-              : `${DUMMY_USERS.length} total`}
+    // <div className="space-y-4 p-6">
+    //   <div className="flex items-center justify-between">
+    //     <div>
+    //       <h2 className="text-lg font-semibold">Team members</h2>
+    //       <p className="text-sm text-muted-foreground">
+    //         {selected.length > 0
+    //           ? `${selected.length} selected \u2014 try shift-click on a checkbox for a range`
+    //           : `${DUMMY_USERS.length} total`}
+    //       </p>
+    //     </div>
+    //   </div>
+
+    // </div>
+    <DataTable<User>
+      data={pageData}
+      fetching={fetching}
+      idAccessor="id"
+      height={420}
+      columns={columns}
+      sortStatus={sortStatus}
+      onSortStatusChange={(status) => {
+        setSortStatus(status);
+        setPage(1);
+      }}
+      selectedRecords={selected}
+      onSelectedRecordsChange={setSelected}
+      headerClassName="bg-muted/40"
+      rowClassName={(record) =>
+        record.status === "inactive" ? "opacity-50" : undefined
+      }
+      renderRowSubContent={(record) => (
+        <div className="space-y-1">
+          <p className="text-sm">{record.bio}</p>
+          <p className="text-xs text-muted-foreground">
+            Based in {record.location}
           </p>
         </div>
-      </div>
-
-      <DataTable<User>
-        data={pageData}
-        fetching={fetching}
-        idAccessor="id"
-        height={420}
-        columns={columns}
-        variant='bordered'
-        sortStatus={sortStatus}
-        onSortStatusChange={(status) => {
-          setSortStatus(status);
+      )}
+      rowContextMenu={(record) => getRowActions(record)}
+      headerRef={headerRef}
+      bodyRef={bodyRef}
+      footerRef={footerRef}
+      tableRef={tableRef}
+      scrollViewportRef={scrollViewportRef}
+      pagination={{
+        page,
+        totalRecords: DUMMY_USERS.length,
+        recordsPerPage,
+        onPageChange: setPage,
+        recordsPerPageOptions: [10, 25, 50],
+        onRecordsPerPageChange: (n) => {
+          setRecordsPerPage(n);
           setPage(1);
-        }}
-        selectedRecords={selected}
-        onSelectedRecordsChange={setSelected}
-        headerClassName="bg-muted/40"
-        rowClassName={(record) => (record.status === "inactive" ? "opacity-50" : undefined)}
-        renderRowSubContent={(record) => (
-          <div className="space-y-1">
-            <p className="text-sm">{record.bio}</p>
-            <p className="text-xs text-muted-foreground">Based in {record.location}</p>
-          </div>
-        )}
-        rowContextMenu={(record) => [
-          {
-            key: "view",
-            label: "View profile",
-            icon: <Eye className="h-4 w-4" />,
-            onClick: () => alert(`View ${record.name}`),
-          },
-          {
-            key: "edit",
-            label: "Edit",
-            icon: <Pencil className="h-4 w-4" />,
-            onClick: () => alert(`Edit ${record.name}`),
-          },
-          {
-            key: "delete",
-            label: "Delete",
-            icon: <Trash2 className="h-4 w-4" />,
-            danger: true,
-            onClick: () => alert(`Delete ${record.name}`),
-          },
-        ]}
-        headerRef={headerRef}
-        bodyRef={bodyRef}
-        footerRef={footerRef}
-        tableRef={tableRef}
-        scrollViewportRef={scrollViewportRef}
-        pagination={{
-          page,
-          totalRecords: DUMMY_USERS.length,
-          recordsPerPage,
-          onPageChange: setPage,
-          recordsPerPageOptions: [10, 25, 50],
-          onRecordsPerPageChange: (n) => {
-            setRecordsPerPage(n);
-            setPage(1);
-          },
-          renderInfo: ({ from, to, totalRecords }) => `rank ${from} to ${to} of ${totalRecords}`,
-        }}
-      />
-    </div>
+        },
+        renderInfo: ({ from, to, totalRecords }) =>
+          `rank ${from} to ${to} of ${totalRecords}`,
+      }}
+    />
   );
 }

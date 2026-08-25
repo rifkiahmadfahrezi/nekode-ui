@@ -143,6 +143,7 @@ export const ComboboxField = React.forwardRef<
               showClear={loading ? false : showClear}
               className={cn("w-full", loading && "pr-9", inputClassName)}
               disabled={loading || disabled}
+              // biome-ignore lint/correctness/noChildrenProp: <explanation>
               children={
                 loading && (
                   <div

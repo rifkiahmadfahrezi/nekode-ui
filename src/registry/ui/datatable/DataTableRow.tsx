@@ -1,10 +1,15 @@
 "use client";
 
-import * as React from "react";
-import { TableRow, TableCell } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { ChevronRight } from "lucide-react";
+import * as React from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import type { DataTableColumn, RowContextMenuItem } from "./types";
 
@@ -30,11 +35,19 @@ interface DataTableRowProps<T> {
   contextMenuItems?: RowContextMenuItem[];
   getColumnKey: (col: DataTableColumn<T>) => string;
   pinnedCellStyle: (col: DataTableColumn<T>) => React.CSSProperties;
-  pinnedCellClassName: (col: DataTableColumn<T>, zIndexClass: string, bgClassName?: string) => string;
+  pinnedCellClassName: (
+    col: DataTableColumn<T>,
+    zIndexClass: string,
+    bgClassName?: string,
+  ) => string;
   leadingGutter: number;
   totalCols: number;
   variant: "bordered" | "borderless";
-  rowRef?: (element: HTMLTableRowElement | null, record: T, rowIndex: number) => void;
+  rowRef?: (
+    element: HTMLTableRowElement | null,
+    record: T,
+    rowIndex: number,
+  ) => void;
 }
 
 function DataTableRowInner<T>({
@@ -76,7 +89,7 @@ function DataTableRowInner<T>({
     highlightOnHover && "hover:bg-muted/50",
     (onRowClick || (canExpand && expandOnRowClick)) && "cursor-pointer",
     variant === "borderless" && "border-0",
-    rowClassName
+    rowClassName,
   );
 
   const cells = (
@@ -89,7 +102,9 @@ function DataTableRowInner<T>({
         >
           <Checkbox
             checked={isSelected}
-            onCheckedChange={() => onToggleSelect(record, rowIndex, shiftKeyRef.current)}
+            onCheckedChange={() =>
+              onToggleSelect(record, rowIndex, shiftKeyRef.current)
+            }
             onClick={(e: React.MouseEvent) => {
               shiftKeyRef.current = e.shiftKey;
             }}
@@ -100,7 +115,10 @@ function DataTableRowInner<T>({
       {expandable && (
         <TableCell
           className="sticky z-10 bg-background"
-          style={{ left: selectable ? selectionColWidth : 0, width: expandColWidth }}
+          style={{
+            left: selectable ? selectionColWidth : 0,
+            width: expandColWidth,
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           {canExpand && (
@@ -110,7 +128,12 @@ function DataTableRowInner<T>({
               onClick={() => onToggleExpand(record)}
               aria-label={isExpanded ? "Collapse row" : "Expand row"}
             >
-              <ChevronRight className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-90")} />
+              <ChevronRight
+                className={cn(
+                  "h-4 w-4 transition-transform",
+                  isExpanded && "rotate-90",
+                )}
+              />
             </button>
           )}
         </TableCell>
@@ -124,11 +147,13 @@ function DataTableRowInner<T>({
               pinnedCellClassName(col, "z-10"),
               col.textAlign === "center" && "text-center",
               col.textAlign === "right" && "text-right",
-              col.className
+              col.className,
             )}
             style={{ ...pinnedCellStyle(col), ...col.style }}
           >
-            {col.render ? col.render(record, rowIndex) : String((record as Record<string, unknown>)[col.accessor] ?? "")}
+            {col.render
+              ? col.render(record, rowIndex)
+              : String((record as Record<string, unknown>)[col.accessor] ?? "")}
           </TableCell>
         );
       })}
@@ -141,7 +166,9 @@ function DataTableRowInner<T>({
         <ContextMenuTrigger
           render={
             <TableRow
-              ref={(el: HTMLTableRowElement | null) => rowRef?.(el, record, rowIndex)}
+              ref={(el: HTMLTableRowElement | null) =>
+                rowRef?.(el, record, rowIndex)
+              }
               data-state={isSelected ? "selected" : undefined}
               className={rowShellClassName}
               style={rowStyle}
@@ -157,9 +184,13 @@ function DataTableRowInner<T>({
               key={item.key}
               disabled={item.disabled}
               onClick={item.onClick}
-              className={cn(item.danger && "text-destructive focus:text-destructive")}
+              className={cn(
+                item.danger && "text-destructive focus:text-destructive",
+              )}
             >
-              {item.icon && <span className="mr-2 flex items-center">{item.icon}</span>}
+              {item.icon && (
+                <span className="mr-2 flex items-center">{item.icon}</span>
+              )}
               {item.label}
             </ContextMenuItem>
           ))}
@@ -182,7 +213,12 @@ function DataTableRowInner<T>({
   return (
     <React.Fragment>
       {mainRow}
-      <TableRow className={cn("hover:bg-transparent", variant === "borderless" && "border-0")}>
+      <TableRow
+        className={cn(
+          "hover:bg-transparent",
+          variant === "borderless" && "border-0",
+        )}
+      >
         <TableCell colSpan={totalCols} className="bg-muted/30 p-0">
           <div style={{ paddingLeft: leadingGutter }} className="px-4 py-3">
             {renderSubContent?.(record, rowIndex)}
@@ -193,7 +229,10 @@ function DataTableRowInner<T>({
   );
 }
 
-function propsAreEqual<T>(prev: Readonly<DataTableRowProps<T>>, next: Readonly<DataTableRowProps<T>>) {
+function propsAreEqual<T>(
+  prev: Readonly<DataTableRowProps<T>>,
+  next: Readonly<DataTableRowProps<T>>,
+) {
   return (
     prev.record === next.record &&
     prev.rowIndex === next.rowIndex &&
@@ -214,4 +253,7 @@ function propsAreEqual<T>(prev: Readonly<DataTableRowProps<T>>, next: Readonly<D
   );
 }
 
-export const DataTableRow = React.memo(DataTableRowInner, propsAreEqual) as typeof DataTableRowInner;
+export const DataTableRow = React.memo(
+  DataTableRowInner,
+  propsAreEqual,
+) as typeof DataTableRowInner;
