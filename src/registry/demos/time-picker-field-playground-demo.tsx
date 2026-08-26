@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { TimePickerField } from "@/components/ui/time-picker-field";
 import { cn } from "@/lib/utils";
-import { TimePickerField } from "@/registry/ui/time-picker-field";
 
 type Orientation = "vertical" | "horizontal" | "responsive";
 type TimeFormat = "24h" | "12h";

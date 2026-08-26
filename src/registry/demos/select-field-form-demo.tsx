@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { SelectField } from "@/registry/ui/select-field";
+import { SelectField } from "@/components/ui/select-field";
 
 const settingsSchema = z.object({
   role: z.string().min(1, "Select a role"),

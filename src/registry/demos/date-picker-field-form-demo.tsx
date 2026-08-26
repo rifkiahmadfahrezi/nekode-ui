@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { DatePickerField } from "@/registry/ui/date-picker-field";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 
 const formSchema = z.object({
   birthdate: z.date({ error: "Please select a date" }),

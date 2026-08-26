@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { cn } from "@/lib/utils";
-import { DatePickerField } from "@/registry/ui/date-picker-field";
 
 type Orientation = "vertical" | "horizontal" | "responsive";
 

@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { NumberField } from "@/components/ui/number-field";
 import { cn } from "@/lib/utils";
-import { NumberField } from "@/registry/ui/number-field";
 
 type Orientation = "vertical" | "horizontal" | "responsive";
 type Tri = "auto" | "on" | "off";

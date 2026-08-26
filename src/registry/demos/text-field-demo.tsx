@@ -1,6 +1,6 @@
 "use client";
 
-import { TextField } from "@/registry/ui/text-field";
+import { TextField } from "@/components/ui/text-field";
 
 export function TextFieldDemo() {
   return (
