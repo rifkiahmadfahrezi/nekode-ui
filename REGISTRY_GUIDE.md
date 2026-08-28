@@ -1,13 +1,13 @@
 # Custom Component Registry Guide & Folder Structure
 
-This document outlines how the **shadcn registry** is configured and structured in `super-shadcn`.
+This document outlines how the **shadcn registry** is configured and structured in `nekode-ui`.
 
 ---
 
 ## 📁 Folder Structure Overview
 
 ```text
-super-shadcn/
+nekode-ui/
 ├── registry/                 # Root registry directory for custom items
 │   ├── ui/                   # Reusable UI component library primitives (e.g. button.tsx)
 │   └── demos/                # Interactive demo components for documentation previews (e.g. button-demo.tsx)
@@ -39,8 +39,8 @@ super-shadcn/
    ```json
    {
      "$schema": "https://ui.shadcn.com/schema/registry.json",
-     "name": "super-shadcn",
-     "homepage": "https://super-shadcn.rifkiaf.com",
+     "name": "nekode-ui",
+     "homepage": "https://nekode-ui.rifkiaf.com",
      "items": [
        {
          "name": "button",
@@ -88,5 +88,5 @@ super-shadcn/
    Users can install items directly into their projects via the shadcn CLI:
 
    ```bash
-   npx shadcn@latest add https://super-shadcn.rifkiaf.com/r/button.json
+   npx shadcn@latest add https://nekode-ui.rifkiaf.com/r/button.json
    ```

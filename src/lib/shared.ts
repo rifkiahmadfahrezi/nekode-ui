@@ -1,11 +1,11 @@
-export const appName = "Super Shadcn";
+export const appName = "nekode/ui";
 export const docsRoute = "/docs";
 export const docsImageRoute = "/og/docs";
 
 // fill this with your actual GitHub info, for example:
 export const gitConfig = {
   user: "rifkiahmadfahrezi",
-  repo: "super-shadcn",
+  repo: "nekode-ui",
   branch: "main",
 };
 

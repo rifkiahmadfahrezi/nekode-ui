@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "super-shadcn",
-  "homepage": "https://super-shadcn.rifkiaf.com",
+  "name": "nekode-ui",
+  "homepage": "https://nekode-ui.rifkiaf.com",
   "items": [
     {
       "name": "text-field",
