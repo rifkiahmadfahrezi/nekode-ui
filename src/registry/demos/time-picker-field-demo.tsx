@@ -1,6 +1,6 @@
 "use client";
 
-import { TimePickerField } from "@/registry/ui/time-picker-field";
+import { TimePickerField } from "@/components/ui/time-picker-field";
 
 export function TimePickerFieldDemo() {
   return (

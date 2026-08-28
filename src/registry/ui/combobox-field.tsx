@@ -30,7 +30,7 @@ export interface ComboboxFieldProps {
   error?: string;
   placeholder?: string;
   emptyText?: string;
-  items: ComboboxFieldOption[];
+  options: ComboboxFieldOption[];
   name?: string;
   id?: string;
   value: string;
@@ -64,7 +64,7 @@ export const ComboboxField = React.forwardRef<
       error,
       placeholder = "Select an option",
       emptyText = "No results found.",
-      items,
+      options,
       name,
       id,
       value,
@@ -89,8 +89,8 @@ export const ComboboxField = React.forwardRef<
 
     const isDisabled = disabled || loading;
     const selectedItem = React.useMemo(
-      () => items.find((item) => item.value === value) ?? null,
-      [items, value],
+      () => options.find((item) => item.value === value) ?? null,
+      [options, value],
     );
 
     return (
@@ -122,7 +122,7 @@ export const ComboboxField = React.forwardRef<
 
         <div className="relative flex items-center">
           <Combobox
-            items={items}
+            items={options}
             itemToStringValue={(item) => item.label}
             value={selectedItem}
             onValueChange={(item) =>
@@ -143,6 +143,7 @@ export const ComboboxField = React.forwardRef<
               showClear={loading ? false : showClear}
               className={cn("w-full", loading && "pr-9", inputClassName)}
               disabled={loading || disabled}
+              // biome-ignore lint/correctness/noChildrenProp: <explanation>
               children={
                 loading && (
                   <div

@@ -2,8 +2,8 @@
 
 import { Eye, Mail } from "lucide-react";
 import * as React from "react";
+import { TextField } from "@/components/ui/text-field";
 import { cn } from "@/lib/utils";
-import { TextField } from "@/registry/ui/text-field";
 
 type Orientation = "vertical" | "horizontal" | "responsive";
 

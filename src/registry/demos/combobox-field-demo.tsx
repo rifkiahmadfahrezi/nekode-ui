@@ -19,7 +19,7 @@ export function ComboboxFieldDemo() {
       label="Framework"
       description="Search or pick from the list."
       placeholder="Select a framework"
-      items={frameworks}
+      options={frameworks}
       value={value as string}
       onValueChange={setValue}
       inputClassName="w-72"

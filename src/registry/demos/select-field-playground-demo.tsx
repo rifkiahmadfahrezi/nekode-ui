@@ -2,8 +2,8 @@
 
 import { Tag } from "lucide-react";
 import * as React from "react";
+import { SelectField } from "@/components/ui/select-field";
 import { cn } from "@/lib/utils";
-import { SelectField } from "@/registry/ui/select-field";
 
 type Orientation = "vertical" | "horizontal" | "responsive";
 

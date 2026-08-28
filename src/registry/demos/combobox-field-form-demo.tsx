@@ -61,7 +61,7 @@ export function ComboboxFieldFormDemo() {
           <ComboboxField
             label="Assignee"
             placeholder="Search teammates"
-            items={assignees}
+            options={assignees}
             value={field.state.value}
             onValueChange={(value) => field.handleChange(value ?? "")}
             error={field.state.meta.errors[0]?.message}
@@ -76,7 +76,7 @@ export function ComboboxFieldFormDemo() {
             label="Label"
             description="Optional — leave blank or clear it at any time."
             placeholder="Search labels"
-            items={labels}
+            options={labels}
             value={field.state.value as string}
             onValueChange={field.handleChange}
             error={field.state.meta.errors[0]?.message}

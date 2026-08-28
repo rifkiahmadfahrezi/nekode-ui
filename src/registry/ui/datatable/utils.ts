@@ -1,8 +1,11 @@
-import { useCallback } from "react";
 import type * as React from "react";
+import { useCallback } from "react";
 import type { DataTableColumn } from "./types";
 
-export function getRecordId<T>(record: T, idAccessor?: keyof T | ((record: T) => React.Key)): React.Key {
+export function getRecordId<T>(
+  record: T,
+  idAccessor?: keyof T | ((record: T) => React.Key),
+): React.Key {
   if (typeof idAccessor === "function") return idAccessor(record);
   if (idAccessor) return record[idAccessor] as unknown as React.Key;
   return JSON.stringify(record);
@@ -13,17 +16,21 @@ export function getColumnKey<T>(col: DataTableColumn<T>): string {
   return col.id ?? col.accessor;
 }
 
-export function computeOrderedColumns<T>(columns: DataTableColumn<T>[]): DataTableColumn<T>[] {
+export function computeOrderedColumns<T>(
+  columns: DataTableColumn<T>[],
+): DataTableColumn<T>[] {
   const left = columns.filter((c) => c.pinned === "left");
   const right = columns.filter((c) => c.pinned === "right");
-  const middle = columns.filter((c) => c.pinned !== "left" && c.pinned !== "right");
+  const middle = columns.filter(
+    (c) => c.pinned !== "left" && c.pinned !== "right",
+  );
   return [...left, ...middle, ...right];
 }
 
 export function computePinOffsets<T>(
   orderedColumns: DataTableColumn<T>[],
   leadingGutter: number,
-  defaultWidth: number
+  defaultWidth: number,
 ) {
   const leftPinnedCols = orderedColumns.filter((c) => c.pinned === "left");
   const rightPinnedCols = orderedColumns.filter((c) => c.pinned === "right");
@@ -48,7 +55,11 @@ export function computePinOffsets<T>(
   return { leftOffsets, rightOffsets, leftPinnedCols, rightPinnedCols };
 }
 
-export function getPaginationRange(current: number, total: number, siblingCount = 1): (number | "ellipsis")[] {
+export function getPaginationRange(
+  current: number,
+  total: number,
+  siblingCount = 1,
+): (number | "ellipsis")[] {
   const totalVisible = siblingCount * 2 + 5;
   if (totalVisible >= total) {
     return Array.from({ length: Math.max(total, 0) }, (_, i) => i + 1);
@@ -69,7 +80,9 @@ export function getPaginationRange(current: number, total: number, siblingCount 
 }
 
 /** Merge multiple refs (object or callback) into a single stable callback ref. */
-export function useMergedRef<T>(...refs: Array<React.Ref<T> | undefined>): React.RefCallback<T> {
+export function useMergedRef<T>(
+  ...refs: Array<React.Ref<T> | undefined>
+): React.RefCallback<T> {
   return useCallback((node: T | null) => {
     for (const ref of refs) {
       if (!ref) continue;
@@ -78,4 +91,52 @@ export function useMergedRef<T>(...refs: Array<React.Ref<T> | undefined>): React
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, refs);
+}
+
+/**
+ * Row number for a "No." column, accounting for pagination — e.g. row 0 on
+ * page 2 with 10 records/page is #11, not #1.
+ */
+export function getSequenceNumber(
+  rowIndex: number,
+  page?: number,
+  recordsPerPage?: number,
+): number {
+  if (page && recordsPerPage) return (page - 1) * recordsPerPage + rowIndex + 1;
+  return rowIndex + 1;
+}
+
+/**
+ * Ready-made column definition for a "No." / sequence-number column.
+ * Pass `page`/`recordsPerPage` when paginating so numbering continues
+ * across pages instead of resetting to 1 on every page.
+ *
+ *   columns={[createSequenceColumn({ page, recordsPerPage }), ...yourColumns]}
+ */
+export function createSequenceColumn<T>(options?: {
+  title?: React.ReactNode;
+  width?: number | string;
+  page?: number;
+  recordsPerPage?: number;
+  /** Override the (otherwise unused) synthetic accessor/id, e.g. if "no" collides with a real field. */
+  accessor?: string;
+  pinned?: "left" | "right";
+}): DataTableColumn<T> {
+  const {
+    title = "No.",
+    width = 56,
+    page,
+    recordsPerPage,
+    accessor = "__sequence",
+    pinned,
+  } = options ?? {};
+  return {
+    accessor,
+    title,
+    width,
+    pinned,
+    textAlign: "center",
+    render: (_record, rowIndex) =>
+      getSequenceNumber(rowIndex, page, recordsPerPage),
+  };
 }

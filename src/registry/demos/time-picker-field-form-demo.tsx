@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { TimePickerField } from "@/registry/ui/time-picker-field";
+import { TimePickerField } from "@/components/ui/time-picker-field";
 
 /** Validate "HH:mm" strings with an optional min/max range. */
 const timeString = z

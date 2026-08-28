@@ -1,6 +1,6 @@
 "use client";
 
-import { DatePickerField } from "@/registry/ui/date-picker-field";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 
 export function DatePickerFieldDemo() {
   return (
