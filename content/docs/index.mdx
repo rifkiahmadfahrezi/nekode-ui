@@ -1,31 +1,25 @@
 ---
-title: Hello World
-description: Your favourite docs framework.
-icon: Rocket
+title: Introduction
+description: Extra shadcn/ui components and form fields you copy-paste into your project.
 ---
 
-Hey there! Fumadocs is the docs framework that also works on Tanstack Start!
+nekode/ui extends [shadcn/ui](https://ui.shadcn.com) components make it simpler and easier to use. copy-paste into your project, same as shadcn itself.
 
-## Heading
-
-Hello World!
+## What's inside
 
 <Cards>
-  <Card title="Learn more about Tanstack Start" href="https://tanstack.com/start" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card title="DataTable" description="Sorting, selection, column pinning, expandable rows, row actions, pagination." href="/docs/datatable" />
+  <Card title="Form Fields" description="Text, number, password, select, combobox, date picker, time picker, textarea." href="/docs/form-fields/text-field" />
 </Cards>
 
-### CodeBlock
+## Installation
 
-```ts
-console.log('Hello World');
-```
+Install components with the shadcn CLI, pointed at this registry:
 
-#### Table
+<InstallationTabs componentName="datatable" />
 
-| Head                            | Description                         |
-| ------------------------------- | ----------------------------------- |
-| `hello`                         | Hello World                         |
-| very **important**              | Hey                                 |
-| _Surprisingly_                  | Fumadocs                            |
-| very long text that looks weird | hello world hello world hello world |
+Each component's docs page has the exact command for that component under Installation.
+
+<Callout type="info">
+  Components are built on shadcn/ui's **Base UI** backend (`@base-ui/react`), not Radix. If you're used to Radix-based shadcn components, check each page's callouts for the differences that carry through the API.
+</Callout>

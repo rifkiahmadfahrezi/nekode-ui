@@ -8,7 +8,6 @@ import {
   Layers,
   Paintbrush,
   Shield,
-  Terminal,
 } from "lucide-react";
 import { baseOptions } from "@/lib/layout.shared";
 
@@ -65,11 +64,6 @@ function Home() {
     <HomeLayout {...baseOptions()}>
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-4 pt-24 pb-16 md:pt-32 md:pb-24 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm text-muted-foreground mb-6">
-          <Terminal className="size-3.5" />
-          <span>npx shadcn add</span>
-        </div>
-
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
           Ship faster with
           <br />
@@ -98,22 +92,6 @@ function Home() {
           >
             GitHub
           </a>
-        </div>
-      </section>
-
-      {/* Install snippet */}
-      <section className="px-4 pb-16 md:pb-24">
-        <div className="mx-auto max-w-lg rounded-lg border bg-card p-4 font-mono text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground mb-2">
-            <Terminal className="size-4" />
-            <span className="text-xs uppercase tracking-wider">Install</span>
-          </div>
-          <code className="text-foreground">
-            npx shadcn@latest add{" "}
-            <span className="text-muted-foreground">
-              https://nekode-ui.pages.dev/r/text-field.json
-            </span>
-          </code>
         </div>
       </section>
 
