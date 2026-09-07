@@ -225,6 +225,25 @@
           "target": "components/ui/datatable/utils.ts"
         }
       ]
+    },
+    {
+      "name": "file-field",
+      "type": "registry:ui",
+      "title": "File Field",
+      "description": "A drag-and-drop file input with single/multiple selection, previews, and removable file list.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": ["field", "button", "label", "attachment"],
+      "files": [
+        {
+          "path": "./src/registry/ui/file-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/file-field.tsx"
+        }
+      ]
     }
   ]
 }

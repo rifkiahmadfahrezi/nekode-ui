@@ -1,0 +1,60 @@
+---
+title: FileField
+description: A drag-and-drop file input with single or multiple selection, image previews, and a removable file list.
+---
+
+`FileField` wraps a native file input with a `Field` layout and a modern dropzone: click or drag files onto it, pick single or multiple files, and manage the selected list as `Attachment` cards with previews and remove buttons.
+
+## Installation
+
+<InstallationTabs componentName="file-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/file-field-demo.tsx">
+  <FileFieldDemo />
+</ComponentPreview>
+
+## Playground
+
+Toggle `multiple`, `disabled`, and set an error message to see how the dropzone responds. `accept` is fixed to `image/*,.pdf` here.
+
+<FileFieldPlaygroundDemo />
+
+## Accessibility
+
+- The dropzone has `role="button"`, is keyboard-focusable, and opens the file picker on <kbd>Enter</kbd> or <kbd>Space</kbd> in addition to click.
+- The hidden native input keeps `aria-invalid`, `aria-describedby`, and `aria-errormessage` wired the same way as `TextField`.
+- Each selected file's remove button carries an `aria-label` naming the file (e.g. "Remove invoice.pdf"), not just an icon.
+- Image previews are decorative (`alt=""`); the filename text next to them is the accessible name for that file.
+
+<Callout type="info">
+  `FileField` manages its own file list unless you pass `value`/`onValueChange`. Rejections (wrong type, over `maxSize`, or over `maxFiles`) are reported via `onFilesRejected` instead of throwing or silently failing.
+</Callout>
+
+## API Reference
+
+### FileField
+
+`FileField` accepts every native `<input type="file">` attribute (except `value`, `defaultValue`, `onChange`, `type`) in addition to the props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the dropzone. |
+| `description` | `string` | — | Helper text shown below the file list. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `value` | `File[]` | — | Controlled list of selected files. |
+| `defaultValue` | `File[]` | `[]` | Initial files when uncontrolled. |
+| `onValueChange` | `(files: File[]) => void` | — | Called with the next file list on add or remove. |
+| `multiple` | `boolean` | `false` | Allow selecting or dropping more than one file. |
+| `maxFiles` | `number` | — | Caps how many files are kept when `multiple` is set; extras are reported as rejections. |
+| `maxSize` | `number` | — | Max size per file, in bytes. Oversized files are rejected. |
+| `onFilesRejected` | `(rejections: { file: File; reason: "size" \| "count" \| "accept" }[]) => void` | — | Called with files that failed `accept`, `maxSize`, or `maxFiles`. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the dropzone. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `dropzoneClassName` | `string` | — | Class name applied to the dropzone, merged after `className`. |
+| `className` | `string` | — | Class name applied to the dropzone. |
+| `accept` | `string` | — | Native `accept` attribute; also filters files added via drag-and-drop. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the dropzone, hidden input, and remove buttons. |

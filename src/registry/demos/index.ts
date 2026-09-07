@@ -14,6 +14,8 @@ export * from "./datatable-styling-demo";
 export * from "./date-picker-field-demo";
 export * from "./date-picker-field-form-demo";
 export * from "./date-picker-field-playground-demo";
+export * from "./file-field-demo";
+export * from "./file-field-playground-demo";
 export * from "./number-field-demo";
 export * from "./number-field-form-demo";
 export * from "./number-field-playground";

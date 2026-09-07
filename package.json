@@ -28,6 +28,7 @@
     "@tanstack/react-start": "1.168.44",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.2.5",
     "cnfast": "^0.1.0",
     "date-fns": "^4.4.0",
     "fumadocs-core": "16.14.4",
