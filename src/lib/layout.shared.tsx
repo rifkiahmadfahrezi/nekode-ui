@@ -7,6 +7,18 @@ export function baseOptions(): BaseLayoutProps {
       // JSX supported
       title: appName,
     },
+    links: [
+      {
+        text: "Docs",
+        url: "/docs",
+        secondary: false,
+      },
+      {
+        text: "Form Generator",
+        url: "/form-generator",
+        secondary: false,
+      },
+    ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
   };
 }
