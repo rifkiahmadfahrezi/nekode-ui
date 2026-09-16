@@ -97,7 +97,7 @@ function Home() {
 
       {/* Features */}
       <section className="px-4 pb-16 md:pb-24">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-7xl">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
             Why nekode/ui?
           </h2>

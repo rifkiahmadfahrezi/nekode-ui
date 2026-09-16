@@ -164,7 +164,7 @@ function RouteComponent() {
 
   return (
     <HomeLayout {...baseOptions()}>
-      <div className="mx-auto flex flex-col gap-6 p-6">
+      <div className="mx-auto w-full max-w-6xl flex flex-col gap-6 p-6">
         <div>
           <h1 className="text-lg font-semibold">Form generator</h1>
           <p className="text-sm text-muted-foreground">

@@ -18,6 +18,11 @@ export function baseOptions(): BaseLayoutProps {
         url: "/form-generator",
         secondary: false,
       },
+      {
+        text: "Templates",
+        url: "/template",
+        secondary: false,
+      },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
   };

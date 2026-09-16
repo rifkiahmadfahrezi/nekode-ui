@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormGeneratorRouteImport } from './routes/form-generator'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as TemplateRouteImport } from './routes/template'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as DocsChar123Char125DotmdRouteImport } from './routes/docs/{$}[.]md'
@@ -37,6 +38,11 @@ const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TemplateRoute = TemplateRouteImport.update({
+  id: '/template',
+  path: '/template',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
   id: '/api/search',
   path: '/api/search',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/template': typeof TemplateRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/{$}.md': typeof DocsChar123Char125DotmdRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/template': typeof TemplateRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/{$}.md': typeof DocsChar123Char125DotmdRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/template': typeof TemplateRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/{$}.md': typeof DocsChar123Char125DotmdRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
+    | '/template'
     | '/api/search'
     | '/docs/$'
     | '/docs/{$}.md'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
+    | '/template'
     | '/api/search'
     | '/docs/$'
     | '/docs/{$}.md'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
+    | '/template'
     | '/api/search'
     | '/docs/$'
     | '/docs/{$}.md'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   FormGeneratorRoute: typeof FormGeneratorRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
+  TemplateRoute: typeof TemplateRoute
   ApiSearchRoute: typeof ApiSearchRoute
   DocsSplatRoute: typeof DocsSplatRoute
   DocsChar123Char125DotmdRoute: typeof DocsChar123Char125DotmdRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/template': {
+      id: '/template'
+      path: '/template'
+      fullPath: '/template'
+      preLoaderRoute: typeof TemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/search': {
       id: '/api/search'
       path: '/api/search'
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormGeneratorRoute: FormGeneratorRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
+  TemplateRoute: TemplateRoute,
   ApiSearchRoute: ApiSearchRoute,
   DocsSplatRoute: DocsSplatRoute,
   DocsChar123Char125DotmdRoute: DocsChar123Char125DotmdRoute,
