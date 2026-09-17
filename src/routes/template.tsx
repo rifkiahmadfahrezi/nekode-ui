@@ -44,8 +44,8 @@ function TemplatesPage() {
         <div>
           <h1 className="text-lg font-semibold">Templates</h1>
           <p className="text-sm text-muted-foreground">
-            Full starter projects built with nekode/ui components. Clone the
-            repo or preview the live demo.
+            Complete starter projects to clone and build from. Check the
+            source before you commit, or try the live build first.
           </p>
         </div>
 
@@ -53,23 +53,32 @@ function TemplatesPage() {
           {templates.map((template) => (
             <div
               key={template.name}
-              className="flex flex-col overflow-hidden rounded-lg border bg-card"
+              className="group flex flex-col overflow-hidden rounded-lg border bg-card transition-colors hover:border-foreground/20"
             >
               <a
                 href={template.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="block overflow-hidden border-b"
               >
                 {template.image ? (
                   <img
                     src={template.image}
                     alt={`${template.name} preview`}
-                    className="aspect-video w-full border-b object-cover object-top"
+                    className="aspect-video w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex aspect-video w-full items-center justify-center border-b bg-muted/40 text-sm font-medium text-muted-foreground">
-                    {template.name}
+                  <div
+                    className="flex aspect-video w-full items-end bg-muted/40 p-4"
+                    style={{
+                      backgroundImage:
+                        "repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted-foreground) 8%, transparent) 0px, color-mix(in oklab, var(--muted-foreground) 8%, transparent) 1px, transparent 1px, transparent 12px)",
+                    }}
+                  >
+                    <span className="rounded-md border bg-background px-2 py-1 font-mono text-xs text-muted-foreground">
+                      {template.name}
+                    </span>
                   </div>
                 )}
               </a>
@@ -101,7 +110,7 @@ function TemplatesPage() {
                     className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                   >
                     <ExternalLink className="size-3.5" />
-                    Live Demo
+                    Live demo
                   </a>
                   <a
                     href={template.repoUrl}
@@ -109,7 +118,7 @@ function TemplatesPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
                   >
-                    View Repo
+                    View source
                   </a>
                 </div>
               </div>
