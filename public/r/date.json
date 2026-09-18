@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "date",
+  "title": "Date Utilities",
+  "description": "ISO date formatting/parsing helpers (yyyy-MM-dd, ISO strings) for UI display.",
+  "dependencies": [
+    "date-fns"
+  ],
+  "files": [
+    {
+      "path": "src/registry/lib/date.ts",
+      "content": "import {\n  format,\n  formatDistanceToNow,\n  isBefore,\n  isSameDay,\n  isValid,\n  parseISO,\n} from \"date-fns\";\n\n/** Format a `Date` as `yyyy-MM-dd` (e.g. for API payloads, `<input type=\"date\">`). */\nexport function toISODateString(date: Date): string {\n  return format(date, \"yyyy-MM-dd\");\n}\n\n/** Parse an ISO 8601 string — `\"2026-09-19\"` or `\"2026-09-19T10:30:00Z\"` — into a `Date`. */\nexport function parseISODate(value: string): Date {\n  return parseISO(value);\n}\n\n/** Format a `Date` for display in the UI. Defaults to a long, human-readable format. */\nexport function formatDateDisplay(date: Date, formatStr = \"PPP\"): string {\n  return format(date, formatStr);\n}\n\n/** Check whether a `Date` is a valid date (not `Invalid Date`). */\nexport function isValidDate(date: Date): boolean {\n  return isValid(date);\n}\n\n/** Check whether an ISO 8601 string is valid and can be parsed into a `Date`. */\nexport function isValidISODate(value: string): boolean {\n  return isValid(parseISO(value));\n}\n\n/** Format a `Date` as a time string (e.g. `\"10:30 AM\"`) for UI display. */\nexport function formatTimeDisplay(date: Date, formatStr = \"p\"): string {\n  return format(date, formatStr);\n}\n\n/** Format a `Date` as a relative time string (e.g. `\"2 days ago\"`, `\"in 3 hours\"`). */\nexport function formatRelativeDate(date: Date): string {\n  return formatDistanceToNow(date, { addSuffix: true });\n}\n\n/** Check whether two `Date`s fall on the same calendar day. */\nexport function isSameCalendarDay(a: Date, b: Date): boolean {\n  return isSameDay(a, b);\n}\n\n/** Check whether a `Date` is before the current time. */\nexport function isPastDate(date: Date): boolean {\n  return isBefore(date, new Date());\n}\n",
+      "type": "registry:lib",
+      "target": "lib/date.ts"
+    }
+  ],
+  "type": "registry:lib"
+}

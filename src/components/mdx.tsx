@@ -1,3 +1,4 @@
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import * as demos from "@/registry/demos";
@@ -11,6 +12,8 @@ export function getMDXComponents(components?: MDXComponents) {
     InstallationTabs,
     PreviewComponent,
     ComponentPreview: PreviewComponent,
+    Tabs,
+    Tab,
     ...demos,
   } satisfies MDXComponents;
 }

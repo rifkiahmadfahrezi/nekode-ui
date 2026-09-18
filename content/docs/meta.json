@@ -5,6 +5,7 @@
     "---Components---",
     "datatable",
     "form-fields",
-    "---Style variants (Soon)---"
+    "---Utility functions---",
+    "date"
   ]
 }

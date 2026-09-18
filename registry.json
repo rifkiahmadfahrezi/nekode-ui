@@ -4,6 +4,33 @@
   "homepage": "https://nekode-ui.rifkiaf.com",
   "items": [
     {
+      "name": "date",
+      "type": "registry:lib",
+      "title": "Date Utilities",
+      "description": "ISO date formatting/parsing helpers (yyyy-MM-dd, ISO strings) for UI display.",
+      "dependencies": ["date-fns"],
+      "files": [
+        {
+          "path": "./src/registry/lib/date.ts",
+          "type": "registry:lib",
+          "target": "lib/date.ts"
+        }
+      ]
+    },
+    {
+      "name": "date-vanilla",
+      "type": "registry:lib",
+      "title": "Date Utilities (Vanilla)",
+      "description": "Same date formatting/parsing helpers as date, implemented with native Date and Intl — no date-fns dependency.",
+      "files": [
+        {
+          "path": "./src/registry/lib/date-vanilla.ts",
+          "type": "registry:lib",
+          "target": "lib/date-vanilla.ts"
+        }
+      ]
+    },
+    {
       "name": "text-field",
       "type": "registry:ui",
       "title": "Text Field",
