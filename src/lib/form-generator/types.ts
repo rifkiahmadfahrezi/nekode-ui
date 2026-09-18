@@ -5,7 +5,11 @@ export type FieldKind =
   | "number"
   | "select"
   | "combobox"
+  | "radio"
+  | "switch"
   | "date-picker"
+  | "date-range-picker"
+  | "date-multi-picker"
   | "time-picker"
   | "file";
 

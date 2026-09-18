@@ -21,7 +21,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ComboboxField } from "@/components/ui/combobox-field";
+import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
 import { DatePickerField } from "@/components/ui/date-picker-field";
+import { DateRangePickerField } from "@/components/ui/date-range-picker-field";
+import { FieldRadio } from "@/components/ui/field-radio";
+import { FieldSwitch } from "@/components/ui/field-switch";
 import { FileField } from "@/components/ui/file-field";
 import { Label } from "@/components/ui/label";
 import { NumberField } from "@/components/ui/number-field";
@@ -70,7 +74,7 @@ function makeField(kind: FieldKind, index: number): FieldConfig {
     label: FIELD_KINDS.find((k) => k.kind === kind)?.label ?? kind,
     required: true,
     options:
-      kind === "select" || kind === "combobox"
+      kind === "select" || kind === "combobox" || kind === "radio"
         ? [
             { label: "Option 1", value: "option-1" },
             { label: "Option 2", value: "option-2" },
@@ -572,9 +576,44 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
           }
         />
       );
+    case "radio":
+      return (
+        <FieldRadio
+          {...common}
+          options={field.options ?? []}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "switch":
+      return (
+        <FieldSwitch
+          {...common}
+          checked={formField.state.value}
+          onCheckedChange={formField.handleChange}
+        />
+      );
     case "date-picker":
       return (
         <DatePickerField
+          {...common}
+          placeholder={field.placeholder}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "date-range-picker":
+      return (
+        <DateRangePickerField
+          {...common}
+          placeholder={field.placeholder}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "date-multi-picker":
+      return (
+        <DateMultiPickerField
           {...common}
           placeholder={field.placeholder}
           value={formField.state.value}

@@ -15,6 +15,20 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
       });
       return field.required ? base : base.optional();
     }
+    case "date-range-picker": {
+      const base = z.object({ from: z.date(), to: z.date() });
+      return field.required ? base : base.optional();
+    }
+    case "date-multi-picker": {
+      const base = z.array(z.date());
+      return field.required
+        ? base.min(1, `${field.label || field.name} is required`)
+        : base.optional();
+    }
+    case "switch": {
+      const base = z.boolean();
+      return field.required ? base : base.optional();
+    }
     case "file": {
       const base = z.array(z.instanceof(File));
       return field.required
@@ -34,9 +48,14 @@ export function defaultValueFor(field: FieldConfig): unknown {
   switch (field.kind) {
     case "number":
     case "date-picker":
+    case "date-range-picker":
       return undefined;
+    case "date-multi-picker":
+      return [];
     case "file":
       return [];
+    case "switch":
+      return false;
     default:
       return "";
   }

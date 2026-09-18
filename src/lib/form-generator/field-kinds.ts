@@ -1,7 +1,10 @@
 import {
   AlignLeft,
   CalendarDays,
+  CalendarPlus,
+  CalendarRange,
   ChevronsUpDown,
+  CircleDot,
   Clock,
   Hash,
   KeyRound,
@@ -9,6 +12,7 @@ import {
   Paperclip,
   Search,
   TextCursorInput,
+  ToggleLeft,
 } from "lucide-react";
 
 import type { FieldKind } from "./types";
@@ -68,11 +72,40 @@ export const FIELD_KINDS: FieldKindMeta[] = [
     needsOptions: true,
   },
   {
+    kind: "radio",
+    label: "Radio",
+    component: "FieldRadio",
+    importPath: "@/components/ui/field-radio",
+    icon: CircleDot,
+    needsOptions: true,
+  },
+  {
+    kind: "switch",
+    label: "Switch",
+    component: "FieldSwitch",
+    importPath: "@/components/ui/field-switch",
+    icon: ToggleLeft,
+  },
+  {
     kind: "date-picker",
     label: "Date Picker",
     component: "DatePickerField",
     importPath: "@/components/ui/date-picker-field",
     icon: CalendarDays,
+  },
+  {
+    kind: "date-range-picker",
+    label: "Date Range Picker",
+    component: "DateRangePickerField",
+    importPath: "@/components/ui/date-range-picker-field",
+    icon: CalendarRange,
+  },
+  {
+    kind: "date-multi-picker",
+    label: "Date Multi Picker",
+    component: "DateMultiPickerField",
+    importPath: "@/components/ui/date-multi-picker-field",
+    icon: CalendarPlus,
   },
   {
     kind: "time-picker",

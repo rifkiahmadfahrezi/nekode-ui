@@ -16,6 +16,16 @@ function zodSource(field: FieldConfig): string {
       return field.required
         ? `z.date({ error: ${jsStringLiteral(`${label} is required`)} })`
         : `z.date().optional()`;
+    case "date-range-picker":
+      return field.required
+        ? `z.object({ from: z.date(), to: z.date() })`
+        : `z.object({ from: z.date(), to: z.date() }).optional()`;
+    case "date-multi-picker":
+      return field.required
+        ? `z.array(z.date()).min(1, ${jsStringLiteral(`${label} is required`)})`
+        : `z.array(z.date()).optional()`;
+    case "switch":
+      return field.required ? `z.boolean()` : `z.boolean().optional()`;
     case "file":
       return field.required
         ? `z.array(z.instanceof(File)).min(1, ${jsStringLiteral(`${label} is required`)})`
@@ -31,9 +41,13 @@ function defaultValueSource(field: FieldConfig): string {
   switch (field.kind) {
     case "number":
     case "date-picker":
+    case "date-range-picker":
       return "undefined";
+    case "date-multi-picker":
     case "file":
       return "[]";
+    case "switch":
+      return "false";
     default:
       return `""`;
   }
@@ -51,6 +65,13 @@ function optionsSource(field: FieldConfig): string {
     .join("\n")}\n      ]`;
 }
 
+const KINDS_WITHOUT_PLACEHOLDER = new Set<FieldConfig["kind"]>([
+  "radio",
+  "switch",
+  "time-picker",
+  "file",
+]);
+
 function fieldJsx(field: FieldConfig): string {
   const meta = kindMeta(field.kind);
   const common = [
@@ -58,7 +79,7 @@ function fieldJsx(field: FieldConfig): string {
     field.description
       ? `description={${jsStringLiteral(field.description)}}`
       : null,
-    field.placeholder
+    field.placeholder && !KINDS_WITHOUT_PLACEHOLDER.has(field.kind)
       ? `placeholder={${jsStringLiteral(field.placeholder)}}`
       : null,
     `error={field.state.meta.errors[0]?.message}`,
@@ -68,8 +89,22 @@ function fieldJsx(field: FieldConfig): string {
   switch (field.kind) {
     case "select":
     case "combobox":
+    case "radio":
       valueProps = [
         `options={${optionsSource(field)}}`,
+        `value={field.state.value}`,
+        `onValueChange={field.handleChange}`,
+      ];
+      break;
+    case "switch":
+      valueProps = [
+        `checked={field.state.value}`,
+        `onCheckedChange={field.handleChange}`,
+      ];
+      break;
+    case "date-range-picker":
+    case "date-multi-picker":
+      valueProps = [
         `value={field.state.value}`,
         `onValueChange={field.handleChange}`,
       ];
