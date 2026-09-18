@@ -1,0 +1,34 @@
+name: Feature or new component request
+description: Propose a new component, utility, or improvement.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a brand-new component or utility, it helps to describe the use case before any code is written —
+        see [CONTRIBUTING.md](../../CONTRIBUTING.md#before-you-start).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you unable to do today that this would enable?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the API/props look like? Link to a similar pattern in another library if useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you thought about, and why this one is better.
+    validations:
+      required: false

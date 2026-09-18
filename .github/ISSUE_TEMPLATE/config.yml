@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://ui.nekode.id/docs
+    about: Check the docs before filing — your question might already be answered there.
+  - name: Ask a question / discuss an idea
+    url: https://github.com/rifkiahmadfahrezi/nekode-ui/discussions
+    about: For open-ended questions or design discussions that aren't a specific bug or feature request.

@@ -1,6 +1,13 @@
 {
   "name": "nekode-ui",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rifkiahmadfahrezi/nekode-ui.git"
+  },
+  "homepage": "https://ui.nekode.id",
+  "bugs": "https://github.com/rifkiahmadfahrezi/nekode-ui/issues",
   "type": "module",
   "sideEffects": false,
   "scripts": {

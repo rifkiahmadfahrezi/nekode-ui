@@ -40,7 +40,7 @@ nekode-ui/
    {
      "$schema": "https://ui.shadcn.com/schema/registry.json",
      "name": "nekode-ui",
-     "homepage": "https://nekode-ui.rifkiaf.com",
+     "homepage": "https://ui.nekode.id",
      "items": [
        {
          "name": "button",
@@ -88,5 +88,5 @@ nekode-ui/
    Users can install items directly into their projects via the shadcn CLI:
 
    ```bash
-   npx shadcn@latest add https://nekode-ui.rifkiaf.com/r/button.json
+   npx shadcn@latest add https://ui.nekode.id/r/button.json
    ```

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "nekode-ui",
-  "homepage": "https://nekode-ui.rifkiaf.com",
+  "homepage": "https://ui.nekode.id",
   "items": [
     {
       "name": "date",
