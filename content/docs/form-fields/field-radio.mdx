@@ -1,0 +1,59 @@
+---
+title: FieldRadio
+description: A labeled radio group with support for descriptions and validation errors, optionally rendered as selectable choice cards.
+---
+
+`FieldRadio` wraps the base `RadioGroup` component with a `FieldSet` layout: a legend, an optional description, and error handling for the whole group. Pass `options` to render each choice; set `asCard` to render every option as a bordered, clickable choice card instead of a plain radio row.
+
+## Installation
+
+<InstallationTabs componentName="field-radio" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/field-radio-demo.tsx">
+  <FieldRadioDemo />
+</ComponentPreview>
+
+## Playground
+
+Toggle `asCard`, the asterisk, disabled state, or drop in an error message to see how the group responds.
+
+<FieldRadioPlaygroundDemo />
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/field-radio-form-demo.tsx">
+  <FieldRadioFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+`FieldRadio` connects the legend, description, and error message to the group for you:
+
+- Each option's label uses `htmlFor`, so clicking it (including the card surface when `asCard` is set) selects that radio.
+- `aria-describedby` on the group points to the description, but only while there's no error.
+- The error message is wired through `aria-errormessage` on the group, and `aria-invalid` flips to `true` whenever `error` is set.
+- Individually disabled options are set through `options[].disabled`, independent of the group-level `disabled` prop.
+
+## API Reference
+
+### FieldRadio
+
+`FieldRadio` accepts every prop the base `RadioGroup` component accepts (except `children`) in addition to the props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `options` | `{ value: string; label: string; description?: string; disabled?: boolean }[]` | — | The radio choices rendered inside the group. |
+| `label` | `string` | — | Legend rendered above the group. |
+| `description` | `string` | — | Helper text shown below the legend. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the group into an invalid state and renders through `FieldError`. |
+| `asCard` | `boolean` | `false` | Renders each option as a bordered, clickable choice card instead of a plain radio row. |
+| `fieldSetClassName` | `string` | — | Class name applied to the outer `FieldSet`. |
+| `legendClassName` | `string` | — | Class name applied to the `FieldLegend`. |
+| `itemClassName` | `string` | — | Class name applied to each option's wrapper (`Field` or `FieldLabel` card). |
+| `radioClassName` | `string` | — | Class name applied to each `RadioGroupItem`. |
+| `required` | `boolean` | `false` | Marks the group as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables every option in the group. |

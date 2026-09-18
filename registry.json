@@ -246,6 +246,21 @@
       ]
     },
     {
+      "name": "field-radio",
+      "type": "registry:ui",
+      "title": "Field Radio",
+      "description": "A labeled radio group with description/error support, optionally rendered as choice cards.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["field", "radio-group", "label"],
+      "files": [
+        {
+          "path": "./src/registry/ui/field-radio.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/field-radio.tsx"
+        }
+      ]
+    },
+    {
       "name": "field-switch",
       "type": "registry:ui",
       "title": "Field Switch",
