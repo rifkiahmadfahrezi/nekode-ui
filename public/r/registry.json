@@ -110,6 +110,60 @@
       ]
     },
     {
+      "name": "date-range-picker-field",
+      "type": "registry:ui",
+      "title": "Date Range Picker Field",
+      "description": "A labeled date range picker built on Calendar and Popover with field layout.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "date-fns",
+        "lucide-react",
+        "react-day-picker"
+      ],
+      "registryDependencies": [
+        "field",
+        "calendar",
+        "popover",
+        "button",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/date-range-picker-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/date-range-picker-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "date-multi-picker-field",
+      "type": "registry:ui",
+      "title": "Date Multi Picker Field",
+      "description": "A labeled multi-date picker built on Calendar and Popover with field layout.",
+      "dependencies": [
+        "@base-ui/react",
+        "class-variance-authority",
+        "date-fns",
+        "lucide-react",
+        "react-day-picker"
+      ],
+      "registryDependencies": [
+        "field",
+        "calendar",
+        "popover",
+        "button",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/date-multi-picker-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/date-multi-picker-field.tsx"
+        }
+      ]
+    },
+    {
       "name": "time-picker-field",
       "type": "registry:ui",
       "title": "Time Picker Field",

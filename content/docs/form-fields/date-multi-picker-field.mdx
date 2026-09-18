@@ -1,0 +1,57 @@
+---
+title: DateMultiPickerField
+description: A labeled multi-date picker built on Calendar and Popover with a label, description, and error handling in one piece.
+---
+
+`DateMultiPickerField` is the multi-select variant of `DatePickerField` — same `Field` layout and month/year navigation, but the value is a `Date[]` and the calendar runs in `mode="multiple"`. Reach for it when a form needs an arbitrary set of dates (availability, recurring exceptions) instead of a single date or a range.
+
+## Installation
+
+<InstallationTabs componentName="date-multi-picker-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/date-multi-picker-field-demo.tsx">
+  <DateMultiPickerFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/date-multi-picker-field-form-demo.tsx">
+  <DateMultiPickerFieldFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+`DateMultiPickerField` connects the label, description, and error message to the trigger button the same way `DatePickerField` does:
+
+- The label uses `htmlFor`, so clicking it opens the calendar popover.
+- `aria-describedby` points to the description, but only while there's no error.
+- The error message is wired through `aria-errormessage` and `aria-invalid` flips to `true` whenever `error` is set.
+
+## API Reference
+
+### DateMultiPickerField
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the trigger. |
+| `description` | `string` | — | Helper text shown below the field. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `Date[]` | — | Controlled selected dates. |
+| `defaultValue` | `Date[]` | — | Initial dates for uncontrolled use. |
+| `onValueChange` | `(dates: Date[] \| undefined) => void` | — | Fires when the user picks or clears dates. |
+| `placeholder` | `string` | `"Pick dates"` | Text shown in the trigger when no dates are selected. |
+| `dateFormat` | `string` | `"PPP"` | A `date-fns` format string used to display each selected date. |
+| `maxLabels` | `number` | `2` | Max dates listed in the trigger before it collapses to `"N dates selected"`. |
+| `minDate` | `Date` | — | Earliest selectable date. Disables earlier days and filters month/year options. |
+| `maxDate` | `Date` | — | Latest selectable date. Disables later days and filters month/year options. |
+| `name` | `string` | — | Forwarded to the trigger button for native form submission. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the trigger. |
+| `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `triggerClassName` | `string` | — | Class name applied to the popover trigger button. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the trigger and dims the label. |
