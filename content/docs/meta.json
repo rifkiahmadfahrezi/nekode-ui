@@ -6,6 +6,8 @@
     "datatable",
     "form-fields",
     "---Utility functions---",
-    "date"
+    "date",
+    "string",
+    "number"
   ]
 }

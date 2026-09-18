@@ -1,0 +1,107 @@
+---
+title: Number Utilities
+description: Common number helpers — clamp, range check, random int, number/currency/compact formatting.
+---
+
+Zero-dependency number helpers for the two things every dashboard/form needs: constraining values (`clamp`, `isBetween`) and formatting them for display (`formatNumber`, `formatCurrency`, `formatCompactNumber`) via native `Intl.NumberFormat`.
+
+## Installation
+
+<InstallationTabs componentName="number" />
+
+### Manual Installation
+
+Prefer to copy just one function? Grab it below and drop it into `@/lib/number.ts` (or your own util file).
+
+```ts title="lib/number.ts"
+interface MinMaxOptions {
+  min: number;
+  max: number;
+}
+
+interface FormatNumberOptions {
+  options?: Intl.NumberFormatOptions;
+  locale?: string;
+}
+
+interface FormatCurrencyOptions {
+  currency: string;
+  locale?: string;
+}
+
+/** Clamp a number between `min` and `max`. */
+export function clamp(value: number, { min, max }: MinMaxOptions): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+/** Check whether a number falls within `[min, max]`, inclusive. */
+export function isBetween(value: number, { min, max }: MinMaxOptions): boolean {
+  return value >= min && value <= max;
+}
+
+/** Return a random integer between `min` and `max`, inclusive. */
+export function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/** Format a number using `Intl.NumberFormat`, e.g. `formatNumber(1234.5)` → `"1,234.5"`. */
+export function formatNumber(
+  value: number,
+  { options, locale }: FormatNumberOptions = {},
+): string {
+  return new Intl.NumberFormat(locale, options).format(value);
+}
+
+/** Format a number as currency, e.g. `formatCurrency(19.9, { currency: "USD" })` → `"$19.90"`. */
+export function formatCurrency(
+  value: number,
+  { currency, locale }: FormatCurrencyOptions,
+): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
+    value,
+  );
+}
+
+/** Format a number in compact notation, e.g. `formatCompactNumber(1500)` → `"1.5K"`. */
+export function formatCompactNumber(value: number, locale?: string): string {
+  return new Intl.NumberFormat(locale, { notation: "compact" }).format(value);
+}
+```
+
+## Usage
+
+```ts
+import {
+  clamp,
+  isBetween,
+  randomInt,
+  formatNumber,
+  formatCurrency,
+  formatCompactNumber,
+} from "@/lib/number";
+
+clamp(150, { min: 0, max: 100 }); // 100
+isBetween(42, { min: 0, max: 100 }); // true
+
+randomInt(1, 6); // e.g. 4
+
+formatNumber(1234.5); // "1,234.5"
+formatNumber(0.42, { options: { style: "percent" } }); // "42%"
+
+formatCurrency(19.9, { currency: "USD" }); // "$19.90"
+formatCurrency(19.9, { currency: "EUR", locale: "de-DE" }); // "19,90 €"
+
+formatCompactNumber(1500); // "1.5K"
+formatCompactNumber(2_400_000); // "2.4M"
+```
+
+## API Reference
+
+| Function | Signature | Description |
+|---|---|---|
+| `clamp` | `(value: number, { min: number; max: number }) => number` | Constrains `value` to `[min, max]`. |
+| `isBetween` | `(value: number, { min: number; max: number }) => boolean` | Checks whether `value` falls within `[min, max]`, inclusive. |
+| `randomInt` | `(min: number, max: number) => number` | Returns a random integer in `[min, max]`, inclusive. |
+| `formatNumber` | `(value: number, opts?: { options?: Intl.NumberFormatOptions; locale?: string }) => string` | Formats a number via `Intl.NumberFormat`. |
+| `formatCurrency` | `(value: number, { currency: string; locale?: string }) => string` | Formats a number as currency. |
+| `formatCompactNumber` | `(value: number, locale?: string) => string` | Formats a number in compact notation, e.g. `"1.5K"`. |

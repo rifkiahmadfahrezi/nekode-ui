@@ -31,6 +31,32 @@
       ]
     },
     {
+      "name": "string",
+      "type": "registry:lib",
+      "title": "String Utilities",
+      "description": "Common string helpers — capitalize, title case, slugify, truncate, pluralize, currency formatting, email/phone masking.",
+      "files": [
+        {
+          "path": "./src/registry/lib/string.ts",
+          "type": "registry:lib",
+          "target": "lib/string.ts"
+        }
+      ]
+    },
+    {
+      "name": "number",
+      "type": "registry:lib",
+      "title": "Number Utilities",
+      "description": "Common number helpers — clamp, range check, random int, number/currency/compact formatting.",
+      "files": [
+        {
+          "path": "./src/registry/lib/number.ts",
+          "type": "registry:lib",
+          "target": "lib/number.ts"
+        }
+      ]
+    },
+    {
       "name": "text-field",
       "type": "registry:ui",
       "title": "Text Field",

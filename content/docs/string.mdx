@@ -1,0 +1,164 @@
+---
+title: String Utilities
+description: Common string helpers — capitalize, title case, slugify, truncate, pluralize, currency formatting, PII masking.
+---
+
+Zero-dependency string helpers for the formatting every UI needs: capitalizing labels, slugifying titles into URLs, truncating long text, pluralizing counts, and masking sensitive data (email, phone) for display.
+
+## Installation
+
+<InstallationTabs componentName="string" />
+
+### Manual Installation
+
+Prefer to copy just one function? Grab it below and drop it into `@/lib/string.ts` (or your own util file).
+
+```ts title="lib/string.ts"
+interface TruncateOptions {
+  length: number;
+  suffix?: string;
+}
+
+interface PluralizeOptions {
+  count: number;
+  plural?: string;
+}
+
+interface FormatCurrencyOptions {
+  currency: string;
+  locale?: string;
+}
+
+/** Uppercase the first character of a string. */
+export function capitalize(value: string): string {
+  if (!value) return value;
+  return value[0].toUpperCase() + value.slice(1);
+}
+
+/** Convert a string to Title Case (each word capitalized). */
+export function toTitleCase(value: string): string {
+  return value.replace(/\w\S*/g, (word) => capitalize(word.toLowerCase()));
+}
+
+/** Convert a string to a URL-safe slug, e.g. `"Hello World!"` → `"hello-world"`. */
+export function slugify(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** Truncate a string to `length` characters, appending `suffix` (default `"…"`) if it was cut. */
+export function truncate(
+  value: string,
+  { length, suffix = "…" }: TruncateOptions,
+): string {
+  if (value.length <= length) return value;
+  return value.slice(0, length) + suffix;
+}
+
+/** Check whether a string is empty or only whitespace. */
+export function isBlank(value: string): boolean {
+  return value.trim().length === 0;
+}
+
+/** Pluralize a word based on `count`, e.g. `pluralize("item", { count: 2 })` → `"items"`. */
+export function pluralize(
+  word: string,
+  { count, plural }: PluralizeOptions,
+): string {
+  if (count === 1) return word;
+  return plural ?? `${word}s`;
+}
+
+/** Format a numeric string or number as currency, e.g. `formatCurrency("19.9", { currency: "USD" })` → `"$19.90"`. */
+export function formatCurrency(
+  value: string | number,
+  { currency, locale }: FormatCurrencyOptions,
+): string {
+  const numeric = typeof value === "string" ? Number(value) : value;
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
+    numeric,
+  );
+}
+
+/** Mask the local part of an email, e.g. `"john.doe@example.com"` → `"jo***@example.com"`. */
+export function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  const visible = local.slice(0, Math.min(2, local.length));
+  return `${visible}***@${domain}`;
+}
+
+/**
+ * Mask a phone number, keeping the last `visibleDigits` digits (default `4`) visible.
+ * Preserves original formatting (spaces, dashes, `+`), e.g. `"+1 555-123-4567"` → `"+* ***-***-4567"`.
+ */
+export function maskPhoneNumber(phone: string, visibleDigits = 4): string {
+  const digitCount = (phone.match(/\d/g) ?? []).length;
+  if (digitCount <= visibleDigits) return phone;
+
+  let remaining = digitCount - visibleDigits;
+  return phone.replace(/\d/g, (digit) => {
+    if (remaining > 0) {
+      remaining--;
+      return "*";
+    }
+    return digit;
+  });
+}
+```
+
+## Usage
+
+```ts
+import {
+  capitalize,
+  toTitleCase,
+  slugify,
+  truncate,
+  isBlank,
+  pluralize,
+  formatCurrency,
+  maskEmail,
+  maskPhoneNumber,
+} from "@/lib/string";
+
+capitalize("hello world"); // "Hello world"
+toTitleCase("hello world"); // "Hello World"
+slugify("Hello, World!"); // "hello-world"
+
+truncate("A very long description", { length: 10 }); // "A very lon…"
+truncate("A very long description", { length: 10, suffix: "..." }); // "A very lon..."
+
+isBlank("   "); // true
+
+pluralize("item", { count: 1 }); // "item"
+pluralize("item", { count: 3 }); // "items"
+pluralize("category", { count: 3, plural: "categories" }); // "categories"
+
+formatCurrency("19.9", { currency: "USD" }); // "$19.90"
+formatCurrency(19.9, { currency: "EUR", locale: "de-DE" }); // "19,90 €"
+
+maskEmail("john.doe@example.com"); // "jo***@example.com"
+
+maskPhoneNumber("+1 555-123-4567"); // "+* ***-***-4567"
+maskPhoneNumber("08123456789", 3); // "********789"
+```
+
+## API Reference
+
+| Function | Signature | Description |
+|---|---|---|
+| `capitalize` | `(value: string) => string` | Uppercases the first character. |
+| `toTitleCase` | `(value: string) => string` | Capitalizes every word. |
+| `slugify` | `(value: string) => string` | Converts to a lowercase, URL-safe, hyphen-separated slug. |
+| `truncate` | `(value: string, { length: number; suffix?: string }) => string` | Truncates to `length` characters, appending `suffix` (default `"…"`) if cut. |
+| `isBlank` | `(value: string) => boolean` | Checks whether a string is empty or only whitespace. |
+| `pluralize` | `(word: string, { count: number; plural?: string }) => string` | Returns `word` or its plural (default `` `${word}s` ``) based on `count`. |
+| `formatCurrency` | `(value: string \| number, { currency: string; locale?: string }) => string` | Formats a numeric string or number as currency. |
+| `maskEmail` | `(email: string) => string` | Masks the local part of an email, keeping the first 2 characters and the domain. |
+| `maskPhoneNumber` | `(phone: string, visibleDigits?: number) => string` | Masks all but the last `visibleDigits` digits (default `4`), preserving formatting. |

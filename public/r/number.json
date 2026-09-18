@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "number",
+  "title": "Number Utilities",
+  "description": "Common number helpers — clamp, range check, random int, number/currency/compact formatting.",
+  "files": [
+    {
+      "path": "src/registry/lib/number.ts",
+      "content": "interface MinMaxOptions {\n  min: number;\n  max: number;\n}\n\ninterface FormatNumberOptions {\n  options?: Intl.NumberFormatOptions;\n  locale?: string;\n}\n\ninterface FormatCurrencyOptions {\n  currency: string;\n  locale?: string;\n}\n\n/** Clamp a number between `min` and `max`. */\nexport function clamp(value: number, { min, max }: MinMaxOptions): number {\n  return Math.min(Math.max(value, min), max);\n}\n\n/** Check whether a number falls within `[min, max]`, inclusive. */\nexport function isBetween(value: number, { min, max }: MinMaxOptions): boolean {\n  return value >= min && value <= max;\n}\n\n/** Return a random integer between `min` and `max`, inclusive. */\nexport function randomInt(min: number, max: number): number {\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\n/** Format a number using `Intl.NumberFormat`, e.g. `formatNumber(1234.5)` → `\"1,234.5\"`. */\nexport function formatNumber(\n  value: number,\n  { options, locale }: FormatNumberOptions = {},\n): string {\n  return new Intl.NumberFormat(locale, options).format(value);\n}\n\n/** Format a number as currency, e.g. `formatCurrency(19.9, { currency: \"USD\" })` → `\"$19.90\"`. */\nexport function formatCurrency(\n  value: number,\n  { currency, locale }: FormatCurrencyOptions,\n): string {\n  return new Intl.NumberFormat(locale, { style: \"currency\", currency }).format(\n    value,\n  );\n}\n\n/** Format a number in compact notation, e.g. `formatCompactNumber(1500)` → `\"1.5K\"`. */\nexport function formatCompactNumber(value: number, locale?: string): string {\n  return new Intl.NumberFormat(locale, { notation: \"compact\" }).format(value);\n}\n",
+      "type": "registry:lib",
+      "target": "lib/number.ts"
+    }
+  ],
+  "type": "registry:lib"
+}
