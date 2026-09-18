@@ -244,6 +244,21 @@
           "target": "components/ui/file-field.tsx"
         }
       ]
+    },
+    {
+      "name": "field-switch",
+      "type": "registry:ui",
+      "title": "Field Switch",
+      "description": "A labeled switch with description/error support, optionally rendered as a choice card.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["field", "switch", "label"],
+      "files": [
+        {
+          "path": "./src/registry/ui/field-switch.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/field-switch.tsx"
+        }
+      ]
     }
   ]
 }

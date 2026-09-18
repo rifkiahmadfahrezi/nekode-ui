@@ -1,0 +1,56 @@
+---
+title: FieldSwitch
+description: A labeled switch with support for descriptions and validation errors, optionally rendered as a selectable choice card.
+---
+
+`FieldSwitch` wraps the base `Switch` component with a `Field` layout: a label, an optional description, and error handling in one piece. Set `asCard` to render the same switch as a bordered, clickable choice card instead of a plain label row.
+
+## Installation
+
+<InstallationTabs componentName="field-switch" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/field-switch-demo.tsx">
+  <FieldSwitchDemo />
+</ComponentPreview>
+
+## Playground
+
+Toggle `asCard`, the asterisk, disabled state, or drop in an error message to see how the field responds.
+
+<FieldSwitchPlaygroundDemo />
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/field-switch-form-demo.tsx">
+  <FieldSwitchFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+`FieldSwitch` connects the label, description, and error message to the switch for you:
+
+- The label uses `htmlFor`, so clicking it (including the card surface when `asCard` is set) toggles the switch.
+- `aria-describedby` points to the description, but only while there's no error.
+- The error message is wired through `aria-errormessage` instead, and `aria-invalid` flips to `true` whenever `error` is set.
+
+## API Reference
+
+### FieldSwitch
+
+`FieldSwitch` accepts every prop the base `Switch` component accepts (except `id`) in addition to the props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered next to (or above, in card mode) the switch. |
+| `description` | `string` | — | Helper text shown near the switch. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `asCard` | `boolean` | `false` | Renders the field as a bordered, clickable choice card instead of a plain label row. |
+| `fieldClassName` | `string` | — | Class name applied to the outer wrapper (the `Field` or card container). |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `switchClassName` | `string` | — | Class name applied to the `Switch` element. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the switch and dims the label. |
