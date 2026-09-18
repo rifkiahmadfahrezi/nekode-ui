@@ -21,9 +21,9 @@ export const Route = createFileRoute("/")({
 const features = [
   {
     icon: Blocks,
-    title: "Built for real forms",
+    title: "Fields, blocks, and templates",
     description:
-      "Date pickers, file uploads, OTP inputs — the fields every app needs but shadcn/ui doesn't ship.",
+      "Form fields today, full blocks and starter templates alongside — one registry, growing past forms.",
   },
   {
     icon: Shield,
@@ -47,7 +47,7 @@ const features = [
     icon: Code2,
     title: "Nothing to import from us",
     description:
-      "The component lands in your repo as plain code. No package to update, no version to chase.",
+      "Every component lands in your repo as plain code. No package to update, no version to chase.",
   },
 ];
 
@@ -75,17 +75,16 @@ function Home() {
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-4 pt-24 pb-16 md:pt-32 md:pb-24 text-center max-w-4xl mx-auto">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
-          The shadcn/ui fields
+          Components as a service
           <br />
           <span className="text-muted-foreground">
-            your forms are missing.
+            for your shadcn/ui project.
           </span>
         </h1>
 
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8">
-          Date pickers, comboboxes, file uploads, and a form generator to
-          assemble them — installed straight into your codebase, no
-          dependency added.
+          Form fields, blocks, and full templates — installed straight into
+          your codebase, no dependency added.
         </p>
 
         <button
@@ -124,7 +123,7 @@ function Home() {
       <section className="px-4 pb-16 md:pb-24">
         <div className="mx-auto max-w-7xl">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-            Why not just use shadcn/ui directly?
+            More than fields
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {features.map((feature) => (
@@ -147,11 +146,11 @@ function Home() {
       <section className="px-4 pb-16 md:pb-24">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Every field, one registry
+            Start with these form fields
           </h2>
           <p className="text-muted-foreground mb-8">
             Each one is a drop-in replacement for the shadcn/ui input you're
-            already using.
+            already using. Blocks and templates ship the same way.
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {components.map((name) => (
@@ -171,11 +170,11 @@ function Home() {
       <section className="px-4 pb-24 md:pb-32">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Stop rebuilding the same form.
+            Stop rebuilding the same UI.
           </h2>
           <p className="text-muted-foreground mb-6">
-            Install the fields, wire up the flow, and get back to the part of
-            the product only you can build.
+            Install the components, wire up the flow, and get back to the
+            part of the product only you can build.
           </p>
           <Link
             to="/docs/$"
