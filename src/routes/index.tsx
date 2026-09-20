@@ -73,7 +73,7 @@ function Home() {
   return (
     <HomeLayout {...baseOptions()}>
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center px-4 pt-24 pb-16 md:pt-32 md:pb-24 text-center max-w-4xl mx-auto">
+      <section className="flex w-full flex-col items-center justify-center px-4 pt-24 pb-16 md:pt-32 md:pb-24 text-center max-w-4xl mx-auto">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-4">
           Components as a service
           <br />
