@@ -11,7 +11,7 @@ import {
   Shield,
 } from "lucide-react";
 import { toast } from "sonner";
-import { registryBaseUrl } from "@/lib/constants";
+import { useOrigin } from "@/hooks/use-origin";
 import { baseOptions } from "@/lib/layout.shared";
 
 export const Route = createFileRoute("/")({
@@ -63,7 +63,7 @@ const components = [
 ];
 
 function Home() {
-  const installCommand = `npx shadcn@latest add ${registryBaseUrl}date-picker-field.json`;
+  const installCommand = `npx shadcn@latest add ${useOrigin()}/r/date-picker-field.json`;
 
   async function copyInstallCommand() {
     await navigator.clipboard.writeText(installCommand);
