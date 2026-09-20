@@ -381,6 +381,66 @@
           "target": "components/ui/field-switch.tsx"
         }
       ]
+    },
+    {
+      "name": "login-form",
+      "type": "registry:block",
+      "title": "Login Form",
+      "description": "Email and password sign-in form with validation.",
+      "dependencies": ["@tanstack/react-form", "lucide-react", "zod"],
+      "registryDependencies": ["button", "https://ui.nekode.id/r/text-field.json", "https://ui.nekode.id/r/password-field.json"],
+      "files": [
+        {
+          "path": "./src/registry/blocks/login-form.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/login-form.tsx"
+        }
+      ]
+    },
+    {
+      "name": "register-form",
+      "type": "registry:block",
+      "title": "Register Form",
+      "description": "Sign-up form with name, email and password confirmation.",
+      "dependencies": ["@tanstack/react-form", "lucide-react", "zod"],
+      "registryDependencies": ["button", "https://ui.nekode.id/r/text-field.json", "https://ui.nekode.id/r/password-field.json"],
+      "files": [
+        {
+          "path": "./src/registry/blocks/register-form.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/register-form.tsx"
+        }
+      ]
+    },
+    {
+      "name": "forgot-password-form",
+      "type": "registry:block",
+      "title": "Forgot Password Form",
+      "description": "Single-field form that requests a password reset link.",
+      "dependencies": ["@tanstack/react-form", "lucide-react", "zod"],
+      "registryDependencies": ["button", "https://ui.nekode.id/r/text-field.json"],
+      "files": [
+        {
+          "path": "./src/registry/blocks/forgot-password-form.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/forgot-password-form.tsx"
+        }
+      ]
+    },
+    {
+      "name": "contact-form",
+      "type": "registry:block",
+      "title": "Contact Form",
+      "description": "Contact form with name, email and a message with character count.",
+      "dependencies": ["@tanstack/react-form", "lucide-react", "zod"],
+      "registryDependencies": ["button", "https://ui.nekode.id/r/text-field.json", "https://ui.nekode.id/r/textarea-field.json"],
+      "files": [
+        {
+          "path": "./src/registry/blocks/contact-form.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/contact-form.tsx"
+        }
+      ]
     }
   ]
 }
