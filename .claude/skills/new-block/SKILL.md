@@ -25,7 +25,7 @@ There is no `components/ui` re-export and no docs mdx for blocks: the `/blocks` 
    - Export the component and an `<Name>Props` interface. Expose data/behavior through props with sensible defaults (`onSubmit?(values)`, `plans`, `items`...), not by hardcoding backend calls. The consumer should never need to edit the file just to wire it up.
    - Export the value types (`LoginFormValues`) so callers can type their handlers.
    - Compose existing pieces: registry fields (`TextField`, `PasswordField`, `TextareaField`, `SelectField`...), shadcn primitives (`Button`, ...) from `@/components/ui/*`. Don't restyle or reimplement what those already give you (labels, errors, aria wiring).
-   - Forms use TanStack Form + zod, same pattern as `login-form.tsx`: `validators: { onChange: schema }`, `error={field.state.meta.errors[0]?.message}`, submit button disabled by `canSubmit` with an in-flight label.
+   - Forms follow `login-form.tsx` exactly (see "Form behavior" below): TanStack Form + zod, validate on blur, errors only on touched fields, spinner while submitting, error alert, focus first invalid field.
 
 3. **Register** in `registry.json`: `type: "registry:block"`, `title`, `description`, `dependencies` (npm packages, e.g. `@tanstack/react-form`, `zod`), `registryDependencies`, and `files` with `type: "registry:component"` and `target: "components/blocks/<name>.tsx"`.
    - shadcn primitives go by short name (`"button"`).
@@ -36,6 +36,19 @@ There is no `components/ui` re-export and no docs mdx for blocks: the `/blocks` 
 5. **Add to `/blocks`**: import the block in `src/routes/blocks.tsx`, add `{ name, title, description, files: [file("<name>")], preview: <Block onSubmit={showValues} /> }`. `name` must equal the registry name (it builds the install command). For a multi-file block list every file, using the registry `target` as the tree path.
 
 6. **Verify visually, not just with types** (see below), then `bun run types:check` and `bunx biome check --write <changed files>`.
+
+## Form behavior (why each exists)
+
+Copy these from `login-form.tsx`; each fixes a real annoyance:
+- `validationLogic: revalidateLogic({ mode: "blur", modeAfterSubmission: "change" })` with `validators: { onDynamic: schema }`. Validating on every keystroke flags "a" as an invalid email before the user finished typing; blur first, then live once they have tried to submit.
+- `error={field.state.meta.isTouched ? field.state.meta.errors[0]?.message : undefined}`. A form-level schema fills errors for every field on the first blur, so untouched fields would light up red without the user going near them. Submit marks all fields touched, so submit still shows everything.
+- Submit button is `disabled={isSubmitting}` only, with `aria-busy` and a `LoaderCircle animate-spin` icon. Never disable it on `canSubmit`: a dead button gives no hint why.
+- `onSubmitInvalid` focuses the first `[aria-invalid='true']` in `requestAnimationFrame` (errors render a frame later). Without it keyboard and screen reader users are left on the button.
+- Wrap `await onSubmit?.()` in try/catch and show the message in a `role="alert"` box above the button. The consumer's handler will fail sometimes; the block must let the user retry.
+- One-shot flows (forgot password, contact) swap to a success card after `onSubmit` resolves. The card is `tabIndex={-1}` and focused via ref so it is announced, and offers a way to go again.
+- Inputs get `name`, `autoComplete`, and for email `type="email" inputMode="email" autoCapitalize="none" spellCheck={false}`, so password managers and mobile keyboards behave. Every input also gets a `placeholder` showing an example value (`you@example.com`, `Jane Doe`); it is a hint only, the visible label stays the accessible name.
+- Navigation links (`forgotPasswordHref`, `registerHref`...) are optional props that render only when set. The block can't know the consumer's routes; default stays clean. Use plain `<a>` with `whitespace-nowrap` on short link text.
+- Wrap the form in a card (`rounded-xl border bg-card p-6 shadow-xs sm:p-8`) so it looks finished on any background. Use a single column: `/blocks` previews narrow widths by constraining a `div`, so `sm:` grids would squeeze inside the "mobile" preview.
 
 ## Design rules (why each exists)
 
