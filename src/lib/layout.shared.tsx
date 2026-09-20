@@ -19,6 +19,11 @@ export function baseOptions(): BaseLayoutProps {
         secondary: false,
       },
       {
+        text: "Blocks",
+        url: "/blocks",
+        secondary: false,
+      },
+      {
         text: "Templates",
         url: "/template",
         secondary: false,

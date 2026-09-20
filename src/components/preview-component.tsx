@@ -37,7 +37,7 @@ function getComponentSourcePromise(path: string): Promise<string> {
   return promise;
 }
 
-function CodeTabContent({
+export function CodeTabContent({
   path,
   lang = "tsx",
 }: {

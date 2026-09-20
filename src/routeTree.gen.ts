@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlocksRouteImport } from './routes/blocks'
 import { Route as FormGeneratorRouteImport } from './routes/form-generator'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
@@ -21,6 +22,11 @@ import { Route as DocsChar123Char125DotmdRouteImport } from './routes/docs/{$}[.
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlocksRoute = BlocksRouteImport.update({
+  id: '/blocks',
+  path: '/blocks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormGeneratorRoute = FormGeneratorRouteImport.update({
@@ -61,6 +67,7 @@ const DocsChar123Char125DotmdRoute = DocsChar123Char125DotmdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blocks': typeof BlocksRoute
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/blocks': typeof BlocksRoute
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/blocks': typeof BlocksRoute
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/blocks'
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/blocks'
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/blocks'
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BlocksRoute: typeof BlocksRoute
   FormGeneratorRoute: typeof FormGeneratorRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blocks': {
+      id: '/blocks'
+      path: '/blocks'
+      fullPath: '/blocks'
+      preLoaderRoute: typeof BlocksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/form-generator': {
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BlocksRoute: BlocksRoute,
   FormGeneratorRoute: FormGeneratorRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
