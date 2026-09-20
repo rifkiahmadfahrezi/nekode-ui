@@ -4,12 +4,14 @@ import {
   ChevronDown,
   FileCode2,
   Folder,
+  Maximize2,
+  Minimize2,
   Monitor,
   Smartphone,
   Tablet,
   Terminal,
 } from "lucide-react";
-import { type ReactNode, Suspense, useId, useState } from "react";
+import { type ReactNode, Suspense, useEffect, useId, useState } from "react";
 import { InstallationTabs } from "@/components/installation-tabs";
 import { CodeTabContent } from "@/components/preview-component";
 import { cn } from "@/lib/utils";
@@ -129,10 +131,29 @@ export function BlockPreview({
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [selected, setSelected] = useState(files[0]);
   const [installOpen, setInstallOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const installId = useId();
 
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) =>
+      e.key === "Escape" && setFullscreen(false);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen]);
+
   return (
-    <section className="not-prose flex min-w-0 flex-col overflow-hidden rounded-lg border bg-card">
+    <section
+      className={cn(
+        "not-prose flex min-w-0 flex-col overflow-hidden border bg-card",
+        fullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-lg",
+      )}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold">{title}</h3>
@@ -193,6 +214,19 @@ export function BlockPreview({
               aria-hidden="true"
             />
           </button>
+          <button
+            type="button"
+            aria-pressed={fullscreen}
+            aria-label={fullscreen ? "Exit full screen" : "Full screen"}
+            onClick={() => setFullscreen((f) => !f)}
+            className={cn(toggleClass, "rounded-lg border py-1.5")}
+          >
+            {fullscreen ? (
+              <Minimize2 className="size-3.5" aria-hidden="true" />
+            ) : (
+              <Maximize2 className="size-3.5" aria-hidden="true" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -203,7 +237,12 @@ export function BlockPreview({
       )}
 
       {view === "preview" ? (
-        <div className="bg-muted/30 p-2 sm:p-6">
+        <div
+          className={cn(
+            "bg-muted/30 p-2 sm:p-6",
+            fullscreen && "min-h-0 flex-1 overflow-auto",
+          )}
+        >
           <div
             className="mx-auto max-w-full overflow-x-auto rounded-md border bg-background p-3 transition-[width] duration-300 sm:p-10"
             style={{ width: viewports[viewport].width }}
@@ -212,7 +251,12 @@ export function BlockPreview({
           </div>
         </div>
       ) : (
-        <div className="grid min-w-0 sm:grid-cols-[13rem_minmax(0,1fr)]">
+        <div
+          className={cn(
+            "grid min-w-0 sm:grid-cols-[13rem_minmax(0,1fr)]",
+            fullscreen && "min-h-0 flex-1",
+          )}
+        >
           {files.length > 1 && (
             <nav
               aria-label="Block files"
@@ -227,7 +271,8 @@ export function BlockPreview({
           )}
           <div
             className={cn(
-              "max-h-[32rem] min-w-0 overflow-auto [&_figure]:my-0 [&_figure]:rounded-none [&_figure]:border-0",
+              "min-w-0 overflow-auto [&_figure]:my-0 [&_figure]:rounded-none [&_figure]:border-0",
+              fullscreen ? "min-h-0" : "max-h-[32rem]",
               files.length === 1 && "sm:col-span-2",
             )}
           >
