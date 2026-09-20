@@ -282,3 +282,16 @@ ${navigation}
 }
 `;
 }
+
+/** One `shadcn add` command for every field component used. Empty string if no fields. */
+export function generateInstallCommand(steps: StepConfig[], origin: string) {
+  const names = Array.from(
+    new Set(
+      steps.flatMap((s) =>
+        s.fields.map((f) => kindMeta(f.kind).importPath.split("/").pop()),
+      ),
+    ),
+  );
+  if (!names.length) return "";
+  return `npx shadcn@latest add ${names.map((n) => `${origin}/r/${n}.json`).join(" ")}`;
+}

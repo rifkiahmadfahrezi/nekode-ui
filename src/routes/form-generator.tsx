@@ -10,6 +10,7 @@ import {
   GripVertical,
   Search,
   Settings2,
+  Terminal,
   Trash2,
   X,
   XIcon,
@@ -39,7 +40,11 @@ import { SelectField } from "@/components/ui/select-field";
 import { TextField } from "@/components/ui/text-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
-import { generateFormCode } from "@/lib/form-generator/codegen";
+import { useOrigin } from "@/hooks/use-origin";
+import {
+  generateFormCode,
+  generateInstallCommand,
+} from "@/lib/form-generator/codegen";
 import { FIELD_KINDS, kindMeta } from "@/lib/form-generator/field-kinds";
 import { buildFormSchema } from "@/lib/form-generator/schema";
 import type {
@@ -95,6 +100,11 @@ function RouteComponent() {
 
   const activeStep = steps.find((s) => s.id === activeStepId) ?? steps[0];
   const code = React.useMemo(() => generateFormCode(steps), [steps]);
+  const origin = useOrigin();
+  const installCommand = React.useMemo(
+    () => generateInstallCommand(steps, origin),
+    [steps, origin],
+  );
 
   function updateStep(
     stepId: string,
@@ -166,6 +176,13 @@ function RouteComponent() {
     toast.success("Copied source to clipboard");
   }
 
+  async function copyInstall() {
+    await navigator.clipboard.writeText(installCommand);
+    const count = new Set(steps.flatMap((s) => s.fields.map((f) => f.kind)))
+      .size;
+    toast.success(`Copied install command (${count} components)`);
+  }
+
   return (
     <HomeLayout {...baseOptions()}>
       <div className="mx-auto w-full max-w-6xl flex flex-col gap-6 p-6">
@@ -191,6 +208,17 @@ function RouteComponent() {
               />
               <div className="flex items-center gap-2">
                 <ViewToggle value={view} onChange={setView} />
+                {installCommand && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title={installCommand}
+                    onClick={copyInstall}
+                  >
+                    <Terminal className="size-3.5" /> Copy install
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="outline"
