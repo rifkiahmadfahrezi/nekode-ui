@@ -5,13 +5,11 @@ import {
   Blocks,
   Check,
   Code2,
-  Copy,
   Layers,
   Paintbrush,
   Shield,
 } from "lucide-react";
-import { toast } from "sonner";
-import { useOrigin } from "@/hooks/use-origin";
+import { InstallCommand } from "@/components/install-command";
 import { baseOptions } from "@/lib/layout.shared";
 
 export const Route = createFileRoute("/")({
@@ -63,13 +61,6 @@ const components = [
 ];
 
 function Home() {
-  const installCommand = `npx shadcn@latest add ${useOrigin()}/r/date-picker-field.json`;
-
-  async function copyInstallCommand() {
-    await navigator.clipboard.writeText(installCommand);
-    toast.success("Copied to clipboard");
-  }
-
   return (
     <HomeLayout {...baseOptions()}>
       {/* Hero */}
@@ -87,17 +78,9 @@ function Home() {
           your codebase, no dependency added.
         </p>
 
-        <button
-          type="button"
-          onClick={copyInstallCommand}
-          className="group mb-8 flex w-full max-w-lg items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 font-mono text-sm text-muted-foreground transition-colors hover:border-foreground/30"
-        >
-          <span className="truncate text-left text-foreground">
-            <span className="select-none text-muted-foreground">$ </span>
-            {installCommand}
-          </span>
-          <Copy className="size-4 shrink-0 transition-colors group-hover:text-foreground" />
-        </button>
+        <div className="mb-8 flex w-full justify-center">
+          <InstallCommand />
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
