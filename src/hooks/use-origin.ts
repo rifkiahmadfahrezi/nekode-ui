@@ -10,3 +10,12 @@ export function useOrigin() {
     () => import.meta.env.VITE_BASE_URL ?? "",
   );
 }
+
+const REGISTRY_NAMESPACE = "@nekode";
+
+/** Registry ref for a component: namespace on prod, direct URL on localhost dev. */
+export function getRegistryRef(origin: string, name: string) {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)/.test(origin)
+    ? `${origin}/r/${name}.json`
+    : `${REGISTRY_NAMESPACE}/${name}`;
+}

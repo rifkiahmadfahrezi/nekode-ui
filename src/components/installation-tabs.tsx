@@ -3,7 +3,7 @@
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { Check, Clipboard } from "lucide-react";
 import { useCopy } from "@/hooks/use-copy";
-import { useOrigin } from "@/hooks/use-origin";
+import { getRegistryRef, useOrigin } from "@/hooks/use-origin";
 import type { Packages } from "@/lib/constants";
 import { packages } from "@/lib/constants";
 
@@ -16,9 +16,9 @@ const commandTemplates: Record<Packages, string> = {
 
 export function InstallationTabs({ componentName }: { componentName: string }) {
   const [copied, copy] = useCopy();
-  const registryBaseUrl = useOrigin();
+  const origin = useOrigin();
   const getCommand = (pkg: Packages) => {
-    return `${commandTemplates[pkg]} ${registryBaseUrl}/r/${componentName}.json`;
+    return `${commandTemplates[pkg]} ${getRegistryRef(origin, componentName)}`;
   };
 
   return (
