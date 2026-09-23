@@ -1,3 +1,4 @@
+import { getRegistryRef } from "@/hooks/use-origin";
 import { kindMeta } from "./field-kinds";
 import type { FieldConfig, StepConfig } from "./types";
 
@@ -288,10 +289,10 @@ export function generateInstallCommand(steps: StepConfig[], origin: string) {
   const names = Array.from(
     new Set(
       steps.flatMap((s) =>
-        s.fields.map((f) => kindMeta(f.kind).importPath.split("/").pop()),
+        s.fields.map((f) => kindMeta(f.kind).importPath.split("/").pop()!),
       ),
     ),
   );
   if (!names.length) return "";
-  return `npx shadcn@latest add ${names.map((n) => `${origin}/r/${n}.json`).join(" ")}`;
+  return `npx shadcn@latest add ${names.map((n) => getRegistryRef(origin, n)).join(" ")}`;
 }
