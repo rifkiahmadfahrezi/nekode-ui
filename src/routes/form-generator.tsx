@@ -54,6 +54,7 @@ import type {
   StepConfig,
 } from "@/lib/form-generator/types";
 import { baseOptions } from "@/lib/layout.shared";
+import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 // Lazy load so shiki / fumadocs highlighter deps are only fetched when the Source tab opens.
@@ -64,6 +65,13 @@ const DynamicCodeBlock = React.lazy(() =>
 );
 
 export const Route = createFileRoute("/form-generator")({
+  head: () =>
+    seo({
+      title: "Form Generator — nekode/ui",
+      description:
+        "Drag, drop, and configure form fields visually, then copy the generated shadcn/ui form code and install command.",
+      path: "/form-generator",
+    }),
   component: RouteComponent,
 });
 

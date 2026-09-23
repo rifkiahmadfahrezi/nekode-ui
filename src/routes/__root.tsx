@@ -8,6 +8,7 @@ import {
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
 import type * as React from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { seo, siteDescription } from "@/lib/seo";
 import { appName } from "@/lib/shared";
 import appCss from "@/styles/app.css?url";
 
@@ -21,9 +22,8 @@ export const Route = createRootRoute({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      {
-        title: appName,
-      },
+      { name: "robots", content: "index, follow" },
+      ...seo({ title: appName, description: siteDescription }).meta,
     ],
     links: [
       { rel: "stylesheet", href: appCss },

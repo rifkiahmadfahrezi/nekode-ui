@@ -14,6 +14,8 @@ import { Route as BlocksRouteImport } from './routes/blocks'
 import { Route as FormGeneratorRouteImport } from './routes/form-generator'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TemplateRouteImport } from './routes/template'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
@@ -44,6 +46,16 @@ const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TemplateRoute = TemplateRouteImport.update({
   id: '/template',
   path: '/template',
@@ -71,6 +83,8 @@ export interface FileRoutesByFullPath {
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/template': typeof TemplateRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -82,6 +96,8 @@ export interface FileRoutesByTo {
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/template': typeof TemplateRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -94,6 +110,8 @@ export interface FileRoutesById {
   '/form-generator': typeof FormGeneratorRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/template': typeof TemplateRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -107,6 +125,8 @@ export interface FileRouteTypes {
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/template'
     | '/api/search'
     | '/docs/$'
@@ -118,6 +138,8 @@ export interface FileRouteTypes {
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/template'
     | '/api/search'
     | '/docs/$'
@@ -129,6 +151,8 @@ export interface FileRouteTypes {
     | '/form-generator'
     | '/llms-full.txt'
     | '/llms.txt'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/template'
     | '/api/search'
     | '/docs/$'
@@ -141,6 +165,8 @@ export interface RootRouteChildren {
   FormGeneratorRoute: typeof FormGeneratorRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TemplateRoute: typeof TemplateRoute
   ApiSearchRoute: typeof ApiSearchRoute
   DocsSplatRoute: typeof DocsSplatRoute
@@ -184,6 +210,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/template': {
       id: '/template'
       path: '/template'
@@ -221,6 +261,8 @@ const rootRouteChildren: RootRouteChildren = {
   FormGeneratorRoute: FormGeneratorRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TemplateRoute: TemplateRoute,
   ApiSearchRoute: ApiSearchRoute,
   DocsSplatRoute: DocsSplatRoute,

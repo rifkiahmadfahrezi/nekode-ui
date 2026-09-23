@@ -2,8 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import { ExternalLink } from "lucide-react";
 import { baseOptions } from "@/lib/layout.shared";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/template")({
+  head: () =>
+    seo({
+      title: "Templates — nekode/ui",
+      description:
+        "Starter templates built with shadcn/ui and nekode/ui fields, ready to clone and deploy.",
+      path: "/template",
+    }),
   component: TemplatesPage,
 });
 

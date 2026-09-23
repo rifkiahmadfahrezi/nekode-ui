@@ -4,12 +4,20 @@ import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { type BlockFile, BlockPreview } from "@/components/block-preview";
 import { baseOptions } from "@/lib/layout.shared";
+import { seo } from "@/lib/seo";
 import { ContactForm } from "@/registry/blocks/contact-form";
 import { ForgotPasswordForm } from "@/registry/blocks/forgot-password-form";
 import { LoginForm } from "@/registry/blocks/login-form";
 import { RegisterForm } from "@/registry/blocks/register-form";
 
 export const Route = createFileRoute("/blocks")({
+  head: () =>
+    seo({
+      title: "Blocks — nekode/ui",
+      description:
+        "Ready-to-use shadcn/ui blocks: login, register, contact, and forgot-password forms you can drop in and copy.",
+      path: "/blocks",
+    }),
   component: BlocksPage,
 });
 

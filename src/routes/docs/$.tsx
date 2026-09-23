@@ -13,6 +13,7 @@ import {
 import { Suspense, use } from "react";
 import { useMDXComponents } from "@/components/mdx";
 import { baseOptions } from "@/lib/layout.shared";
+import { seo } from "@/lib/seo";
 import { encodeMarkdownUrl, gitConfig } from "@/lib/shared";
 import { docs, source } from "@/lib/source";
 
@@ -24,6 +25,14 @@ export const Route = createFileRoute("/docs/$")({
     await docs.getPage(data.path)?.preload();
     return data;
   },
+  head: ({ loaderData }) =>
+    loaderData
+      ? seo({
+          title: `${loaderData.title} — nekode/ui docs`,
+          description: loaderData.description,
+          path: `/docs/${loaderData.path}`,
+        })
+      : {},
 });
 
 const serverLoader = createServerFn({
@@ -36,6 +45,8 @@ const serverLoader = createServerFn({
 
     return {
       path: page.path,
+      title: page.data.title,
+      description: page.data.description,
       markdownUrl: encodeMarkdownUrl(page.slugs, page.locale),
       pageTree: await source.serializePageTree(source.getPageTree()),
     };

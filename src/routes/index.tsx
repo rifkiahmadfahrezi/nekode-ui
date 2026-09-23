@@ -11,8 +11,14 @@ import {
 } from "lucide-react";
 import { InstallCommand } from "@/components/install-command";
 import { baseOptions } from "@/lib/layout.shared";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  head: () =>
+    seo({
+      title: "nekode/ui — shadcn form fields, blocks & templates",
+      path: "/",
+    }),
   component: Home,
 });
 
