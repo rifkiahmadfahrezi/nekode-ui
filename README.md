@@ -7,7 +7,7 @@ A shadcn/ui registry with production-ready composed components, blocks, and temp
 Install any component through the shadcn CLI:
 
 ```bash
-npx shadcn@latest add https://ui.nekode.id/r/text-field.json
+npx shadcn@latest add @nekode/text-field
 ```
 
 Swap the component name in the URL for whichever piece you need.
