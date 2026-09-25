@@ -87,6 +87,14 @@ export const SelectField = React.forwardRef<
 
     const describedBy = description ? descriptionId : undefined;
 
+    // Base UI's SelectValue only resolves an option's label when `items` is
+    // passed to the root; without it the trigger shows the raw value.
+    const items = React.useMemo(
+      () =>
+        groups ? groups.flatMap((group) => group.options) : (options ?? []),
+      [groups, options],
+    );
+
     const renderOptions = (opts: SelectFieldOption[]) =>
       opts.map((opt) => (
         <SelectItem key={opt.value} value={opt.value} disabled={opt.disabled}>
@@ -132,6 +140,7 @@ export const SelectField = React.forwardRef<
           )}
 
           <Select
+            items={items}
             name={name}
             value={value}
             defaultValue={defaultValue}

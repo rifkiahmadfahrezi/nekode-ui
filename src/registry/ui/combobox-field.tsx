@@ -123,7 +123,9 @@ export const ComboboxField = React.forwardRef<
         <div className="relative flex items-center">
           <Combobox
             items={options}
-            itemToStringValue={(item) => item.label}
+            itemToStringLabel={(item) => item.label}
+            itemToStringValue={(item) => item.value}
+            name={name}
             value={selectedItem}
             onValueChange={(item) =>
               onValueChange?.(item ? item.value : undefined)
@@ -134,7 +136,6 @@ export const ComboboxField = React.forwardRef<
             <ComboboxInput
               id={inputId}
               ref={ref}
-              name={name}
               placeholder={placeholder}
               aria-required={required || undefined}
               aria-invalid={!!error}

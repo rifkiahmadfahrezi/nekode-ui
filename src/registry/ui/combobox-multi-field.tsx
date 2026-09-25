@@ -194,7 +194,9 @@ export const ComboboxMultiField = React.forwardRef<
         <Combobox
           multiple
           items={options}
-          itemToStringValue={(item: ComboboxMultiFieldOption) => item.label}
+          itemToStringLabel={(item: ComboboxMultiFieldOption) => item.label}
+          itemToStringValue={(item: ComboboxMultiFieldOption) => item.value}
+          name={name}
           value={selectedItems}
           onValueChange={(items: ComboboxMultiFieldOption[]) =>
             onValueChange(items.map((item) => item.value))
@@ -230,7 +232,6 @@ export const ComboboxMultiField = React.forwardRef<
             <ComboboxChipsInput
               id={inputId}
               ref={ref}
-              name={name}
               placeholder={selectedItems.length ? undefined : placeholder}
               aria-required={required || undefined}
               aria-invalid={!!error}
