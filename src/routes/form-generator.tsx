@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ComboboxField } from "@/components/ui/combobox-field";
+import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
 import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { DateRangePickerField } from "@/components/ui/date-range-picker-field";
@@ -86,13 +87,12 @@ function makeField(kind: FieldKind, index: number): FieldConfig {
     name: `${kind.replace(/-/g, "_")}_${index}`,
     label: FIELD_KINDS.find((k) => k.kind === kind)?.label ?? kind,
     required: true,
-    options:
-      kind === "select" || kind === "combobox" || kind === "radio"
-        ? [
-            { label: "Option 1", value: "option-1" },
-            { label: "Option 2", value: "option-2" },
-          ]
-        : undefined,
+    options: kindMeta(kind).needsOptions
+      ? [
+          { label: "Option 1", value: "option-1" },
+          { label: "Option 2", value: "option-2" },
+        ]
+      : undefined,
   };
 }
 
@@ -610,6 +610,16 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
           onValueChange={(v: string | undefined) =>
             formField.handleChange(v ?? "")
           }
+        />
+      );
+    case "combobox-multi":
+      return (
+        <ComboboxMultiField
+          {...common}
+          placeholder={field.placeholder}
+          options={field.options ?? []}
+          value={formField.state.value ?? []}
+          onValueChange={formField.handleChange}
         />
       );
     case "radio":

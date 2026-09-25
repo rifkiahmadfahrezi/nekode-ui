@@ -283,6 +283,7 @@ export const ComboboxMultiField = React.forwardRef<
                   key={item.value}
                   value={item}
                   disabled={item.disabled}
+                  className="data-selected:bg-primary/10 data-selected:font-medium data-selected:text-primary data-selected:data-highlighted:bg-primary/15 data-selected:data-highlighted:text-primary"
                 >
                   {item.label}
                 </ComboboxItem>

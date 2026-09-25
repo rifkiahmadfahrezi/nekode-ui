@@ -19,6 +19,12 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
       const base = z.object({ from: z.date(), to: z.date() });
       return field.required ? base : base.optional();
     }
+    case "combobox-multi": {
+      const base = z.array(z.string());
+      return field.required
+        ? base.min(1, `${field.label || field.name} is required`)
+        : base.optional();
+    }
     case "date-multi-picker": {
       const base = z.array(z.date());
       return field.required
@@ -51,6 +57,7 @@ export function defaultValueFor(field: FieldConfig): unknown {
     case "date-range-picker":
       return undefined;
     case "date-multi-picker":
+    case "combobox-multi":
       return [];
     case "file":
       return [];

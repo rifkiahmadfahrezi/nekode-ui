@@ -27,6 +27,10 @@ function zodSource(field: FieldConfig): string {
         : `z.array(z.date()).optional()`;
     case "switch":
       return field.required ? `z.boolean()` : `z.boolean().optional()`;
+    case "combobox-multi":
+      return field.required
+        ? `z.array(z.string()).min(1, ${jsStringLiteral(`${label} is required`)})`
+        : `z.array(z.string()).optional()`;
     case "file":
       return field.required
         ? `z.array(z.instanceof(File)).min(1, ${jsStringLiteral(`${label} is required`)})`
@@ -45,6 +49,7 @@ function defaultValueSource(field: FieldConfig): string {
     case "date-range-picker":
       return "undefined";
     case "date-multi-picker":
+    case "combobox-multi":
     case "file":
       return "[]";
     case "switch":
@@ -90,6 +95,7 @@ function fieldJsx(field: FieldConfig): string {
   switch (field.kind) {
     case "select":
     case "combobox":
+    case "combobox-multi":
     case "radio":
       valueProps = [
         `options={${optionsSource(field)}}`,

@@ -8,6 +8,7 @@ import {
   Clock,
   Hash,
   KeyRound,
+  ListChecks,
   type LucideIcon,
   Paperclip,
   Search,
@@ -69,6 +70,14 @@ export const FIELD_KINDS: FieldKindMeta[] = [
     component: "ComboboxField",
     importPath: "@/components/ui/combobox-field",
     icon: Search,
+    needsOptions: true,
+  },
+  {
+    kind: "combobox-multi",
+    label: "Combobox Multi",
+    component: "ComboboxMultiField",
+    importPath: "@/components/ui/combobox-multi-field",
+    icon: ListChecks,
     needsOptions: true,
   },
   {
