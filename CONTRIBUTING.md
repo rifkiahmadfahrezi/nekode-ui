@@ -82,10 +82,19 @@ Look at an existing sibling first — `text-field.tsx` for a simple labeled inpu
 4. **Registry entry**: add an item to `registry.json` — `name`, `type: "registry:ui"`, `title`, `description`, `dependencies` (npm packages beyond what's already covered by a `registryDependencies` entry), `registryDependencies` (other registry item names it composes, e.g. `field`, `input`, `label`), and `files` (`path` + `type` + `target`).
 5. Run `bun run shadcn:build` and confirm `public/r/<name>.json` was generated. **Never hand-write this file.**
 6. **Doc page**: `content/docs/<category>/<name>.mdx` — see [Documentation standard](#documentation-standard) below.
-7. Verify: `bun run types:check`, `bun run lint`, and if it's a UI change, actually run the dev server and interact with it in a browser.
+7. **Form Generator** (form fields only): every form-input component (anything documented under `content/docs/form-fields/`) must also be available in the `/form-generator` page. Wire it the same way as the closest existing field kind:
+   - `src/lib/form-generator/types.ts` — add the kind to `FieldKind`.
+   - `src/lib/form-generator/field-kinds.ts` — add a `FIELD_KINDS` entry. `importPath` must end in the registry item name, because the generated install command uses it. Set `needsOptions: true` if the component takes `options`.
+   - `src/lib/form-generator/schema.ts` — `zodTypeFor` and `defaultValueFor` cases if the value is not a plain string.
+   - `src/lib/form-generator/codegen.ts` — matching `zodSource`, `defaultValueSource`, and `fieldJsx` cases. Add the kind to `KINDS_WITHOUT_PLACEHOLDER` if the component has no `placeholder` prop.
+   - `src/routes/form-generator.tsx` — import the component and add a `renderPreviewField` case.
+
+   Renaming or removing a form field means updating these same files.
+8. Verify: `bun run types:check`, `bun run lint`, and if it's a UI change, actually run the dev server and interact with it in a browser.
 
 **Don't:**
 - Hand-write `public/r/*.json`.
+- Ship a new form field without adding it to the Form Generator.
 - Add a playground or form-demo just to match another component's shape — only add one when it demonstrates something genuinely different.
 - Invent new `Field` variants or class-name split props beyond what the component actually needs.
 - Remove or modify a base shadcn primitive under `src/components/ui/` that this repo didn't add on purpose (e.g. `button.tsx`, `input.tsx`) — those come from `npx shadcn@latest add <name>` and should stay close to upstream.

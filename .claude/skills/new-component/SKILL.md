@@ -1,6 +1,6 @@
 ---
 name: new-component
-description: Scaffold new nekode/ui component - registry source, components/ui re-export, demos, registry.json entry, generated public/r JSON, and docs mdx page. Use whenever user asks to add/create new component, new field, new UI primitive, or wants it published to the shadcn registry with documentation, even if they only name the component (e.g. "buatkan otp-field component").
+description: Scaffold new nekode/ui component - registry source, components/ui re-export, demos, registry.json entry, generated public/r JSON, docs mdx page, and Form Generator wiring for form fields. Use whenever user asks to add/create new component, new field, new UI primitive, or wants it published to the shadcn registry with documentation, even if they only name the component (e.g. "buatkan otp-field component").
 ---
 
 Repo ships components as a shadcn registry (see `registry.json`, `public/r/*.json`) plus fumadocs documentation (`content/docs/**`). Every component follows the SAME file skeleton. Do not invent a new shape — copy the pattern from an existing sibling (`text-field` is the reference for form fields, `datatable` for multi-file components).
@@ -91,11 +91,21 @@ Bullet list of the actual aria wiring you implemented in step 2 — don't descri
 
 Every prop in the component's TS interface must have a row in the API Reference table — the table is the contract, keep it in sync with the actual prop names/types.
 
-8. **Verify**: `bun run types:check` and `bun run lint`. If the doc references a demo component name, double check it matches the exported function name in the demo file (e.g. `FooFieldDemo`) — that's the string fumadocs resolves from the `demos` barrel, a typo there renders nothing.
+8. **Wire form fields into the Form Generator** (required for every form-input component, i.e. anything under `content/docs/form-fields/`). The `/form-generator` page must offer every form field the registry ships. Copy how the closest existing kind is wired (e.g. `combobox` for option-based, `date-multi-picker` for array values):
+   - `src/lib/form-generator/types.ts` — add the kind to the `FieldKind` union.
+   - `src/lib/form-generator/field-kinds.ts` — add a `FIELD_KINDS` entry (`kind`, `label`, `component`, `importPath: "@/components/ui/<name>"`, a `lucide-react` icon, `needsOptions: true` if it takes `options`). The `importPath` basename becomes the `shadcn add` name, so it must match the registry item name.
+   - `src/lib/form-generator/schema.ts` — `zodTypeFor` + `defaultValueFor` cases if the value is not a plain string.
+   - `src/lib/form-generator/codegen.ts` — matching `zodSource` + `defaultValueSource` cases, a `fieldJsx` `valueProps` case for the component's value/change props, and add the kind to `KINDS_WITHOUT_PLACEHOLDER` if it has no `placeholder` prop.
+   - `src/routes/form-generator.tsx` — import the component and add a `renderPreviewField` case.
+
+   Then open `/form-generator`, add the field, and check the preview, the generated code, and the install command.
+
+9. **Verify**: `bun run types:check` and `bun run lint`. If the doc references a demo component name, double check it matches the exported function name in the demo file (e.g. `FooFieldDemo`) — that's the string fumadocs resolves from the `demos` barrel, a typo there renders nothing.
 
 ## What NOT to do
 
 - Don't hand-write `public/r/*.json` — always regenerate via `shadcn:build`.
+- Don't ship a new form field without its Form Generator wiring (step 8). Renaming or removing a form field means updating the same Form Generator files.
 - Don't add a playground or form-demo section to a component that doesn't need one just to match `text-field`'s shape — `text-field` has three demos because it has three genuinely different usage stories, not because that's a required count.
 - Don't create a `meta.json` — this repo doesn't use one.
 - Don't invent new class-name split props or new Field variants — reuse `@/components/ui/field` as-is unless the task explicitly requires changing it.
