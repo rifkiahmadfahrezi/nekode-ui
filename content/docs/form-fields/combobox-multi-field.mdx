@@ -1,0 +1,75 @@
+---
+title: ComboboxMultiField
+description: A searchable, labeled multi-select combobox whose chips either wrap onto new lines or collapse into an "and N more..." count.
+---
+
+`ComboboxMultiField` is the multi-select sibling of `ComboboxField`. It wraps Base UI's `Combobox` in `multiple` mode with the same `Field` layout: a label, an optional description, and error handling. Selected options render as removable chips inside the input. Use `overflow` to choose whether chips wrap (`"stack"`) or stay on one line and collapse the rest into an "and N more..." label (`"hide"`).
+
+## Installation
+
+<InstallationTabs componentName="combobox-multi-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/combobox-multi-field-demo.tsx">
+  <ComboboxMultiFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/combobox-multi-field-form-demo.tsx">
+  <ComboboxMultiFieldFormDemo />
+</ComponentPreview>
+
+## Behavior
+
+- **`overflow="stack"`** (default) wraps chips onto as many lines as they need.
+- **`overflow="hide"`** keeps the chips on one line. Chips that don't fit, with room left for the search input, are replaced by "and N more...". The count updates when the field resizes.
+- **When every option is selected** and `showAllSelectedLabel` is on, the chips are replaced by "All N items are selected", where N is `options.length`. It defaults to on for `overflow="hide"` and off for `overflow="stack"`, so a stacked field shows every selected chip unless you opt in.
+- **`loading` disables the field** and shows a spinner in place of the clear-all button.
+
+## Accessibility
+
+- The label uses `htmlFor`, so clicking it focuses the search input.
+- `aria-describedby` points to the description only while there's no error.
+- The error message is wired through `aria-errormessage`, and `aria-invalid` flips to `true` whenever `error` is set.
+- The clear-all button has `aria-label="Clear selection"`. The loading spinner and the hidden measuring layer used by `overflow="hide"` are `aria-hidden`.
+- Combobox roles, chip keyboard navigation, and list keyboard navigation come from Base UI's `Combobox` primitive.
+
+## API Reference
+
+### ComboboxMultiField
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the input. |
+| `description` | `string` | — | Helper text shown below the input. Hidden when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `placeholder` | `string` | `"Select options"` | Shown in the input while nothing is selected. |
+| `emptyText` | `string` | `"No results found."` | Shown in the list when filtering matches nothing. |
+| `options` | `ComboboxMultiFieldOption[]` | — | **Required.** The full list of selectable options. |
+| `value` | `string[]` | — | **Required.** Controlled selected values, matched against `options` by `value`. |
+| `onValueChange` | `(value: string[]) => void` | — | **Required.** Fires with the selected values. |
+| `overflow` | `"stack" \| "hide"` | `"stack"` | Wrap chips onto new lines, or keep one line and show "and N more...". |
+| `showAllSelectedLabel` | `boolean` | `overflow === "hide"` | Replace the chips with "All N items are selected" once every option is selected. |
+| `name` | `string` | — | Forwarded to the underlying input. |
+| `id` | `string` | auto | Input id. Generated when omitted. |
+| `loading` | `boolean` | `false` | Shows a spinner in place of the clear button and disables the field. |
+| `showClear` | `boolean` | `true` | Shows a clear-all ("×") button once a value is selected. Forced off while `loading`. |
+| `autoHighlight` | `boolean` | `false` | Auto-highlights the first matching item while filtering. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the input. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `inputClassName` | `string` | — | Class name applied to the chips container. |
+| `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the field and dims the label. |
+
+### ComboboxMultiFieldOption
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Text shown in the chip and option list, and matched while filtering. |
+| `value` | `string` | — | Value reported through `onValueChange`. |
+| `disabled` | `boolean` | `false` | Prevents this option from being selected. |
