@@ -119,7 +119,13 @@ function DataTableHeaderInner<T>(
                 ...col.style,
               }}
             >
-              <div className="flex items-center gap-1.5">
+              <div
+                className={cn(
+                  "flex items-center gap-1.5",
+                  col.textAlign === "center" && "justify-center",
+                  col.textAlign === "right" && "justify-end",
+                )}
+              >
                 {col.sortable ? (
                   <button
                     type="button"

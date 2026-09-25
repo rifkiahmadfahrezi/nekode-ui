@@ -101,16 +101,24 @@ export function DataTable<
   const allChecked = data.length > 0 && pageSelectedCount === data.length;
   const someChecked = pageSelectedCount > 0 && !allChecked;
 
-  const [lastSelectionIndex, setLastSelectionIndex] = React.useState<
-    number | null
-  >(null);
+  // Anchor for shift-click ranges, tracked by id (not index) so it can't
+  // point at the wrong row after paging, sorting or refetching.
+  const [lastSelectionId, setLastSelectionId] =
+    React.useState<React.Key | null>(null);
 
   const handleToggleSelect = React.useCallback(
     (record: T, rowIndex: number, shiftKey: boolean) => {
       if (!onSelectedRecordsChange) return;
       const id = getRecordId(record, idAccessor);
 
-      if (shiftKey && lastSelectionIndex !== null) {
+      const lastSelectionIndex =
+        lastSelectionId === null
+          ? -1
+          : data.findIndex(
+              (r) => getRecordId(r, idAccessor) === lastSelectionId,
+            );
+
+      if (shiftKey && lastSelectionIndex !== -1) {
         const [start, end] =
           lastSelectionIndex < rowIndex
             ? [lastSelectionIndex, rowIndex]
@@ -149,7 +157,7 @@ export function DataTable<
       } else {
         onSelectedRecordsChange([...(selectedRecords ?? []), record]);
       }
-      setLastSelectionIndex(rowIndex);
+      setLastSelectionId(id);
     },
     [
       onSelectedRecordsChange,
@@ -157,7 +165,7 @@ export function DataTable<
       selectedIds,
       idAccessor,
       data,
-      lastSelectionIndex,
+      lastSelectionId,
     ],
   );
 

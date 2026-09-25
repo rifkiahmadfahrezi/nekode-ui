@@ -8,6 +8,10 @@ export function getRecordId<T>(
 ): React.Key {
   if (typeof idAccessor === "function") return idAccessor(record);
   if (idAccessor) return record[idAccessor] as unknown as React.Key;
+  // Prefer a conventional `id` field; stringifying is a slow last resort
+  // and treats identical records as the same row.
+  const id = (record as { id?: unknown } | null)?.id;
+  if (typeof id === "string" || typeof id === "number") return id;
   return JSON.stringify(record);
 }
 

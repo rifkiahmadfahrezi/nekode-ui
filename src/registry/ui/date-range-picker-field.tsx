@@ -1,6 +1,6 @@
 "use client";
 
-import { format, getDaysInMonth } from "date-fns";
+import { format, getDaysInMonth, startOfDay } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as React from "react";
 import type { DateRange } from "react-day-picker";
@@ -94,8 +94,8 @@ export const DateRangePickerField = React.forwardRef<
       required,
       placeholder = "Pick a date range",
       dateFormat = "PPP",
-      minDate,
-      maxDate,
+      minDate: minDateProp,
+      maxDate: maxDateProp,
       numberOfMonths = 2,
       fieldClassName,
       labelClassName,
@@ -104,6 +104,20 @@ export const DateRangePickerField = React.forwardRef<
     },
     ref,
   ) => {
+    // Calendar days are local midnight, so compare against the start of
+    // `minDate`'s day — otherwise `minDate={new Date()}` disables today.
+    // Keyed on time so inline `new Date(...)` props don't churn memos.
+    const minTime = minDateProp ? startOfDay(minDateProp).getTime() : undefined;
+    const maxTime = maxDateProp?.getTime();
+    const minDate = React.useMemo(
+      () => (minTime === undefined ? undefined : new Date(minTime)),
+      [minTime],
+    );
+    const maxDate = React.useMemo(
+      () => (maxTime === undefined ? undefined : new Date(maxTime)),
+      [maxTime],
+    );
+
     const generatedId = React.useId();
     const inputId = id ?? generatedId;
     const descriptionId = description ? `${inputId}-description` : undefined;
@@ -126,17 +140,24 @@ export const DateRangePickerField = React.forwardRef<
       () => selectedRange?.from?.getMonth() ?? today.getMonth(),
     );
 
-    // Keep view in sync when controlled value changes
+    // Keep view in sync when the range start changes (keyed on time so an
+    // inline `value={{ from, to }}` doesn't snap the view back every render)
+    const fromTime = selectedRange?.from?.getTime();
     React.useEffect(() => {
-      if (selectedRange?.from) {
-        setViewYear(selectedRange.from.getFullYear());
-        setViewMonth(selectedRange.from.getMonth());
-      }
-    }, [selectedRange]);
+      if (fromTime === undefined) return;
+      const date = new Date(fromTime);
+      setViewYear(date.getFullYear());
+      setViewMonth(date.getMonth());
+    }, [fromTime]);
 
     // ── year range ──
-    const minYear = minDate ? minDate.getFullYear() : today.getFullYear() - 100;
-    const maxYear = maxDate ? maxDate.getFullYear() : today.getFullYear() + 10;
+    // Default window is today-100..today+10, widened so a lone bound outside
+    // it (e.g. only `minDate` in 2040) still yields a non-empty year list.
+    const minYear =
+      minDate?.getFullYear() ??
+      Math.min(today.getFullYear() - 100, maxDate?.getFullYear() ?? Infinity);
+    const maxYear =
+      maxDate?.getFullYear() ?? Math.max(today.getFullYear() + 10, minYear);
 
     // ── available months for the current viewYear ──
     const availableMonths = React.useMemo(() => {

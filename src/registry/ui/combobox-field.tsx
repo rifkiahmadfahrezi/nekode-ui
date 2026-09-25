@@ -144,7 +144,7 @@ export const ComboboxField = React.forwardRef<
               showClear={loading ? false : showClear}
               className={cn("w-full", loading && "pr-9", inputClassName)}
               disabled={loading || disabled}
-              // biome-ignore lint/correctness/noChildrenProp: <explanation>
+              // biome-ignore lint/correctness/noChildrenProp: ComboboxInput renders `children` next to the input, not as JSX children
               children={
                 loading && (
                   <div

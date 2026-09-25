@@ -17,6 +17,7 @@ export interface DataTableColumn<T> {
   width?: number | string;
   render?: (record: T, rowIndex: number) => React.ReactNode;
   textAlign?: "left" | "center" | "right";
+  /** Pinned columns should use a numeric `width` (px); string widths fall back to 150px for sticky offsets. */
   pinned?: "left" | "right";
   footer?: React.ReactNode | ((data: T[]) => React.ReactNode);
 }
@@ -55,7 +56,10 @@ export interface BaseDataTableProps<T> {
   selectedRecords?: T[];
   onSelectedRecordsChange?: (records: T[]) => void;
   height?: number;
-  rowContextMenu?: (record: T, rowIndex: number) => RowContextMenuItem[] | undefined;
+  rowContextMenu?: (
+    record: T,
+    rowIndex: number,
+  ) => RowContextMenuItem[] | undefined;
   pagination?: DataTablePaginationProps;
   noRecordsText?: string;
   highlightOnHover?: boolean;
@@ -63,7 +67,9 @@ export interface BaseDataTableProps<T> {
   className?: string;
   variant?: "bordered" | "borderless";
   rowClassName?: string | ((record: T, rowIndex: number) => string | undefined);
-  rowStyle?: React.CSSProperties | ((record: T, rowIndex: number) => React.CSSProperties | undefined);
+  rowStyle?:
+    | React.CSSProperties
+    | ((record: T, rowIndex: number) => React.CSSProperties | undefined);
   headerClassName?: string;
   headerStyle?: React.CSSProperties;
 
@@ -79,7 +85,11 @@ export interface BaseDataTableProps<T> {
   footerRef?: React.Ref<HTMLDivElement>;
   tableRef?: React.Ref<HTMLTableElement>;
   scrollViewportRef?: React.Ref<HTMLDivElement>;
-  rowRef?: (element: HTMLTableRowElement | null, record: T, rowIndex: number) => void;
+  rowRef?: (
+    element: HTMLTableRowElement | null,
+    record: T,
+    rowIndex: number,
+  ) => void;
 }
 
 export type SortProps<T> = {

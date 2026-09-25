@@ -102,9 +102,11 @@ function DataTableRowInner<T>({
         >
           <Checkbox
             checked={isSelected}
-            onCheckedChange={() =>
-              onToggleSelect(record, rowIndex, shiftKeyRef.current)
-            }
+            onCheckedChange={() => {
+              onToggleSelect(record, rowIndex, shiftKeyRef.current);
+              // Reset so a later keyboard toggle isn't treated as shift-click.
+              shiftKeyRef.current = false;
+            }}
             onClick={(e: React.MouseEvent) => {
               shiftKeyRef.current = e.shiftKey;
             }}
@@ -249,7 +251,15 @@ function propsAreEqual<T>(
     prev.onToggleSelect === next.onToggleSelect &&
     prev.onToggleExpand === next.onToggleExpand &&
     prev.onRowClick === next.onRowClick &&
-    prev.renderSubContent === next.renderSubContent
+    prev.renderSubContent === next.renderSubContent &&
+    prev.selectable === next.selectable &&
+    prev.expandable === next.expandable &&
+    prev.expandOnRowClick === next.expandOnRowClick &&
+    prev.highlightOnHover === next.highlightOnHover &&
+    prev.leadingGutter === next.leadingGutter &&
+    prev.totalCols === next.totalCols &&
+    prev.variant === next.variant &&
+    prev.rowRef === next.rowRef
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { format, getDaysInMonth } from "date-fns";
+import { format, getDaysInMonth, startOfDay } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
@@ -34,13 +34,6 @@ const MONTH_NAMES = [
   "November",
   "December",
 ];
-
-/** Clamp a date to [min, max] if either bound is set. Returns the same object if already in range. */
-function clampDate(date: Date, min?: Date, max?: Date): Date {
-  if (min && date < min) return new Date(min);
-  if (max && date > max) return new Date(max);
-  return date;
-}
 
 /** Start-of-month date for comparison purposes. */
 function startOfMonth(year: number, month: number) {
@@ -114,8 +107,21 @@ export const DatePickerField = React.forwardRef<
     ref,
   ) => {
     // Support deprecated fromDate/toDate aliases
-    const minDate = minDateProp ?? fromDate;
-    const maxDate = maxDateProp ?? toDate;
+    const minBound = minDateProp ?? fromDate;
+    const maxBound = maxDateProp ?? toDate;
+    // Calendar days are local midnight, so compare against the start of
+    // `minDate`'s day — otherwise `minDate={new Date()}` disables today.
+    // Keyed on time so inline `new Date(...)` props don't churn memos.
+    const minTime = minBound ? startOfDay(minBound).getTime() : undefined;
+    const maxTime = maxBound?.getTime();
+    const minDate = React.useMemo(
+      () => (minTime === undefined ? undefined : new Date(minTime)),
+      [minTime],
+    );
+    const maxDate = React.useMemo(
+      () => (maxTime === undefined ? undefined : new Date(maxTime)),
+      [maxTime],
+    );
 
     const generatedId = React.useId();
     const inputId = id ?? generatedId;
@@ -139,17 +145,24 @@ export const DatePickerField = React.forwardRef<
       () => selectedDate?.getMonth() ?? today.getMonth(),
     );
 
-    // Keep view in sync when controlled value changes
+    // Keep view in sync when the selected date changes (keyed on time so an
+    // inline `value={new Date(...)}` doesn't snap the view back every render)
+    const selectedTime = selectedDate?.getTime();
     React.useEffect(() => {
-      if (selectedDate) {
-        setViewYear(selectedDate.getFullYear());
-        setViewMonth(selectedDate.getMonth());
-      }
-    }, [selectedDate]);
+      if (selectedTime === undefined) return;
+      const date = new Date(selectedTime);
+      setViewYear(date.getFullYear());
+      setViewMonth(date.getMonth());
+    }, [selectedTime]);
 
     // ── year range ──
-    const minYear = minDate ? minDate.getFullYear() : today.getFullYear() - 100;
-    const maxYear = maxDate ? maxDate.getFullYear() : today.getFullYear() + 10;
+    // Default window is today-100..today+10, widened so a lone bound outside
+    // it (e.g. only `minDate` in 2040) still yields a non-empty year list.
+    const minYear =
+      minDate?.getFullYear() ??
+      Math.min(today.getFullYear() - 100, maxDate?.getFullYear() ?? Infinity);
+    const maxYear =
+      maxDate?.getFullYear() ?? Math.max(today.getFullYear() + 10, minYear);
 
     // ── available months for the current viewYear ──
     const availableMonths = React.useMemo(() => {
@@ -178,16 +191,9 @@ export const DatePickerField = React.forwardRef<
       onValueChange?.(date);
     };
 
+    // Month/year selects only navigate the calendar; they never change the value.
     const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const m = Number(e.target.value);
-      setViewMonth(m);
-      // If a date is already selected in the same year, move it to the new month
-      if (selectedDate && selectedDate.getFullYear() === viewYear) {
-        const maxDay = getDaysInMonth(new Date(viewYear, m));
-        const day = Math.min(selectedDate.getDate(), maxDay);
-        const next = clampDate(new Date(viewYear, m, day), minDate, maxDate);
-        handleSelect(next);
-      }
+      setViewMonth(Number(e.target.value));
     };
 
     const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -204,17 +210,8 @@ export const DatePickerField = React.forwardRef<
             (maxDate ? ms > maxDate : false),
         };
       });
-      const targetMonth = monthsForYear[viewMonth]?.disabled
-        ? (monthsForYear.find((m) => !m.disabled)?.idx ?? viewMonth)
-        : viewMonth;
-      setViewMonth(targetMonth);
-
-      // Move selected date into the new year if it was in the old one
-      if (selectedDate && selectedDate.getFullYear() !== y) {
-        const maxDay = getDaysInMonth(new Date(y, targetMonth));
-        const day = Math.min(selectedDate.getDate(), maxDay);
-        const next = clampDate(new Date(y, targetMonth, day), minDate, maxDate);
-        handleSelect(next);
+      if (monthsForYear[viewMonth]?.disabled) {
+        setViewMonth(monthsForYear.find((m) => !m.disabled)?.idx ?? viewMonth);
       }
     };
 

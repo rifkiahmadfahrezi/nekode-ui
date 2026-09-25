@@ -20,7 +20,7 @@ export interface TextareaFieldProps
   labelClassName?: string;
   textareaClassName?: string;
   orientation?: "vertical" | "horizontal" | "responsive";
-  /** Show a live character counter. Pass a number to also enforce it as `maxLength`. */
+  /** Show a live character counter (shown as `count / maxLength` when `maxLength` is set). */
   showCount?: boolean;
   /** Auto-grow height to fit content, up to `maxRows` (in rows) if provided. */
   autoResize?: boolean;
@@ -75,7 +75,7 @@ export const TextareaField = React.forwardRef<
           node;
     };
 
-    const [count, setCount] = React.useState(
+    const [uncontrolledCount, setCount] = React.useState(
       (typeof value === "string"
         ? value
         : typeof defaultValue === "string"
@@ -83,6 +83,9 @@ export const TextareaField = React.forwardRef<
           : ""
       ).length,
     );
+    // Controlled: derive from `value` so external updates (e.g. a form
+    // reset) are reflected, not just keystrokes.
+    const count = typeof value === "string" ? value.length : uncontrolledCount;
 
     const resize = React.useCallback(() => {
       const el = innerRef.current;

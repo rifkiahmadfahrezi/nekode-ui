@@ -22,6 +22,13 @@ export function toISODateString(date: Date): string {
 
 /** Parse an ISO 8601 string — `"2026-09-19"` or `"2026-09-19T10:30:00Z"` — into a `Date`. */
 export function parseISODate(value: string): Date {
+  // `new Date("2026-09-19")` parses date-only strings as UTC midnight, which is
+  // the previous day in negative-offset time zones. Treat them as local dates.
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (dateOnly) {
+    const [, year, month, day] = dateOnly.map(Number);
+    return new Date(year, month - 1, day);
+  }
   return new Date(value);
 }
 
@@ -43,7 +50,7 @@ export function isValidDate(date: Date): boolean {
 
 /** Check whether an ISO 8601 string is valid and can be parsed into a `Date`. */
 export function isValidISODate(value: string): boolean {
-  return isValidDate(new Date(value));
+  return isValidDate(parseISODate(value));
 }
 
 /** Format a `Date` as a time string (e.g. `"10:30 AM"`) for UI display. */

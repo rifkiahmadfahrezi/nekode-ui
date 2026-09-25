@@ -39,6 +39,7 @@ export const PasswordField = React.forwardRef<
       description,
       error,
       leftSection,
+      className,
       fieldClassName,
       labelClassName,
       inputClassName,
@@ -120,6 +121,7 @@ export const PasswordField = React.forwardRef<
             className={cn(
               leftSection && "pl-9",
               !hideToggle && "pr-9",
+              className,
               inputClassName,
             )}
             {...props}

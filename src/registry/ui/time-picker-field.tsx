@@ -231,16 +231,20 @@ export const TimePickerField = React.forwardRef<
               <ClockIcon className="size-4" aria-hidden="true" />
             </div>
 
+            {/* The visible parts are 12h; submit the canonical "HH:mm" value. */}
+            <input type="hidden" name={name} value={currentValue} />
+
             {/* Hours */}
             <input
               ref={ref}
               id={inputId}
-              name={name}
               type="number"
               min={1}
               max={12}
               value={String(hour12).padStart(2, "0")}
               onChange={handleHourChange}
+              // Select on focus so typing replaces the padded "03" instead of appending to it.
+              onFocus={(e) => e.target.select()}
               onKeyDown={spinOnKeyDown(hour12, 1, 12, (v) =>
                 commitChange(from12Hour(v, period), minutes),
               )}
@@ -267,6 +271,7 @@ export const TimePickerField = React.forwardRef<
               max={59}
               value={String(minutes).padStart(2, "0")}
               onChange={handleMinuteChange}
+              onFocus={(e) => e.target.select()}
               onKeyDown={spinOnKeyDown(minutes, 0, 59, (v) =>
                 commitChange(from12Hour(hour12, period), v),
               )}

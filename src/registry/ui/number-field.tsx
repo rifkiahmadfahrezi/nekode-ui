@@ -50,8 +50,9 @@ export interface NumberFieldProps
   allowNegative?: boolean;
   /**
    * On blur: snap an out-of-range value to the nearest bound (`min`/`max`),
-   * and fall back an empty/incomplete value to `0` (formatted as `0.00`
-   * when `decimal` is true). Defaults to `true`.
+   * format it (e.g. `0.00` when `decimal` is true), and fall back an
+   * incomplete value like `-` to `0`. An empty field stays empty so optional
+   * fields can be cleared. Defaults to `true`.
    */
   clampOnBlur?: boolean;
   /** Called with a parsed number (or `undefined` when the field is cleared / not a valid number). */
@@ -113,6 +114,7 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
       error,
       leftSection,
       rightSection,
+      className,
       fieldClassName,
       labelClassName,
       inputClassName,
@@ -133,6 +135,7 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
       onChange,
       onBlur,
       onFocus,
+      onKeyDown,
       ...props
     },
     ref,
@@ -143,7 +146,6 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
     const errorId = error ? `${inputId}-error` : undefined;
     const describedBy = description ? descriptionId : undefined;
 
-    const isControlled = value !== undefined;
     const resolvedAllowNegative =
       allowNegative ?? !(typeof min === "number" && min >= 0);
     const resolvedPlaces = decimalPlaces ?? DEFAULT_DECIMAL_PLACES;
@@ -159,13 +161,24 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
     );
     const [isFocused, setIsFocused] = React.useState(false);
 
-    // Re-sync from the external `value` prop — but only while the field
-    // isn't focused. While the user is actively typing we trust the local
-    // buffer; syncing mid-keystroke is what causes the reset-to-0 bug.
+    // Re-sync when the external `value` prop changes (including back to
+    // `undefined`, e.g. a form reset) — but only while the field isn't
+    // focused. While the user is actively typing we trust the local buffer;
+    // syncing mid-keystroke is what causes the reset-to-0 bug. The buffer is
+    // kept when it already represents the same number, so blur formatting
+    // like "1.50" isn't replaced by the parent's echoed `1.5`.
+    const lastValueRef = React.useRef(value);
     React.useEffect(() => {
-      if (!isControlled || isFocused) return;
-      setInternalValue(toDisplayString(value));
-    }, [isControlled, isFocused, value]);
+      if (isFocused || Object.is(lastValueRef.current, value)) return;
+      lastValueRef.current = value;
+      const next = toDisplayString(value);
+      setInternalValue((current) =>
+        current === next ||
+        (current !== "" && next !== "" && Number(current) === Number(next))
+          ? current
+          : next,
+      );
+    }, [isFocused, value]);
 
     const displayValue = internalValue;
 
@@ -200,12 +213,9 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
     const handleBlur: React.FocusEventHandler<HTMLInputElement> = (event) => {
       setIsFocused(false);
       onBlur?.(event);
-      if (!clampOnBlur) return;
+      if (!clampOnBlur || displayValue === "") return;
 
-      const isIncomplete =
-        displayValue === "" ||
-        displayValue === "-" ||
-        displayValue.endsWith(".");
+      const isIncomplete = displayValue === "-" || displayValue.endsWith(".");
 
       let next: number;
       if (isIncomplete) {
@@ -237,6 +247,17 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
       const current = Number(displayValue) || 0;
       const next = clamp(current + direction * step);
       commit(formatNumber(next, decimal, resolvedPlaces), next);
+    };
+
+    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (
+      event,
+    ) => {
+      onKeyDown?.(event);
+      if (event.defaultPrevented) return;
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+        step_(event.key === "ArrowUp" ? 1 : -1);
+      }
     };
 
     const numericValue = Number(displayValue);
@@ -299,13 +320,21 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
             aria-valuemin={min}
             aria-valuemax={max}
             aria-valuenow={
-              Number.isNaN(numericValue) ? undefined : numericValue
+              displayValue === "" || Number.isNaN(numericValue)
+                ? undefined
+                : numericValue
             }
             value={displayValue}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className={cn(leftSection && "pl-9", "pr-9", inputClassName)}
+            onKeyDown={handleKeyDown}
+            className={cn(
+              leftSection && "pl-9",
+              "pr-9",
+              className,
+              inputClassName,
+            )}
             {...props}
           />
 

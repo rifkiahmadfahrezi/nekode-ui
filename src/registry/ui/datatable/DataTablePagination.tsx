@@ -120,15 +120,16 @@ export function DataTablePagination({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={pagination.page <= 1}
+            disabled={fetching || pagination.page <= 1}
             onClick={() => pagination.onPageChange(pagination.page - 1)}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          {pageNumbers.map((p) =>
+          {pageNumbers.map((p, i) =>
             p === "ellipsis" ? (
               <span
-                key={`ellipsis-${p}`}
+                // left and right ellipsis can both appear; key by the page before it
+                key={`ellipsis-after-${pageNumbers[i - 1]}`}
                 className="flex h-8 w-8 items-center justify-center text-muted-foreground"
               >
                 <MoreHorizontal className="h-4 w-4" />

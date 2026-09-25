@@ -66,7 +66,15 @@ export const FieldRadio = React.forwardRef<
     const describedBy = description ? descriptionId : undefined;
 
     return (
-      <FieldSet className={fieldSetClassName} onBlur={onBlur}>
+      <FieldSet
+        className={fieldSetClassName}
+        // Only report blur when focus leaves the whole group, not when arrow
+        // keys move it between radios.
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget))
+            onBlur?.(event);
+        }}
+      >
         {label && (
           <FieldLegend
             variant="label"

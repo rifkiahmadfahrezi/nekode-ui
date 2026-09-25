@@ -26,8 +26,13 @@ describe("getRecordId", () => {
     expect(getRecordId(record, (r) => `row-${r.id}`)).toBe("row-1");
   });
 
-  it("falls back to JSON.stringify when no idAccessor", () => {
-    expect(getRecordId(record)).toBe(JSON.stringify(record));
+  it("falls back to record.id when no idAccessor", () => {
+    expect(getRecordId(record)).toBe(record.id);
+  });
+
+  it("falls back to JSON.stringify when no idAccessor and no id", () => {
+    const noId = { name: "Ada" };
+    expect(getRecordId(noId)).toBe(JSON.stringify(noId));
   });
 });
 

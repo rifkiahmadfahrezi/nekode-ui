@@ -28,7 +28,7 @@ export interface FileRejection {
 export interface FileFieldProps
   extends Omit<
     React.InputHTMLAttributes<HTMLInputElement>,
-    "value" | "defaultValue" | "onChange" | "type"
+    "value" | "defaultValue" | "onChange" | "type" | "onBlur"
   > {
   label?: string;
   description?: string;
@@ -45,6 +45,8 @@ export interface FileFieldProps
   maxSize?: number;
   /** Files that failed `accept`/`maxSize`/`maxFiles` checks on the last add. */
   onFilesRejected?: (rejections: FileRejection[]) => void;
+  /** Fired when focus leaves the dropzone (the real file input is visually hidden and never focused). */
+  onBlur?: React.FocusEventHandler<HTMLElement>;
   /** Passed to the underlying `Field` wrapper (e.g. orientation, data-invalid overrides). */
   fieldClassName?: string;
   labelClassName?: string;
@@ -76,6 +78,10 @@ function matchesAccept(file: File, accept?: string) {
     }
     return file.type === trimmed;
   });
+}
+
+function fileKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
 function FileAttachment({
@@ -145,6 +151,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
       disabled,
       required,
       accept,
+      onBlur,
       ...props
     },
     ref,
@@ -162,6 +169,17 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
     const [isDragging, setIsDragging] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>(null);
     React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
+
+    // Mirror the selected files onto the native input so a plain <form>
+    // submit (and FormData) includes them. The input's own value is cleared
+    // after each pick so re-selecting the same file still fires onChange.
+    React.useEffect(() => {
+      const input = inputRef.current;
+      if (!input || typeof DataTransfer === "undefined") return;
+      const transfer = new DataTransfer();
+      for (const file of files) transfer.items.add(file);
+      input.files = transfer.files;
+    }, [files]);
 
     const setFiles = (next: File[]) => {
       onValueChange?.(next);
@@ -185,7 +203,15 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
       }
 
       const base = multiple ? files : [];
-      let next = [...base, ...accepted];
+      // Drop files that are already selected so the same file can't be added twice.
+      const seen = new Set(base.map(fileKey));
+      const fresh = accepted.filter((file) => {
+        const key = fileKey(file);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      let next = [...base, ...fresh];
 
       if (!multiple) {
         next = next.slice(-1);
@@ -264,6 +290,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
           aria-disabled={disabled || undefined}
           aria-label={label ? `${label} dropzone` : "File dropzone"}
           onClick={openPicker}
+          onBlur={onBlur}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
@@ -306,7 +333,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
           <AttachmentGroup>
             {files.map((file, index) => (
               <FileAttachment
-                key={`${file.name}-${file.size}-${file.lastModified}`}
+                key={fileKey(file)}
                 file={file}
                 disabled={disabled}
                 onRemove={() => removeFile(index)}
