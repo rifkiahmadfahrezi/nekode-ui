@@ -9,9 +9,18 @@ import {
   Eye,
   GripVertical,
   Lock,
+  Play,
+  X,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { InstallCommand } from "@/components/install-command";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useCopy } from "@/hooks/use-copy";
 import { getRegistryRef, useOrigin } from "@/hooks/use-origin";
 import { baseOptions } from "@/lib/layout.shared";
@@ -299,6 +308,44 @@ function GitHubIcon() {
   );
 }
 
+/** Video di-mount hanya saat modal terbuka: tidak ada byte video dimuat sebelum user klik,
+    dan playback berhenti saat ditutup. Popup di-portal ke luar .nz, jadi pakai utility langsung. */
+function DemoVideo() {
+  return (
+    <Dialog>
+      <DialogTrigger className="btn btn-outline">
+        <Play className="size-[18px] fill-brand text-brand" />
+        Watch demo
+      </DialogTrigger>
+      <DialogContent
+        showCloseButton={false}
+        className="gap-0 overflow-hidden rounded-[14px] border-[3px] border-foreground bg-card p-0 shadow-[12px_12px_0_var(--shadow-color)] ring-0 sm:max-w-5xl dark:border-foreground/20"
+      >
+        <div className="flex h-11 items-center gap-2 border-b-[2.5px] border-foreground bg-muted pr-2 pl-4 dark:border-foreground/20">
+          <span className="size-[13px] shrink-0 rounded-full bg-brand" />
+          <DialogTitle className="ml-2 truncate font-mono text-[12.5px] font-normal text-muted-foreground">
+            nekode/ui — demo.mp4
+          </DialogTitle>
+          <DialogClose
+            aria-label="Close"
+            className="ml-auto inline-flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-background"
+          >
+            <X className="size-4" />
+          </DialogClose>
+        </div>
+        {/* biome-ignore lint/a11y/useMediaCaption: demo UI tanpa narasi */}
+        <video
+          src="/video.webm"
+          controls
+          autoPlay
+          playsInline
+          className="aspect-video w-full bg-black"
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function WindowDots() {
   return (
     <>
@@ -384,6 +431,7 @@ function Home() {
                   <GitHubIcon />
                   GitHub
                 </a>
+                <DemoVideo />
               </div>
             </div>
 
