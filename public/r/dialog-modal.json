@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dialog-modal",
+  "title": "Dialog Modal",
+  "description": "A controlled dialog wrapper with preset sizes, a scrollable body, and an optional non-closeable mode.",
+  "registryDependencies": [
+    "dialog"
+  ],
+  "files": [
+    {
+      "path": "src/registry/ui/dialog-modal.tsx",
+      "content": "import React from \"react\"\n\nimport {\n  Dialog,\n  DialogContent,\n  DialogDescription,\n  DialogHeader,\n  DialogTitle,\n} from \"@/components/ui/dialog\"\nimport { cn } from \"@/lib/utils\"\n\nconst MODAL_SIZES = {\n  xs: \"max-w-[90vw] sm:max-w-[360px]\",\n  sm: \"max-w-[90vw] sm:max-w-[480px]\",\n  md: \"max-w-[95vw] sm:max-w-[640px]\",\n  lg: \"max-w-[95vw] sm:max-w-[768px]\",\n  xl: \"max-w-[95vw] sm:max-w-[1024px]\",\n  full: \"h-dvh max-h-dvh w-screen max-w-none rounded-none ring-0 sm:max-w-none\",\n} as const\n\ntype ModalSize = keyof typeof MODAL_SIZES\n\nexport interface ModalProps extends Omit<React.ComponentProps<\"div\">, \"title\"> {\n  title?: React.ReactNode\n  description?: string\n  open: boolean\n  setOpen: (open: boolean) => void\n  onClose?: () => void\n  children: React.ReactNode\n  size?: ModalSize\n  /**\n   * If false, the modal cannot be closed by clicking the backdrop,\n   * pressing Escape, or the built-in close (X) button.\n   * You'll need to close it programmatically via `setOpen(false)`.\n   * @default true\n   */\n  closeable?: boolean\n}\n\nexport const DialogModal = ({\n  title,\n  description,\n  open,\n  setOpen,\n  onClose,\n  children,\n  size = \"md\",\n  closeable = true,\n  className,\n  ...props\n}: ModalProps) => {\n  return (\n    <Dialog\n      open={open}\n      onOpenChange={(val) => {\n        // Block any close attempt (backdrop, escape, X button) when not closeable\n        if (!closeable && !val) return\n\n        setOpen(val)\n        if (!val) onClose?.()\n      }}\n    >\n      <DialogContent\n        className={cn(\"flex max-h-[85vh] flex-col\", MODAL_SIZES[size])}\n        showCloseButton={closeable}\n      >\n        <DialogHeader className=\"shrink-0\">\n          <DialogTitle>{title ?? \"\"}</DialogTitle>\n          {description && <DialogDescription>{description}</DialogDescription>}\n        </DialogHeader>\n\n        <div {...props} className={`min-h-0 flex-1 overflow-y-auto ${className ?? \"\"}`}>\n          {children}\n        </div>\n      </DialogContent>\n    </Dialog>\n  )\n}",
+      "type": "registry:ui",
+      "target": "components/ui/dialog-modal.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

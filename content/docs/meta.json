@@ -4,6 +4,7 @@
     "index",
     "---Components---",
     "datatable",
+    "dialog-modal",
     "form-fields",
     "---Utility functions---",
     "date",

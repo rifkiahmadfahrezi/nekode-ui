@@ -1,0 +1,74 @@
+---
+title: DialogModal
+description: A controlled dialog with preset sizes, a fixed header, a scrollable body, and an optional non-closeable mode.
+---
+
+`DialogModal` wraps the Base UI `Dialog` primitives (`Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`) into one component. You pass `open`/`setOpen`, a title, and children; it handles sizing, keeps the header pinned while long content scrolls, and can lock itself open until your code closes it. Reach for it when you need a modal form, a confirmation, or a detail view, and don't want to compose the dialog parts by hand every time.
+
+## Installation
+
+<InstallationTabs componentName="dialog-modal" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/dialog-modal-demo.tsx">
+  <DialogModalDemo />
+</ComponentPreview>
+
+`DialogModal` is always controlled: keep `open` in state and pass the setter as `setOpen`. There is no trigger prop. Open it from any button or event by calling `setOpen(true)`.
+
+## Examples
+
+### Sizes
+
+`size` sets the max width. Every size except `full` caps at 90–95% of the viewport on small screens and switches to a fixed pixel width from the `sm` breakpoint up. `full` fills the whole viewport with no rounded corners, which suits editors, previews, or mobile-first flows. Every other size never grows taller than `85vh`; overflowing content scrolls inside the body while the title stays visible.
+
+<ComponentPreview path="src/registry/demos/dialog-modal-sizes-demo.tsx">
+  <DialogModalSizesDemo />
+</ComponentPreview>
+
+| Size | Mobile max width | `sm` and up |
+|---|---|---|
+| `xs` | `90vw` | `360px` |
+| `sm` | `90vw` | `480px` |
+| `md` | `95vw` | `640px` |
+| `lg` | `95vw` | `768px` |
+| `xl` | `95vw` | `1024px` |
+| `full` | `100vw` × `100dvh` | `100vw` × `100dvh` |
+
+### Non-closeable
+
+Set `closeable={false}` to block every user-initiated close: pressing <kbd>Escape</kbd>, clicking the backdrop, and the close (X) button, which is hidden. Only `setOpen(false)` from your own code closes it. Use this for flows the user must finish, such as accepting terms or waiting on a required step.
+
+<ComponentPreview path="src/registry/demos/dialog-modal-not-closeable-demo.tsx">
+  <DialogModalNotCloseableDemo />
+</ComponentPreview>
+
+<Callout type="info">
+  `onClose` fires only when the modal closes through the dialog itself (Escape, backdrop, or the X button). Calling `setOpen(false)` directly does not trigger it, so run any cleanup next to that call.
+</Callout>
+
+## Accessibility
+
+- Built on Base UI `Dialog`: focus moves into the modal on open, stays trapped inside while open, and returns to the previously focused element on close.
+- `title` renders through `DialogTitle` and `description` through `DialogDescription`, so the popup is labelled and described for screen readers. Always pass a `title`, even a short one; without it the dialog has no accessible name.
+- The close button has visually hidden "Close" text for screen readers.
+- With `closeable={false}`, <kbd>Escape</kbd> does nothing. Make sure the content includes a visible, focusable way to continue.
+
+## API Reference
+
+### DialogModal
+
+`DialogModal` also accepts every native `<div>` attribute (except `title`). Those props, including `className`, go to the scrollable body wrapper around `children`, not to the popup.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `open` | `boolean` | — | Whether the modal is open. Required. |
+| `setOpen` | `(open: boolean) => void` | — | Called with the next open state when the user opens or closes the modal. Required. |
+| `children` | `React.ReactNode` | — | Body content. Scrolls when taller than the available height. Required. |
+| `title` | `React.ReactNode` | — | Heading rendered in `DialogTitle`. |
+| `description` | `string` | — | Supporting text rendered in `DialogDescription` below the title. Omitted when empty. |
+| `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl" \| "full"` | `"md"` | Max width preset. See [Sizes](#sizes). |
+| `closeable` | `boolean` | `true` | When `false`, blocks Escape, backdrop clicks, and hides the close button. Close it with `setOpen(false)`. |
+| `onClose` | `() => void` | — | Called after the modal closes through a user action (Escape, backdrop, or close button). |
+| `className` | `string` | — | Class name merged onto the scrollable body wrapper. |

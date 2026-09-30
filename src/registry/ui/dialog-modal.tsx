@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
 
 const MODAL_SIZES = {
   xs: "max-w-[90vw] sm:max-w-[360px]",
@@ -14,6 +15,7 @@ const MODAL_SIZES = {
   md: "max-w-[95vw] sm:max-w-[640px]",
   lg: "max-w-[95vw] sm:max-w-[768px]",
   xl: "max-w-[95vw] sm:max-w-[1024px]",
+  full: "h-dvh max-h-dvh w-screen max-w-none rounded-none ring-0 sm:max-w-none",
 } as const
 
 type ModalSize = keyof typeof MODAL_SIZES
@@ -59,7 +61,7 @@ export const DialogModal = ({
       }}
     >
       <DialogContent
-        className={`flex max-h-[85vh] flex-col ${MODAL_SIZES[size]}`}
+        className={cn("flex max-h-[85vh] flex-col", MODAL_SIZES[size])}
         showCloseButton={closeable}
       >
         <DialogHeader className="shrink-0">
