@@ -1,9 +1,16 @@
 @import "tailwindcss";
-@import "fumadocs-ui/css/black.css";
+@import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import "./landing.css";
+
+/* nekode "neko zine" — fonts
+   pnpm add @fontsource-variable/space-grotesk @fontsource-variable/jetbrains-mono @fontsource/instrument-serif */
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -17,8 +24,15 @@ html > body[data-scroll-locked] {
 }
 
 @theme inline {
+  --font-sans: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
-  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-serif:
+    "Instrument Serif", ui-serif, Georgia, serif; /* dipakai italic untuk aksen: <em class="font-serif italic"> */
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,6 +64,7 @@ html > body[data-scroll-locked] {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -57,75 +72,157 @@ html > body[data-scroll-locked] {
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* bayangan "cetak": offset tegas tanpa blur, seperti kartu di video */
+  --shadow-2xs: 1px 1px 0 0 var(--shadow-color);
+  --shadow-xs: 1px 1px 0 0 var(--shadow-color);
+  --shadow-sm: 2px 2px 0 0 var(--shadow-color);
+  --shadow: 3px 3px 0 0 var(--shadow-color);
+  --shadow-md: 4px 4px 0 0 var(--shadow-color);
+  --shadow-lg: 6px 6px 0 0 var(--shadow-color);
+  --shadow-xl: 8px 8px 0 0 var(--shadow-color);
+  --shadow-2xl: 12px 12px 0 0 var(--shadow-color);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(0.944 0.016 86.4); /* paper   #F1ECE1 */
+  --foreground: oklch(0.187 0.003 67.7); /* ink     #141312 */
+  --card: oklch(0.977 0.009 84.6); /* #FAF7F1 */
+  --card-foreground: oklch(0.187 0.003 67.7);
+  --popover: oklch(0.977 0.009 84.6);
+  --popover-foreground: oklch(0.187 0.003 67.7);
+  --primary: oklch(0.187 0.003 67.7); /* ink */
+  --primary-foreground: oklch(0.944 0.016 86.4); /* paper */
+  --secondary: oklch(0.905 0.022 85.9); /* paper-2 #E6DFD0 */
+  --secondary-foreground: oklch(0.187 0.003 67.7);
+  --muted: oklch(0.905 0.022 85.9);
+  --muted-foreground: oklch(0.481 0.014 79.7); /* #625D55 — 4.9:1 di muted */
+  --accent: oklch(0.905 0.022 85.9);
+  --accent-foreground: oklch(0.187 0.003 67.7);
+  --destructive: oklch(
+    0.5 0.182 29.5
+  ); /* crimson #B42318, beda dari merah brand */
+  --border: oklch(0.839 0.029 84.6); /* #D3C9B5 */
+  --input: oklch(0.751 0.034 85.5); /* #B8AD96 */
+  --ring: oklch(0.614 0.204 31); /* stamp red — focus ring merah */
+  --brand: oklch(0.614 0.204 31); /* stamp red #E5412B */
+  --brand-foreground: oklch(1 0 0);
+  --chart-1: oklch(0.614 0.204 31);
+  --chart-2: oklch(0.187 0.003 67.7);
+  --chart-3: oklch(0.466 0.155 30.8);
+  --chart-4: oklch(0.628 0.019 84.6);
+  --chart-5: oklch(0.751 0.034 85.5);
+  --radius: 0.75rem;
+  --shadow-color: oklch(0.187 0.003 67.7);
+  --sidebar: oklch(0.923 0.019 86.1);
+  --sidebar-foreground: oklch(0.187 0.003 67.7);
+  --sidebar-primary: oklch(0.614 0.204 31);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.872 0.026 84.6);
+  --sidebar-accent-foreground: oklch(0.187 0.003 67.7);
+  --sidebar-border: oklch(0.839 0.029 84.6);
+  --sidebar-ring: oklch(0.614 0.204 31);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.187 0.003 67.7); /* ink — adegan terminal */
+  --foreground: oklch(0.944 0.016 86.4);
+  --card: oklch(0.228 0.005 67.6);
+  --card-foreground: oklch(0.944 0.016 86.4);
+  --popover: oklch(0.228 0.005 67.6);
+  --popover-foreground: oklch(0.944 0.016 86.4);
+  --primary: oklch(0.944 0.016 86.4);
+  --primary-foreground: oklch(0.187 0.003 67.7);
+  --secondary: oklch(0.275 0.007 67.5);
+  --secondary-foreground: oklch(0.944 0.016 86.4);
+  --muted: oklch(0.275 0.007 67.5);
+  --muted-foreground: oklch(0.714 0.021 84.6); /* #A9A294 */
+  --accent: oklch(0.275 0.007 67.5);
+  --accent-foreground: oklch(0.944 0.016 86.4);
+  --destructive: oklch(0.694 0.162 29.9);
+  --border: oklch(0.944 0.016 86.4 / 12%);
+  --input: oklch(0.944 0.016 86.4 / 18%);
+  --ring: oklch(0.659 0.187 30.7);
+  --brand: oklch(0.659 0.187 30.7); /* #EE5A45 */
+  --brand-foreground: oklch(0.187 0.003 67.7);
+  --chart-1: oklch(0.659 0.187 30.7);
+  --chart-2: oklch(0.944 0.016 86.4);
+  --chart-3: oklch(0.741 0.126 30.5);
+  --chart-4: oklch(0.714 0.021 84.6);
+  --chart-5: oklch(0.512 0.014 79.7);
+  --shadow-color: oklch(0 0 0 / 65%);
+  --sidebar: oklch(0.209 0.004 84.6);
+  --sidebar-foreground: oklch(0.944 0.016 86.4);
+  --sidebar-primary: oklch(0.659 0.187 30.7);
+  --sidebar-primary-foreground: oklch(0.187 0.003 67.7);
+  --sidebar-accent: oklch(0.275 0.007 67.5);
+  --sidebar-accent-foreground: oklch(0.944 0.016 86.4);
+  --sidebar-border: oklch(0.944 0.016 86.4 / 12%);
+  --sidebar-ring: oklch(0.659 0.187 30.7);
+}
+
+/* Fumadocs: shadcn.css sudah memetakan --color-fd-* ke token di atas.
+   Di sini cuma aksen "neko zine": brand merah untuk state aktif + callout senada. */
+@theme {
+  --color-fd-info: var(--chart-4);
+  --color-fd-warning: oklch(0.72 0.14 70);
+  --color-fd-error: var(--destructive);
+  --color-fd-success: oklch(0.6 0.12 150);
+  --color-fd-idea: var(--brand);
+  --color-fd-overlay: oklch(0.187 0.003 67.7 / 25%);
+  --color-fd-diff-remove: color-mix(
+    in oklch,
+    var(--destructive) 12%,
+    transparent
+  );
+  --color-fd-diff-remove-symbol: var(--destructive);
+  --color-fd-diff-add: oklch(0.6 0.12 150 / 12%);
+  --color-fd-diff-add-symbol: oklch(0.6 0.12 150);
+}
+
+/* link aktif sidebar & TOC pakai stamp red, bukan ink */
+#nd-sidebar,
+#nd-sidebar-mobile,
+#nd-toc {
+  --color-fd-primary: var(--brand);
+}
+
+#nd-sidebar-mobile {
+  background-color: var(--sidebar);
+  color: var(--sidebar-foreground);
+}
+
+/* Card docs ikut bayangan cetak (codeblock sudah shadow-sm).
+   ="true" = <Card>; anchor heading fumadocs juga punya data-card="" — jangan kena. */
+#nd-page [data-card="true"] {
+  box-shadow: var(--shadow-sm);
+}
+
+/* underline link prose: stamp red */
+#nd-page .prose a:not([data-card]) {
+  text-decoration-color: var(--brand);
+  text-underline-offset: 3px;
+}
+
+#nd-page .prose :where(h1, h2, h3) {
+  letter-spacing: -0.02em;
+}
+
+/* Tekstur kertas opsional: <section class="bg-grain"> */
+@utility bg-grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: var(--grain-z, -1);
+    pointer-events: none;
+    opacity: var(--grain-o, 0.18);
+    mix-blend-mode: var(--grain-blend, multiply);
+    filter: var(--grain-filter, none);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 }
 
 @layer base {
@@ -137,5 +234,8 @@ html > body[data-scroll-locked] {
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    @apply bg-brand text-brand-foreground;
   }
 }

@@ -1,11 +1,14 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { appName, gitConfig } from "./shared";
+import { gitConfig } from "./shared";
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      // JSX supported
-      title: appName,
+      title: (
+        <span className="font-bold tracking-tighter">
+          nekode<b className="text-brand">/</b>ui
+        </span>
+      ),
     },
     links: [
       {

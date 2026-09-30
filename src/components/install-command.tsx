@@ -1,6 +1,5 @@
 "use client";
 
-import { Check, Copy } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useCopy } from "@/hooks/use-copy";
@@ -34,17 +33,16 @@ export function InstallCommand() {
   const suffix = isLocalDev ? ".json" : "";
 
   return (
-    <button
-      type="button"
-      onClick={() =>
-        copy(`npx shadcn@latest add ${getRegistryRef(origin, name)}`)
-      }
+    // biome-ignore lint/a11y/noStaticElementInteractions: hover cuma pause animasi
+    <div
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="group flex w-full max-w-lg items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 font-mono text-sm transition-colors hover:border-foreground/30"
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      className="pill max-sm:h-[52px] max-sm:gap-2.5 max-sm:pl-4 max-sm:text-[13px]"
     >
-      <span className="flex min-w-0 items-center truncate text-left text-foreground">
-        <span className="select-none text-muted-foreground">$&nbsp;</span>
+      <span className="font-bold text-brand">$</span>
+      <code className="flex items-center">
         <span className="truncate">npx shadcn@latest add {prefix}</span>
         <span className="relative inline-flex h-5 shrink-0 items-center overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -54,19 +52,24 @@ export function InstallCommand() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "-100%", opacity: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="text-primary"
+              className="font-bold text-brand"
             >
               {name}
             </motion.span>
           </AnimatePresence>
         </span>
-        <span>{suffix}</span>
-      </span>
-      {copied ? (
-        <Check className="size-4 shrink-0" />
-      ) : (
-        <Copy className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
-      )}
-    </button>
+        <span className="shrink-0">{suffix}</span>
+      </code>
+      <button
+        type="button"
+        className={copied ? "copy done" : "copy"}
+        onClick={() =>
+          copy(`npx shadcn@latest add ${getRegistryRef(origin, name)}`)
+        }
+        aria-label={`Copy install command for ${name}`}
+      >
+        {copied ? "✓ Copied" : "Copy"}
+      </button>
+    </div>
   );
 }
