@@ -8,6 +8,7 @@ import { seo } from "@/lib/seo";
 import { ContactForm } from "@/registry/blocks/contact-form";
 import { ForgotPasswordForm } from "@/registry/blocks/forgot-password-form";
 import { LoginForm } from "@/registry/blocks/login-form";
+import { MultiStepRegisterForm } from "@/registry/blocks/multi-step-register-form";
 import { RegisterForm } from "@/registry/blocks/register-form";
 
 export const Route = createFileRoute("/blocks")({
@@ -65,6 +66,13 @@ const blocks: Block[] = [
     description: "Sign-up with name, email and password confirmation.",
     files: [file("register-form")],
     preview: <RegisterForm onSubmit={showValues} loginHref="#" />,
+  },
+  {
+    name: "multi-step-register-form",
+    title: "Multi-step register form",
+    description: "Account, profile and plan steps with a progress rail.",
+    files: [file("multi-step-register-form")],
+    preview: <MultiStepRegisterForm onSubmit={showValues} loginHref="#" />,
   },
   {
     name: "forgot-password-form",
