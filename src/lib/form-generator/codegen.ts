@@ -25,8 +25,10 @@ function zodSource(field: FieldConfig): string {
       return field.required
         ? `z.array(z.date()).min(1, ${jsStringLiteral(`${label} is required`)})`
         : `z.array(z.date()).optional()`;
+    case "checkbox":
     case "switch":
       return field.required ? `z.boolean()` : `z.boolean().optional()`;
+    case "checkbox-group":
     case "combobox-multi":
       return field.required
         ? `z.array(z.string()).min(1, ${jsStringLiteral(`${label} is required`)})`
@@ -50,8 +52,10 @@ function defaultValueSource(field: FieldConfig): string {
       return "undefined";
     case "date-multi-picker":
     case "combobox-multi":
+    case "checkbox-group":
     case "file":
       return "[]";
+    case "checkbox":
     case "switch":
       return "false";
     default:
@@ -72,6 +76,8 @@ function optionsSource(field: FieldConfig): string {
 }
 
 const KINDS_WITHOUT_PLACEHOLDER = new Set<FieldConfig["kind"]>([
+  "checkbox",
+  "checkbox-group",
   "radio",
   "switch",
   "time-picker",
@@ -96,6 +102,7 @@ function fieldJsx(field: FieldConfig): string {
     case "select":
     case "combobox":
     case "combobox-multi":
+    case "checkbox-group":
     case "radio":
       valueProps = [
         `options={${optionsSource(field)}}`,
@@ -103,6 +110,7 @@ function fieldJsx(field: FieldConfig): string {
         `onValueChange={field.handleChange}`,
       ];
       break;
+    case "checkbox":
     case "switch":
       valueProps = [
         `checked={field.state.value}`,
@@ -170,11 +178,20 @@ export function generateFormCode(
   const isMultiStep = steps.length > 1;
 
   const usedKinds = Array.from(new Set(fields.map((f) => f.kind)));
-  const imports = usedKinds
-    .map((kind) => {
-      const meta = kindMeta(kind);
-      return `import { ${meta.component} } from "${meta.importPath}";`;
-    })
+  // Several kinds can share one module (e.g. FieldCheckbox and
+  // FieldCheckboxGroup), so group components by import path.
+  const componentsByPath = new Map<string, string[]>();
+  for (const kind of usedKinds) {
+    const meta = kindMeta(kind);
+    const components = componentsByPath.get(meta.importPath) ?? [];
+    components.push(meta.component);
+    componentsByPath.set(meta.importPath, components);
+  }
+  const imports = Array.from(componentsByPath)
+    .map(
+      ([importPath, components]) =>
+        `import { ${components.join(", ")} } from "${importPath}";`,
+    )
     .join("\n");
 
   const schemaLines = fields

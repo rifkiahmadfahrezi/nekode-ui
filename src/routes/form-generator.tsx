@@ -26,6 +26,10 @@ import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
 import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { DateRangePickerField } from "@/components/ui/date-range-picker-field";
+import {
+  FieldCheckbox,
+  FieldCheckboxGroup,
+} from "@/components/ui/field-checkbox";
 import { FieldRadio } from "@/components/ui/field-radio";
 import { FieldSwitch } from "@/components/ui/field-switch";
 import { FileField } from "@/components/ui/file-field";
@@ -617,6 +621,23 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
         <ComboboxMultiField
           {...common}
           placeholder={field.placeholder}
+          options={field.options ?? []}
+          value={formField.state.value ?? []}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "checkbox":
+      return (
+        <FieldCheckbox
+          {...common}
+          checked={formField.state.value}
+          onCheckedChange={formField.handleChange}
+        />
+      );
+    case "checkbox-group":
+      return (
+        <FieldCheckboxGroup
+          {...common}
           options={field.options ?? []}
           value={formField.state.value ?? []}
           onValueChange={formField.handleChange}

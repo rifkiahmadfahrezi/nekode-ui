@@ -6,6 +6,8 @@ export type FieldKind =
   | "select"
   | "combobox"
   | "combobox-multi"
+  | "checkbox"
+  | "checkbox-group"
   | "radio"
   | "switch"
   | "date-picker"
