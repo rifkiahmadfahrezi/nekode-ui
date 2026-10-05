@@ -19,6 +19,7 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
       const base = z.object({ from: z.date(), to: z.date() });
       return field.required ? base : base.optional();
     }
+    case "checkbox-group":
     case "combobox-multi": {
       const base = z.array(z.string());
       return field.required
@@ -31,6 +32,7 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
         ? base.min(1, `${field.label || field.name} is required`)
         : base.optional();
     }
+    case "checkbox":
     case "switch": {
       const base = z.boolean();
       return field.required ? base : base.optional();
@@ -58,9 +60,11 @@ export function defaultValueFor(field: FieldConfig): unknown {
       return undefined;
     case "date-multi-picker":
     case "combobox-multi":
+    case "checkbox-group":
       return [];
     case "file":
       return [];
+    case "checkbox":
     case "switch":
       return false;
     default:

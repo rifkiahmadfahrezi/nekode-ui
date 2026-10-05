@@ -1,0 +1,87 @@
+---
+title: FieldCheckbox
+description: A labeled checkbox and checkbox group with support for descriptions and validation errors, optionally rendered as selectable choice cards.
+---
+
+`field-checkbox` ships two components built on the base `Checkbox`. `FieldCheckbox` is a single checkbox with a label, an optional description, and error handling, for yes/no inputs like accepting terms. `FieldCheckboxGroup` wraps several checkboxes in a `FieldSet` with a legend and returns the checked values as a `string[]`. Both accept `asCard` to render choices as bordered, clickable cards.
+
+## Installation
+
+<InstallationTabs componentName="field-checkbox" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/field-checkbox-demo.tsx">
+  <FieldCheckboxDemo />
+</ComponentPreview>
+
+### Checkbox group
+
+<ComponentPreview path="src/registry/demos/field-checkbox-group-demo.tsx">
+  <FieldCheckboxGroupDemo />
+</ComponentPreview>
+
+## Playground
+
+Toggle `asCard`, the asterisk, disabled state, or drop in an error message to see how the group responds.
+
+<FieldCheckboxPlaygroundDemo />
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/field-checkbox-form-demo.tsx">
+  <FieldCheckboxFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+- Every checkbox label uses `htmlFor`, so clicking the label (including the card surface when `asCard` is set) toggles the checkbox.
+- `aria-describedby` points to the description, but only while there's no error.
+- The error message is wired through `aria-errormessage`, and `aria-invalid` flips to `true` whenever `error` is set. In a group, every checkbox also gets `aria-invalid`.
+- `FieldCheckboxGroup` renders its checkboxes inside an element with `role="group"`, labelled by the `FieldSet` legend. A required group announces " (required)" through its legend, since `aria-required` isn't valid on a group.
+- `required` adds a visual asterisk plus a screen-reader-only " (required)" label.
+- Individually disabled options are set through `options[].disabled`, independent of the group-level `disabled` prop.
+
+## API Reference
+
+### FieldCheckbox
+
+`FieldCheckbox` accepts every prop the base `Checkbox` component accepts (such as `checked`, `defaultChecked`, `onCheckedChange` and `name`) in addition to the props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered next to the checkbox. |
+| `description` | `string` | — | Helper text shown below the label. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
+| `id` | `string` | auto-generated | Id of the checkbox, used to wire the label, description and error. |
+| `asCard` | `boolean` | `false` | Renders the checkbox as a bordered, clickable choice card. |
+| `fieldClassName` | `string` | — | Class name applied to the outer wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `checkboxClassName` | `string` | — | Class name applied to the `Checkbox`. |
+| `required` | `boolean` | `false` | Marks the checkbox as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables the checkbox. |
+
+### FieldCheckboxGroup
+
+`FieldCheckboxGroup` accepts every `div` HTML attribute (except `children`) in addition to the props below. `className` is applied to the element that wraps the checkboxes.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `options` | `{ value: string; label: string; description?: string; disabled?: boolean }[]` | — | The checkbox choices rendered inside the group. |
+| `value` | `string[]` | — | Checked option values (controlled). |
+| `defaultValue` | `string[]` | `[]` | Initially checked option values (uncontrolled). |
+| `onValueChange` | `(value: string[]) => void` | — | Called with the new list of checked values, in the same order as `options`. |
+| `name` | `string` | — | Form field name shared by every checkbox, for native form submission. |
+| `label` | `string` | — | Legend rendered above the group. |
+| `description` | `string` | — | Helper text shown below the legend. Hidden automatically when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the group into an invalid state and renders through `FieldError`. |
+| `asCard` | `boolean` | `false` | Renders each option as a bordered, clickable choice card instead of a plain checkbox row. |
+| `onBlur` | `(event: React.FocusEvent<HTMLElement>) => void` | — | Called when focus leaves the whole group, not when it moves between checkboxes. |
+| `fieldSetClassName` | `string` | — | Class name applied to the outer `FieldSet`. |
+| `legendClassName` | `string` | — | Class name applied to the `FieldLegend`. |
+| `itemClassName` | `string` | — | Class name applied to each option's wrapper (`Field` or `FieldLabel` card). |
+| `checkboxClassName` | `string` | — | Class name applied to each `Checkbox`. |
+| `required` | `boolean` | `false` | Marks the group as required and adds the asterisk indicator. |
+| `disabled` | `boolean` | `false` | Disables every option in the group. |
