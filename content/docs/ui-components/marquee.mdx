@@ -1,0 +1,63 @@
+---
+title: Marquee
+description: Infinitely scrolls any content, text, badges, images, or cards, horizontally or vertically.
+---
+
+`Marquee` takes whatever you pass as `children`, renders it `repeat` times side by side, and slides every copy with the Web Animations API so the loop never shows a seam. It needs no global CSS and no animation library. Reach for it for logo walls, tech-stack strips, photo reels, or a column of testimonials.
+
+## Installation
+
+<InstallationTabs componentName="marquee" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/marquee-demo.tsx">
+  <MarqueeDemo />
+</ComponentPreview>
+
+`children` can be anything: plain text, badges, `<img>` tags, or full cards. Each child becomes one item in a flex row. Hover the demo above to pause it (`pauseOnHover`).
+
+## Examples
+
+### Images
+
+Pass images as children. `reverse` scrolls to the right, and `duration` slows the loop down.
+
+<ComponentPreview path="src/registry/demos/marquee-images-demo.tsx">
+  <MarqueeImagesDemo />
+</ComponentPreview>
+
+### Vertical
+
+Set `vertical` and give the marquee a fixed height.
+
+<ComponentPreview path="src/registry/demos/marquee-vertical-demo.tsx">
+  <MarqueeVerticalDemo />
+</ComponentPreview>
+
+<Callout type="info">
+  Spacing between items comes from the `--gap` CSS variable (default `1rem`). Change it with a class such as `[--gap:2rem]`; don't use `gap-*` directly, because the loop distance is computed from `--gap`. If your content is narrower than the container and an empty stretch appears, raise `repeat`.
+</Callout>
+
+## Accessibility
+
+- Only the first copy of `children` is exposed to screen readers. The extra copies are `aria-hidden="true"`, so items aren't announced `repeat` times.
+- Under `prefers-reduced-motion: reduce`, the marquee doesn't animate; content stays in place and overflows hidden.
+- Give images a meaningful `alt`, or `alt=""` if they're decorative.
+- Moving content can distract. Use `pauseOnHover` when items carry information people need to read.
+
+## API Reference
+
+### Marquee
+
+`Marquee` also accepts every native `<div>` attribute. They go to the root element.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `children` | `React.ReactNode` | — | Items to scroll: text, images, or any elements. Required. |
+| `vertical` | `boolean` | `false` | Scroll along the vertical axis. Give the marquee a fixed height. |
+| `reverse` | `boolean` | `false` | Scroll the opposite way: right instead of left, down instead of up. |
+| `duration` | `number` | `20` | Seconds for one full loop of the content. Higher is slower. |
+| `pauseOnHover` | `boolean` | `false` | Pause while the pointer is over the marquee. |
+| `repeat` | `number` | `2` | How many copies of `children` render. Raise it when the content is narrower than the container. |
+| `className` | `string` | — | Class name merged onto the root. Set `[--gap:…]` here to change spacing. |
