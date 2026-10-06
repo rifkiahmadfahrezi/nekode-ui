@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "text-typer",
+  "title": "Text Typer",
+  "description": "Types a string out one character at a time with a blinking caret.",
+  "files": [
+    {
+      "path": "src/registry/ui/text-typer.tsx",
+      "content": "\"use client\";\n\nimport React from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\nexport interface TextTyperProps\n  extends Omit<React.ComponentProps<\"span\">, \"children\"> {\n  text: string;\n  /**\n   * Milliseconds between characters.\n   * @default 50\n   */\n  speed?: number;\n  /**\n   * Show a blinking caret after the typed text.\n   * @default true\n   */\n  cursor?: boolean;\n  onComplete?: () => void;\n}\n\nexport const TextTyper = ({\n  text,\n  speed = 50,\n  cursor = true,\n  onComplete,\n  className,\n  ...props\n}: TextTyperProps) => {\n  // Array.from splits by code point, so emoji and accented letters type as one.\n  const chars = React.useMemo(() => Array.from(text), [text]);\n  const [count, setCount] = React.useState(0);\n  const onCompleteRef = React.useRef(onComplete);\n  onCompleteRef.current = onComplete;\n\n  React.useEffect(() => {\n    if (window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches) {\n      setCount(chars.length);\n      onCompleteRef.current?.();\n      return;\n    }\n    setCount(0);\n    let typed = 0;\n    const id = setInterval(() => {\n      typed += 1;\n      setCount(typed);\n      if (typed >= chars.length) {\n        clearInterval(id);\n        onCompleteRef.current?.();\n      }\n    }, speed);\n    return () => clearInterval(id);\n  }, [chars, speed]);\n\n  return (\n    <span\n      data-slot=\"text-typer\"\n      className={cn(\"whitespace-pre-wrap\", className)}\n      {...props}\n    >\n      <span className=\"sr-only\">{text}</span>\n      <span aria-hidden=\"true\">\n        {chars.slice(0, count).join(\"\")}\n        {cursor && (\n          <span className=\"ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] animate-pulse bg-current\" />\n        )}\n      </span>\n    </span>\n  );\n};\n",
+      "type": "registry:ui",
+      "target": "components/ui/text-typer.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

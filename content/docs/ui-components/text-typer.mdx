@@ -1,0 +1,49 @@
+---
+title: TextTyper
+description: Types a string out one character at a time, with an optional blinking caret.
+---
+
+`TextTyper` reveals `text` character by character on a timer and restarts whenever `text` changes. It uses no animation library, only `setInterval` and state. Reach for it in hero headlines, empty states, or anywhere a line of copy should feel written live.
+
+## Installation
+
+<InstallationTabs componentName="text-typer" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/text-typer-demo.tsx">
+  <TextTyperDemo />
+</ComponentPreview>
+
+## Examples
+
+### Rotating words
+
+Changing `text` clears the current line and types the new one. Combine that with `onComplete` to cycle through a list.
+
+<ComponentPreview path="src/registry/demos/text-typer-rotate-demo.tsx">
+  <TextTyperRotateDemo />
+</ComponentPreview>
+
+<Callout type="info">
+  Text is split with `Array.from`, so emoji and other multi-code-unit characters type as a single step instead of showing broken halves.
+</Callout>
+
+## Accessibility
+
+- The visible, partially typed text and the caret are `aria-hidden="true"`. A visually hidden copy of the full `text` is what screen readers read, so they never hear half a word.
+- Under `prefers-reduced-motion: reduce`, the full text shows immediately and `onComplete` fires right away.
+
+## API Reference
+
+### TextTyper
+
+`TextTyper` also accepts every native `<span>` attribute except `children`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `text` | `string` | — | String to type out. Changing it restarts typing from the first character. Required. |
+| `speed` | `number` | `50` | Milliseconds between characters. |
+| `cursor` | `boolean` | `true` | Shows a blinking caret after the typed text. |
+| `onComplete` | `() => void` | — | Called once the last character of the current `text` is shown. |
+| `className` | `string` | — | Class name merged onto the root `<span>`. |

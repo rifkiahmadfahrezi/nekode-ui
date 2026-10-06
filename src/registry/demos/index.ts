@@ -49,6 +49,8 @@ export * from "./select-field-playground-demo";
 export * from "./text-field-demo";
 export * from "./text-field-form-demo";
 export * from "./text-field-playground-demo";
+export * from "./text-typer-demo";
+export * from "./text-typer-rotate-demo";
 export * from "./textarea-field-demo";
 export * from "./textarea-field-form-demo";
 export * from "./textarea-field-playground-demo";

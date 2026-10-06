@@ -381,6 +381,19 @@
       ]
     },
     {
+      "name": "text-typer",
+      "type": "registry:ui",
+      "title": "Text Typer",
+      "description": "Types a string out one character at a time with a blinking caret.",
+      "files": [
+        {
+          "path": "./src/registry/ui/text-typer.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/text-typer.tsx"
+        }
+      ]
+    },
+    {
       "name": "file-field",
       "type": "registry:ui",
       "title": "File Field",
