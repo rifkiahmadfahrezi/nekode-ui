@@ -1,0 +1,50 @@
+---
+title: NumberTicker
+description: Displays a number whose digits roll up or down whenever the value changes.
+---
+
+`NumberTicker` renders each digit as a vertical strip of `0`–`9` and springs it to the current digit with [Motion](https://motion.dev), so a change from `98` to `99` rolls only the last digit. When the digit count changes, new columns grow in from zero width and roll up from `0`, and removed columns shrink away, so the number never jumps sideways. Reach for it for counters, scores, prices, or countdowns where a hard jump between numbers feels abrupt.
+
+## Installation
+
+<InstallationTabs componentName="number-ticker" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/number-ticker-demo.tsx">
+  <NumberTickerDemo />
+</ComponentPreview>
+
+Keep `value` in state and change it however you like. Passing `setValue` is optional; it makes the ticker itself focusable so <kbd>ArrowUp</kbd> and <kbd>ArrowDown</kbd> step the value. Try it in the demo above by focusing the number.
+
+## Examples
+
+### Countdown
+
+Any state update animates, including one driven by a timer.
+
+<ComponentPreview path="src/registry/demos/number-ticker-countdown-demo.tsx">
+  <NumberTickerCountdownDemo />
+</ComponentPreview>
+
+<Callout type="info">
+  Columns are keyed by place from the right, so when `10` becomes `9` the ones digit keeps its column and rolls, and the tens column shrinks out. Non-digit characters such as the minus sign or a decimal point render as static text.
+</Callout>
+
+## Accessibility
+
+- The rolling digit strips are `aria-hidden="true"`. A visually hidden copy of `value` carries the number for screen readers.
+- With `setValue`, the ticker gets `role="spinbutton"`, `tabIndex={0}`, and `aria-valuenow`, plus a focus ring. <kbd>ArrowUp</kbd> / <kbd>ArrowDown</kbd> change the value by 1. Give it an `aria-label` describing what the number is.
+- Under `prefers-reduced-motion: reduce`, Motion skips the roll and slide (`MotionConfig reducedMotion="user"`); opacity still fades.
+
+## API Reference
+
+### NumberTicker
+
+`NumberTicker` also accepts every native `<span>` attribute except `children`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `number` | — | Number to display. Each change animates the digits that differ. Required. |
+| `setValue` | `(value: number) => void` | — | When passed, makes the ticker a focusable spinbutton. Called with `value + 1` on <kbd>ArrowUp</kbd> and `value - 1` on <kbd>ArrowDown</kbd>. |
+| `className` | `string` | — | Class name merged onto the root `<span>`. Set font size and weight here; digit height follows the font size. |

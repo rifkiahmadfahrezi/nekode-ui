@@ -38,6 +38,8 @@ export * from "./file-field-playground-demo";
 export * from "./number-field-demo";
 export * from "./number-field-form-demo";
 export * from "./number-field-playground";
+export * from "./number-ticker-countdown-demo";
+export * from "./number-ticker-demo";
 export * from "./password-field-demo";
 export * from "./password-field-form-demo";
 export * from "./password-field-playground-demo";
