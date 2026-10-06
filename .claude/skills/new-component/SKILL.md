@@ -17,7 +17,7 @@ Repo ships components as a shadcn registry (see `registry.json`, `public/r/*.jso
 | `src/registry/demos/index.ts` | Add `export * from "./foo-field-demo";` (+ playground/form) in alphabetical order. Demos are auto-injected into MDX globally via `src/components/mdx.tsx` — no per-page import needed. |
 | `registry.json` | Add the item entry (source of truth for the registry, alphabetical by name). |
 | `public/r/foo-field.json` | **Generated, don't hand-write.** Run `bun run shadcn:build` after editing `registry.json`. |
-| `content/docs/<category>/foo-field.mdx` | Doc page. Category = existing folder like `form-fields`, or new folder if it's a genuinely new category. |
+| `content/docs/<category>/foo-field.mdx` | Doc page. Category = existing folder: `form-fields` for form inputs, `ui-components` for everything else (e.g. `datatable`, `dialog-modal`). New folder only for a genuinely new category. |
 
 Multi-file components (like `datatable/`) live under `src/registry/ui/<name>/` with an `index.ts` barrel, and list every sub-file individually in `registry.json`'s `files` array with matching `target` paths under `components/ui/<name>/`.
 
@@ -40,7 +40,7 @@ Multi-file components (like `datatable/`) live under `src/registry/ui/<name>/` w
 
 6. **Generate the registry JSON**: run `bun run shadcn:build` (do NOT hand-author `public/r/<name>.json` — it's a build artifact and must byte-match what the build produces). Confirm the new file appeared under `public/r/`.
 
-7. **Write the doc page** at `content/docs/<category>/<name>.mdx`. There's no `meta.json` in this repo — docs nav is file-based, so dropping the file in the right folder is enough. Use this exact section order, matching `text-field.mdx`:
+7. **Write the doc page** at `content/docs/<category>/<name>.mdx`. Pages inside a category folder are listed automatically (alphabetical), so dropping the file in the right folder is enough. Root `content/docs/meta.json` orders the sidebar sections; only touch it when adding a new category folder (add the folder name under the right `---Section---` separator, and give the folder its own `meta.json` with a `title`, like `ui-components/meta.json`). Use this exact section order, matching `text-field.mdx`:
 
 ```mdx
 ---
@@ -107,6 +107,6 @@ Every prop in the component's TS interface must have a row in the API Reference 
 - Don't hand-write `public/r/*.json` — always regenerate via `shadcn:build`.
 - Don't ship a new form field without its Form Generator wiring (step 8). Renaming or removing a form field means updating the same Form Generator files.
 - Don't add a playground or form-demo section to a component that doesn't need one just to match `text-field`'s shape — `text-field` has three demos because it has three genuinely different usage stories, not because that's a required count.
-- Don't create a `meta.json` — this repo doesn't use one.
+- Don't add a `meta.json` inside an existing category folder, and don't list individual pages in the root `meta.json`; folders handle page listing.
 - Don't invent new class-name split props or new Field variants — reuse `@/components/ui/field` as-is unless the task explicitly requires changing it.
 - Don't remove, change or delete the original shadcn components (check this https://ui.shadcn.com/llms.txt)
