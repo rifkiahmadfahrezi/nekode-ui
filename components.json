@@ -23,7 +23,7 @@
   "menuAccent": "subtle",
   "registries": {
     "@nekode": {
-      "url": "https://ui.nekode.id/r/{name}.json"
+      "url": "https://ui.nekode.id/r/{style}/{name}.json"
     }
   }
 }

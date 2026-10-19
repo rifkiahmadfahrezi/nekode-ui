@@ -3,7 +3,7 @@
 import { format, getDaysInMonth, startOfDay } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as React from "react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Field,
@@ -249,25 +249,21 @@ export const DateMultiPickerField = React.forwardRef<
 
         <Popover>
           <PopoverTrigger
-            render={
-              <Button
-                ref={ref}
-                id={inputId}
-                name={name}
-                variant="outline"
-                disabled={disabled}
-                aria-required={required || undefined}
-                aria-invalid={!!error}
-                aria-describedby={describedBy}
-                aria-errormessage={errorId}
-                data-empty={!selectedDates?.length}
-                className={cn(
-                  "w-full justify-start overflow-hidden text-left font-normal",
-                  "data-[empty=true]:text-muted-foreground",
-                  triggerClassName,
-                )}
-              />
-            }
+            ref={ref}
+            id={inputId}
+            name={name}
+            disabled={disabled}
+            aria-required={required || undefined}
+            aria-invalid={!!error}
+            aria-describedby={describedBy}
+            aria-errormessage={errorId}
+            data-empty={!selectedDates?.length}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "w-full justify-start overflow-hidden text-left font-normal",
+              "data-[empty=true]:text-muted-foreground",
+              triggerClassName,
+            )}
           >
             <CalendarIcon aria-hidden="true" />
             <span className="truncate">{triggerLabel}</span>

@@ -23,7 +23,7 @@
     "format": "biome format --write",
     "format:all": "biome format --write",
     "format:staged": "biome format --write --staged --no-errors-on-unmatched",
-    "shadcn:build": "shadcn build",
+    "shadcn:build": "shadcn build && bun scripts/build-radix-registry.ts && shadcn build .registry-radix/registry.json -o public/r/radix",
     "deploy": "bun run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "postinstall": "node scripts/patch-cloudflare-vite-plugin.mjs"

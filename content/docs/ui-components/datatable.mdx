@@ -10,7 +10,7 @@ description: A data table with sorting, selection, column pinning, expandable ro
 <InstallationTabs componentName="datatable" />
 
 <Callout type="info">
-  This version is built on shadcn/ui's **Base UI** backend (`@base-ui/react`), not Radix. Two differences carry through to the API. `Checkbox` exposes tri-state selection as two separate props, `checked` and `indeterminate`, instead of Radix's single `checked: boolean | "indeterminate"`. Row context menus use Base UI's `render` prop to turn a `<TableRow>` into the menu trigger; Base UI has no `asChild`/Slot mechanism.
+  The Base UI and Radix builds share one API. Under the hood they differ in two places: the header checkbox uses Base UI's separate `checked`/`indeterminate` props or Radix's `checked="indeterminate"`, and row context menus turn `<TableRow>` into the trigger with Base UI's `render` prop or Radix's `asChild`.
 </Callout>
 
 ## Usage Example
@@ -118,10 +118,10 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 
 ## Accessibility
 
-- The header "select all" checkbox uses `checked` and `indeterminate` as two separate props, matching Base UI's `Checkbox` API. Screen readers announce the mixed state correctly because it comes from the primitive, not a faked `aria-checked` value.
+- The header "select all" checkbox exposes a real mixed state through the `Checkbox` primitive. Screen readers announce the mixed state correctly because it comes from the primitive, not a faked `aria-checked` value.
 - Every checkbox carries its own `aria-label`: `"Select all records"` on the header, `"Select record N"` per row.
 - Sort toggles and the expand chevron are real `<button>` elements. They're keyboard-focusable and respond to Enter and Space without extra wiring. The sort direction icons (`ArrowUp`/`ArrowDown`/`ChevronsUpDown`) are purely visual.
-- Context menus and the `DataTableAction` dropdown both render through Base UI's `Menu` primitives, which handle roving focus, arrow-key navigation, `Escape` to close, and correct `role="menu"`/`role="menuitem"` semantics without any extra work on your side.
+- Context menus and the `DataTableAction` dropdown both render through shadcn's menu primitives, which handle roving focus, arrow-key navigation, `Escape` to close, and correct `role="menu"`/`role="menuitem"` semantics without any extra work on your side.
 - The loading overlay (`fetching`) is visual only. It doesn't announce anything to assistive tech. Wire up your own `aria-live` region around the table if that matters for your users.
 - A row itself (the `<tr>`) is clickable via `onRowClick` or `expandOnRowClick`, but a table row isn't a native interactive element. It's not keyboard-focusable, and screen readers won't announce it as actionable. If a row click is the only way to reach some functionality, also expose it through a real button (the expand chevron, a `DataTableAction` item) so keyboard and screen reader users aren't stuck.
 

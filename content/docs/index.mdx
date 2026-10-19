@@ -21,5 +21,7 @@ Install components with the shadcn CLI, pointed at this registry:
 Each component's docs page has the exact command for that component under Installation.
 
 <Callout type="info">
-  Components are built on shadcn/ui's **Base UI** backend (`@base-ui/react`), not Radix. If you're used to Radix-based shadcn components, check each page's callouts for the differences that carry through the API.
+  Components work with both shadcn/ui backends: **Base UI** (`base-*` styles) and **Radix** (`radix-*`, `new-york`). The CLI picks the matching build from the `style` in your `components.json`, so the install command is the same either way.
+
+  If you added `@nekode` to `registries` in `components.json` yourself, use `https://ui.nekode.id/r/{style}/{name}.json` as the URL so the CLI can pick the right build. The old `https://ui.nekode.id/r/{name}.json` URL always serves the Base UI build.
 </Callout>

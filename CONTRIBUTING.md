@@ -41,7 +41,7 @@ Useful scripts:
 | `bun run lint` | Lints with Biome. |
 | `bun run lint:fix` | Lints and auto-fixes what it can. |
 | `bun test` | Runs the Vitest suite. |
-| `bun run shadcn:build` | Regenerates `public/r/*.json` from `registry.json`. **Required** after any change to `registry.json` or a registry source file. |
+| `bun run shadcn:build` | Regenerates `public/r/*.json` (Base UI) and `public/r/radix/*.json` (Radix) from `registry.json`. **Required** after any change to `registry.json` or a registry source file. |
 | `bun run build` | Production build — also useful to confirm new/changed docs pages actually prerender. |
 
 ## Project structure
@@ -80,7 +80,7 @@ Look at an existing sibling first — `text-field.tsx` for a simple labeled inpu
 2. **Barrel**: `src/components/ui/<name>.tsx` — one line, `export * from "@/registry/ui/<name>";`. Nothing else goes in this file.
 3. **Demos**: `src/registry/demos/<name>-demo.tsx` (required, smallest usage that shows the point), plus `<name>-playground-demo.tsx` (only if there are genuinely different visual states to toggle) and `<name>-form-demo.tsx` (only if it's a form-input component — use `@tanstack/react-form` + `zod`, matching the pattern in `text-field-form-demo.tsx`). Register every demo in `src/registry/demos/index.ts`, alphabetically.
 4. **Registry entry**: add an item to `registry.json` — `name`, `type: "registry:ui"`, `title`, `description`, `dependencies` (npm packages beyond what's already covered by a `registryDependencies` entry), `registryDependencies` (other registry item names it composes, e.g. `field`, `input`, `label`), and `files` (`path` + `type` + `target`).
-5. Run `bun run shadcn:build` and confirm `public/r/<name>.json` was generated. **Never hand-write this file.**
+5. Run `bun run shadcn:build` and confirm `public/r/<name>.json` and `public/r/radix/<name>.json` were generated. **Never hand-write these files.** Components must work on both shadcn backends (Base UI and Radix). Prefer APIs both share (e.g. `className={buttonVariants(...)}` on a trigger instead of `render={<Button />}`). Where a Base-UI-only API is unavoidable (`render`, Checkbox `indeterminate`, Select `items`), add a rewrite to `scripts/build-radix-registry.ts`; the build fails if a rewrite stops matching.
 6. **Doc page**: `content/docs/<category>/<name>.mdx` — see [Documentation standard](#documentation-standard) below.
 7. **Form Generator** (form fields only): every form-input component (anything documented under `content/docs/form-fields/`) must also be available in the `/form-generator` page. Wire it the same way as the closest existing field kind:
    - `src/lib/form-generator/types.ts` — add the kind to `FieldKind`.

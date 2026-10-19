@@ -31,7 +31,7 @@ There is no `components/ui` re-export and no docs mdx for blocks: the `/blocks` 
    - shadcn primitives go by short name (`"button"`).
    - **nekode items must be full URLs** (`"https://ui.nekode.id/r/text-field.json"`). A short name is looked up in the official shadcn registry and the install fails.
 
-4. **Build the registry**: `bun run shadcn:build`, confirm `public/r/<name>.json` appeared.
+4. **Build the registry**: `bun run shadcn:build`, confirm `public/r/<name>.json` and `public/r/radix/<name>.json` appeared. Components must work on both shadcn backends (Base UI and Radix). Prefer APIs both share (e.g. `className={buttonVariants(...)}` on a trigger instead of `render={<Button />}`). Where a Base-UI-only API is unavoidable (`render`, Checkbox `indeterminate`, Select `items`), add a rewrite to `scripts/build-radix-registry.ts`; the build fails if a rewrite stops matching.
 
 5. **Add to `/blocks`**: import the block in `src/routes/blocks.tsx`, add `{ name, title, description, files: [file("<name>")], preview: <Block onSubmit={showValues} /> }`. `name` must equal the registry name (it builds the install command). For a multi-file block list every file, using the registry `target` as the tree path.
 

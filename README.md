@@ -10,7 +10,9 @@ Install any component through the shadcn CLI:
 npx shadcn@latest add @nekode/text-field
 ```
 
-Swap the component name in the URL for whichever piece you need.
+Swap the component name for whichever piece you need. Works with both Base UI and Radix shadcn projects: the CLI picks the matching build from the `style` in your `components.json`.
+
+If you configured the `@nekode` registry manually, point it at `https://ui.nekode.id/r/{style}/{name}.json` to get the Radix build in Radix projects.
 
 ## Documentation
 

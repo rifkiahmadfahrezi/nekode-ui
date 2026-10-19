@@ -279,7 +279,9 @@ export const FieldCheckboxGroup = React.forwardRef<
                 name={name}
                 value={option.value}
                 checked={value.includes(option.value)}
-                onCheckedChange={(checked) => toggle(option.value, checked)}
+                onCheckedChange={(checked) =>
+                  toggle(option.value, checked === true)
+                }
                 disabled={itemDisabled}
                 aria-invalid={!!error}
                 className={checkboxClassName}
