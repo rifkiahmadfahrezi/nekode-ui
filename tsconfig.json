@@ -1,5 +1,7 @@
 {
   "include": ["**/*.ts", "**/*.tsx"],
+  // Next.js template sources; type-checked in their source repo.
+  "exclude": ["node_modules", "src/registry/templates"],
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,

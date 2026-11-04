@@ -90,3 +90,40 @@ nekode-ui/
    ```bash
    npx shadcn@latest add https://ui.nekode.id/r/button.json
    ```
+
+---
+
+## 🧩 Templates (`src/registry/templates/`)
+
+Full-app templates live here. They are **Next.js-only** and **Base UI only**:
+they ship their own restyled primitives (`components/ui/*`), so they are
+excluded from the Radix build (`"meta": { "baseUiOnly": true }`) and from
+`tsc`/Biome (they import `next/*`, which this repo doesn't install).
+
+| Item | Type | Contents |
+| --- | --- | --- |
+| `dashboard-theme` | `registry:theme` | Tokens, fonts, shadows, easing, entrance keyframes |
+| `dashboard` | `registry:block` | Shell, sidebar, header, command menu, empty `/dashboard` page, restyled `badge`/`button`/`card`/`dropdown-menu`/`table`/`tooltip` |
+| `dashboard-examples` | `registry:block` | `dashboard` + overview, analytics and projects pages |
+
+Every other primitive (`avatar`, `breadcrumb`, `dialog`, `separator`,
+`sidebar`, `tabs`) is stock shadcn via `registryDependencies`, styled from the
+dashboard components with `className`. `_stock/` holds copies of those stock
+files for `tsc` only; it is not shipped. If a user already has one of the six
+restyled files, shadcn asks before overwriting it (default: keep theirs).
+
+Install the theme **in the same command** as the block:
+
+```bash
+npx shadcn@latest add @nekode/dashboard-theme @nekode/dashboard
+npx shadcn@latest add @nekode/dashboard-theme @nekode/dashboard-examples
+```
+
+shadcn only overwrites existing CSS variables when one of the items passed on
+the command line is a `registry:theme`. Pulled in as a `registryDependency`,
+the theme only adds missing variables and the default neutral palette stays.
+
+The sources are a snapshot of
+[shadcn-dashboard](https://github.com/rifkiahmadfahrezi/shadcn-dashboard),
+with routes moved from `/` to `/dashboard` and `config/menus.ts` moved to
+`components/dashboard/menus.ts`. Make changes there first, then copy them over.

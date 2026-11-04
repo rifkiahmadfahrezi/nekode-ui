@@ -1,0 +1,13 @@
+{
+  // Templates import their own files first, then _stock (copies of the stock
+  // shadcn primitives they depend on, for type-checking only), then this
+  // repo's src (for @/lib/utils). The root tsconfig excludes this folder.
+  "extends": "../../../tsconfig.json",
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": [],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./dashboard-examples/*", "./dashboard/*", "./_stock/*", "../../*"]
+    }
+  }
+}

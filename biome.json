@@ -16,7 +16,8 @@
       "!.output",
       "!dist",
       "!public/r",
-      "!src/routeTree.gen.ts"
+      "!src/routeTree.gen.ts",
+      "!src/registry/templates"
     ]
   },
   "formatter": {

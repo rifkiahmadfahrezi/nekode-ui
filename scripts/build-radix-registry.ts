@@ -51,13 +51,18 @@ function applyRewrites(path: string, source: string) {
 }
 
 const registry = JSON.parse(readFileSync("registry.json", "utf8"));
+// Templates ship their own Base UI primitives (sidebar, menus, dialog...);
+// rewriting all of them for Radix isn't worth it, so they stay Base UI only.
+registry.items = registry.items.filter(
+  (item: { meta?: { baseUiOnly?: boolean } }) => !item.meta?.baseUiOnly,
+);
 const unused = new Set(Object.keys(rewrites));
 
 rmSync(OUT_DIR, { recursive: true, force: true });
 
 for (const item of registry.items) {
   let usesBaseUi = false;
-  for (const file of item.files) {
+  for (const file of item.files ?? []) {
     const path = normalize(file.path);
     const source = applyRewrites(path, readFileSync(path, "utf8"));
     unused.delete(path);
