@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { generateFormCode, generateInstallCommand } from "./codegen";
 import { DEFAULT_FORM_STYLE } from "./style";
 import type { FormStyle, StepConfig } from "./types";
