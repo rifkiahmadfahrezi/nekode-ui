@@ -1,6 +1,14 @@
 import { getRegistryRef } from "@/hooks/use-origin";
 import { kindMeta } from "./field-kinds";
-import type { FieldConfig, StepConfig } from "./types";
+import {
+  buttonRowClassName,
+  DEFAULT_FORM_STYLE,
+  fieldsGridClassName,
+  fieldWrapperClassName,
+  formClassName,
+  supportsOrientation,
+} from "./style";
+import type { FieldConfig, FormStyle, StepConfig } from "./types";
 
 function jsStringLiteral(value: string) {
   return JSON.stringify(value);
@@ -84,7 +92,7 @@ const KINDS_WITHOUT_PLACEHOLDER = new Set<FieldConfig["kind"]>([
   "file",
 ]);
 
-function fieldJsx(field: FieldConfig): string {
+function fieldJsx(field: FieldConfig, style: FormStyle): string {
   const meta = kindMeta(field.kind);
   const common = [
     `label={${jsStringLiteral(field.label)}}`,
@@ -93,6 +101,9 @@ function fieldJsx(field: FieldConfig): string {
       : null,
     field.placeholder && !KINDS_WITHOUT_PLACEHOLDER.has(field.kind)
       ? `placeholder={${jsStringLiteral(field.placeholder)}}`
+      : null,
+    field.orientation === "horizontal" && supportsOrientation(field.kind)
+      ? `orientation="horizontal"`
       : null,
     `error={field.state.meta.errors[0]?.message}`,
   ].filter(Boolean);
@@ -157,21 +168,53 @@ function fieldJsx(field: FieldConfig): string {
       ];
   }
 
+  const wrapper = fieldWrapperClassName(field, style);
+  const pad = wrapper ? "  " : "";
   const props = [...common, ...valueProps]
-    .map((line) => `          ${line}`)
+    .map((line) => `${pad}            ${line}`)
     .join("\n");
 
-  return `      <form.Field name={${jsStringLiteral(field.name)}}>
-        {(field) => (
-          <${meta.component}
+  const jsx = `${pad}      <form.Field name={${jsStringLiteral(field.name)}}>
+${pad}        {(field) => (
+${pad}          <${meta.component}
 ${props}
-          />
-        )}
-      </form.Field>`;
+${pad}          />
+${pad}        )}
+${pad}      </form.Field>`;
+
+  if (!wrapper) return jsx;
+  return `      <div className=${jsStringLiteral(wrapper)}>
+${jsx}
+      </div>`;
+}
+
+/** Re-indents a generated block by `extra` spaces. */
+function indent(block: string, extra: number) {
+  const space = " ".repeat(extra);
+  return block
+    .split("\n")
+    .map((line) => (line ? space + line : line))
+    .join("\n");
+}
+
+/** Extra Button attributes, each on its own line at `pad` indentation. */
+function buttonAttrs(
+  pad: string,
+  variant: FormStyle["submitVariant"],
+  full: boolean,
+) {
+  return [
+    variant === "default" ? null : `variant="${variant}"`,
+    full ? `className="w-full"` : null,
+  ]
+    .filter(Boolean)
+    .map((attr) => `\n${pad}${attr}`)
+    .join("");
 }
 
 export function generateFormCode(
   steps: StepConfig[],
+  style: FormStyle = DEFAULT_FORM_STYLE,
   componentName = "GeneratedForm",
 ) {
   const fields = steps.flatMap((step) => step.fields);
@@ -187,6 +230,7 @@ export function generateFormCode(
     components.push(meta.component);
     componentsByPath.set(meta.importPath, components);
   }
+  componentsByPath.set("@/components/ui/button", ["Button"]);
   const imports = Array.from(componentsByPath)
     .map(
       ([importPath, components]) =>
@@ -201,69 +245,69 @@ export function generateFormCode(
   const defaultValueLines = fields
     .map(
       (field) =>
-        `    ${jsStringLiteral(field.name)}: ${defaultValueSource(field)},`,
+        `      ${jsStringLiteral(field.name)}: ${defaultValueSource(field)},`,
     )
     .join("\n");
 
+  const gridClass = jsStringLiteral(fieldsGridClassName(style));
   const stepBody = isMultiStep
     ? steps
         .map(
           (step, i) => `      {step === ${i} && (
-        <div className="grid gap-4">
-${step.fields.map(fieldJsx).join("\n")}
+        <div className=${gridClass}>
+${step.fields.map((f) => indent(fieldJsx(f, style), 4)).join("\n")}
         </div>
       )}`,
         )
         .join("\n")
-    : `      <div className="grid gap-4">
-${fields.map(fieldJsx).join("\n")}
+    : `      <div className=${gridClass}>
+${fields.map((f) => indent(fieldJsx(f, style), 2)).join("\n")}
       </div>`;
+
+  const full = style.buttonAlign === "full";
+  const rowClass = jsStringLiteral(
+    buttonRowClassName(style.buttonAlign, isMultiStep),
+  );
+  const submitLabel = style.submitLabel.trim() || "Submit";
+  const submitButton = (
+    pad: string,
+  ) => `${pad}<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
+${pad}  {([canSubmit, isSubmitting]) => (
+${pad}    <Button
+${pad}      type="submit"${buttonAttrs(`${pad}      `, style.submitVariant, full)}
+${pad}      disabled={!canSubmit}
+${pad}    >
+${pad}      {isSubmitting ? "Submitting..." : ${jsStringLiteral(submitLabel)}}
+${pad}    </Button>
+${pad}  )}
+${pad}</form.Subscribe>`;
 
   const navigation = isMultiStep
     ? `
-      <div className="flex justify-between">
-        <button
+      <div className=${rowClass}>
+        <Button
           type="button"
+          variant="outline"${full ? `\n          className="w-full"` : ""}
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
         >
           Back
-        </button>
+        </Button>
         {step < ${steps.length - 1} ? (
-          <button
-            type="button"
+          <Button
+            type="button"${buttonAttrs("            ", style.submitVariant, full)}
             onClick={() => setStep((s) => Math.min(${steps.length - 1}, s + 1))}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
           >
             Next
-          </button>
+          </Button>
         ) : (
-          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
-            {([canSubmit, isSubmitting]) => (
-              <button
-                type="submit"
-                disabled={!canSubmit}
-                className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-50"
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
-            )}
-          </form.Subscribe>
+${submitButton("          ")}
         )}
       </div>`
     : `
-      <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
-        {([canSubmit, isSubmitting]) => (
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-50"
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
-        )}
-      </form.Subscribe>`;
+      <div className=${rowClass}>
+${submitButton("        ")}
+      </div>`;
 
   return `"use client";
 
@@ -297,7 +341,7 @@ ${defaultValueLines}
         event.stopPropagation();
         form.handleSubmit();
       }}
-      className="grid gap-6"
+      className=${jsStringLiteral(formClassName(style))}
     >
 ${stepBody}
 ${navigation}
@@ -317,5 +361,9 @@ export function generateInstallCommand(steps: StepConfig[], origin: string) {
     ),
   );
   if (!names.length) return "";
-  return `npx shadcn@latest add ${names.map((n) => getRegistryRef(origin, n)).join(" ")}`;
+  // Plain name resolves from the default shadcn registry.
+  names.unshift("button");
+  return `npx shadcn@latest add ${names
+    .map((n) => (n === "button" ? n : getRegistryRef(origin, n)))
+    .join(" ")}`;
 }
