@@ -8,6 +8,7 @@ import {
   Copy,
   Eye,
   GripVertical,
+  Paintbrush,
   Search,
   Settings2,
   Terminal,
@@ -52,10 +53,26 @@ import {
 } from "@/lib/form-generator/codegen";
 import { FIELD_KINDS, kindMeta } from "@/lib/form-generator/field-kinds";
 import { buildFormSchema } from "@/lib/form-generator/schema";
+import {
+  buttonRowClassName,
+  DEFAULT_FORM_STYLE,
+  fieldsGridClassName,
+  fieldWrapperClassName,
+  formClassName,
+  supportsOrientation,
+} from "@/lib/form-generator/style";
 import type {
+  ButtonAlign,
+  ButtonVariant,
   FieldConfig,
   FieldKind,
   FieldOption,
+  FieldOrientation,
+  FieldSpan,
+  FormColumns,
+  FormMaxWidth,
+  FormSpacing,
+  FormStyle,
   StepConfig,
 } from "@/lib/form-generator/types";
 import { baseOptions } from "@/lib/layout.shared";
@@ -109,9 +126,14 @@ function RouteComponent() {
   const [activeStepId, setActiveStepId] = React.useState(steps[0].id);
   const [fieldCounter, setFieldCounter] = React.useState(1);
   const [view, setView] = React.useState<"preview" | "source">("preview");
+  const [formStyle, setFormStyle] =
+    React.useState<FormStyle>(DEFAULT_FORM_STYLE);
 
   const activeStep = steps.find((s) => s.id === activeStepId) ?? steps[0];
-  const code = React.useMemo(() => generateFormCode(steps), [steps]);
+  const code = React.useMemo(
+    () => generateFormCode(steps, formStyle),
+    [steps, formStyle],
+  );
   const origin = useOrigin();
   const installCommand = React.useMemo(
     () => generateInstallCommand(steps, origin),
@@ -220,6 +242,7 @@ function RouteComponent() {
               />
               <div className="flex items-center gap-2">
                 <ViewToggle value={view} onChange={setView} />
+                <FormStylePopover value={formStyle} onChange={setFormStyle} />
                 {installCommand && (
                   <Button
                     type="button"
@@ -246,6 +269,7 @@ function RouteComponent() {
               {view === "preview" ? (
                 <FormCanvas
                   steps={steps}
+                  formStyle={formStyle}
                   activeStepId={activeStepId}
                   onSelectStep={setActiveStepId}
                   onUpdateField={updateField}
@@ -306,6 +330,113 @@ function ViewToggle({
         <Code2 className="size-3.5" /> Source
       </button>
     </div>
+  );
+}
+
+const COLUMN_OPTIONS = [
+  { label: "1 column", value: "1" },
+  { label: "2 columns", value: "2" },
+  { label: "3 columns", value: "3" },
+];
+const SPACING_OPTIONS = [
+  { label: "Compact", value: "compact" },
+  { label: "Normal", value: "normal" },
+  { label: "Relaxed", value: "relaxed" },
+];
+const MAX_WIDTH_OPTIONS = [
+  { label: "Full width", value: "none" },
+  { label: "Small (sm)", value: "sm" },
+  { label: "Medium (md)", value: "md" },
+  { label: "Large (lg)", value: "lg" },
+  { label: "XL", value: "xl" },
+  { label: "2XL", value: "2xl" },
+];
+const VARIANT_OPTIONS = [
+  { label: "Default", value: "default" },
+  { label: "Secondary", value: "secondary" },
+  { label: "Outline", value: "outline" },
+];
+const ALIGN_OPTIONS = [
+  { label: "Left", value: "start" },
+  { label: "Right", value: "end" },
+  { label: "Full width", value: "full" },
+];
+
+function FormStylePopover({
+  value,
+  onChange,
+}: {
+  value: FormStyle;
+  onChange: (style: FormStyle) => void;
+}) {
+  const set = (patch: Partial<FormStyle>) => onChange({ ...value, ...patch });
+  return (
+    <Popover>
+      <PopoverTrigger
+        render={<Button type="button" variant="outline" size="sm" />}
+      >
+        <Paintbrush className="size-3.5" /> Style
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80">
+        <div className="flex flex-col gap-3">
+          <div className="text-xs font-medium text-muted-foreground">
+            Layout
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SelectField
+              label="Columns"
+              options={COLUMN_OPTIONS}
+              value={String(value.columns)}
+              onValueChange={(v) => set({ columns: Number(v) as FormColumns })}
+            />
+            <SelectField
+              label="Spacing"
+              options={SPACING_OPTIONS}
+              value={value.spacing}
+              onValueChange={(v) => set({ spacing: v as FormSpacing })}
+            />
+          </div>
+          <SelectField
+            label="Max width"
+            options={MAX_WIDTH_OPTIONS}
+            value={value.maxWidth}
+            onValueChange={(v) => set({ maxWidth: v as FormMaxWidth })}
+          />
+
+          <div className="pt-1 text-xs font-medium text-muted-foreground">
+            Buttons
+          </div>
+          <TextField
+            label="Submit label"
+            value={value.submitLabel}
+            onChange={(e) => set({ submitLabel: e.currentTarget.value })}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <SelectField
+              label="Variant"
+              options={VARIANT_OPTIONS}
+              value={value.submitVariant}
+              onValueChange={(v) => set({ submitVariant: v as ButtonVariant })}
+            />
+            <SelectField
+              label="Position"
+              options={ALIGN_OPTIONS}
+              value={value.buttonAlign}
+              onValueChange={(v) => set({ buttonAlign: v as ButtonAlign })}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start text-muted-foreground"
+            onClick={() => onChange(DEFAULT_FORM_STYLE)}
+          >
+            Reset style
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -431,12 +562,23 @@ function StepTrack({
 function FieldSettingsForm({
   field,
   meta,
+  columns,
   onChange,
 }: {
   field: FieldConfig;
   meta: ReturnType<typeof kindMeta>;
+  columns: FormColumns;
   onChange: (patch: Partial<FieldConfig>) => void;
 }) {
+  const spanOptions = [
+    { label: "1 column", value: "1" },
+    ...(columns === 3 ? [{ label: "2 columns", value: "2" }] : []),
+    { label: "Full row", value: "full" },
+  ];
+  const span =
+    field.span === "full" || (field.span ?? 1) >= columns
+      ? "full"
+      : String(field.span ?? 1);
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -480,6 +622,47 @@ function FieldSettingsForm({
         />
         <Label htmlFor={`${field.id}-required`}>Required</Label>
       </div>
+
+      <div className="pt-1 text-xs font-medium text-muted-foreground">
+        Style
+      </div>
+      {(columns > 1 || supportsOrientation(field.kind)) && (
+        <div className="grid grid-cols-2 gap-3">
+          {columns > 1 && (
+            <SelectField
+              label="Width"
+              options={spanOptions}
+              value={span}
+              onValueChange={(v) =>
+                onChange({
+                  span: (v === "full" ? "full" : Number(v)) as FieldSpan,
+                })
+              }
+            />
+          )}
+          {supportsOrientation(field.kind) && (
+            <SelectField
+              label="Label position"
+              options={[
+                { label: "Top", value: "vertical" },
+                { label: "Side", value: "horizontal" },
+              ]}
+              value={field.orientation ?? "vertical"}
+              onValueChange={(v) =>
+                onChange({ orientation: v as FieldOrientation })
+              }
+            />
+          )}
+        </div>
+      )}
+      <TextField
+        label="Wrapper class"
+        description="Extra Tailwind classes, e.g. md:col-start-2"
+        placeholder="mt-2"
+        value={field.className ?? ""}
+        inputClassName="font-mono"
+        onChange={(e) => onChange({ className: e.currentTarget.value })}
+      />
 
       {meta.needsOptions && (
         <OptionsEditor
@@ -557,6 +740,9 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
     label: field.label,
     description: field.description || undefined,
     error: formField.state.meta.errors[0]?.message,
+    ...(field.orientation === "horizontal" && supportsOrientation(field.kind)
+      ? { orientation: "horizontal" as const }
+      : {}),
   };
 
   switch (field.kind) {
@@ -720,6 +906,7 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
 
 interface FormCanvasProps {
   steps: StepConfig[];
+  formStyle: FormStyle;
   activeStepId: string;
   onSelectStep: (id: string) => void;
   onUpdateField: (fieldId: string, patch: Partial<FieldConfig>) => void;
@@ -746,6 +933,7 @@ function FormCanvas(props: FormCanvasProps) {
 
 function FormCanvasInner({
   steps,
+  formStyle,
   activeStepId,
   onSelectStep,
   onUpdateField,
@@ -780,6 +968,7 @@ function FormCanvasInner({
     steps.findIndex((s) => s.id === activeStepId),
   );
   const isMultiStep = steps.length > 1;
+  const fullButtons = formStyle.buttonAlign === "full";
   const currentFields = steps[stepIndex].fields;
 
   const prevStepIndexRef = React.useRef(stepIndex);
@@ -798,7 +987,7 @@ function FormCanvasInner({
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="grid gap-5"
+      className={formClassName(formStyle)}
     >
       <AnimatePresence mode="wait" initial={false} custom={direction}>
         <motion.div
@@ -808,10 +997,10 @@ function FormCanvasInner({
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: direction * -24 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="grid gap-5"
+          className={fieldsGridClassName(formStyle)}
         >
           {currentFields.length === 0 && (
-            <p className="text-sm text-muted-foreground">
+            <p className="col-span-full text-sm text-muted-foreground">
               Add fields from the sidebar to build {steps[stepIndex].title}.
             </p>
           )}
@@ -821,6 +1010,7 @@ function FormCanvasInner({
                 {(formField) => (
                   <FieldCanvasItem
                     field={field}
+                    formStyle={formStyle}
                     formField={formField}
                     index={i}
                     onChange={(patch) => onUpdateField(field.id, patch)}
@@ -846,56 +1036,53 @@ function FormCanvasInner({
         </motion.div>
       </AnimatePresence>
 
-      {isMultiStep ? (
-        <div className="flex justify-between border-t pt-4">
+      <div className={buttonRowClassName(formStyle.buttonAlign, isMultiStep)}>
+        {isMultiStep && (
           <Button
             type="button"
             variant="outline"
+            className={cn(fullButtons && "w-full")}
             disabled={stepIndex === 0}
             onClick={() => onSelectStep(steps[stepIndex - 1].id)}
           >
             Back
           </Button>
-          {stepIndex < steps.length - 1 ? (
-            <Button
-              type="button"
-              onClick={() => onSelectStep(steps[stepIndex + 1].id)}
-            >
-              Next
-            </Button>
-          ) : (
-            <form.Subscribe
-              selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-            >
-              {([canSubmit, isSubmitting]) => (
-                <Button type="submit" disabled={!canSubmit}>
-                  {isSubmitting ? "Submitting..." : "Submit"}
-                </Button>
-              )}
-            </form.Subscribe>
-          )}
-        </div>
-      ) : (
-        <form.Subscribe
-          selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-        >
-          {([canSubmit, isSubmitting]) => (
-            <Button
-              type="submit"
-              className="justify-self-start"
-              disabled={!canSubmit}
-            >
-              {isSubmitting ? "Submitting..." : "Submit"}
-            </Button>
-          )}
-        </form.Subscribe>
-      )}
+        )}
+        {isMultiStep && stepIndex < steps.length - 1 ? (
+          <Button
+            type="button"
+            variant={formStyle.submitVariant}
+            className={cn(fullButtons && "w-full")}
+            onClick={() => onSelectStep(steps[stepIndex + 1].id)}
+          >
+            Next
+          </Button>
+        ) : (
+          <form.Subscribe
+            selector={(s) => [s.canSubmit, s.isSubmitting] as const}
+          >
+            {([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                variant={formStyle.submitVariant}
+                className={cn(fullButtons && "w-full")}
+                disabled={!canSubmit}
+              >
+                {isSubmitting
+                  ? "Submitting..."
+                  : formStyle.submitLabel.trim() || "Submit"}
+              </Button>
+            )}
+          </form.Subscribe>
+        )}
+      </div>
     </form>
   );
 }
 
 function FieldCanvasItem({
   field,
+  formStyle,
   formField,
   index,
   onChange,
@@ -909,6 +1096,7 @@ function FieldCanvasItem({
   onReorder,
 }: {
   field: FieldConfig;
+  formStyle: FormStyle;
   formField: AnyFieldApi;
   index: number;
   onChange: (patch: Partial<FieldConfig>) => void;
@@ -949,9 +1137,15 @@ function FieldCanvasItem({
       className={cn(
         "group/field relative rounded-md ring-offset-4 ring-offset-card transition-shadow",
         isDragOver && "ring-2 ring-ring",
+        fieldWrapperClassName(field, formStyle),
       )}
     >
-      <div className="absolute top-1 -left-6 hidden font-mono text-[10px] text-muted-foreground group-hover/field:block group-focus-within/field:block lg:block">
+      <div
+        className={cn(
+          "absolute top-1 -left-6 hidden font-mono text-[10px] text-muted-foreground group-hover/field:block group-focus-within/field:block lg:block",
+          formStyle.columns > 1 && "lg:hidden",
+        )}
+      >
         {String(index + 1).padStart(2, "0")}
       </div>
 
@@ -1010,7 +1204,12 @@ function FieldCanvasItem({
             <Settings2 className="size-3.5" />
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80">
-            <FieldSettingsForm field={field} meta={meta} onChange={onChange} />
+            <FieldSettingsForm
+              field={field}
+              meta={meta}
+              columns={formStyle.columns}
+              onChange={onChange}
+            />
           </PopoverContent>
         </Popover>
         <Button
