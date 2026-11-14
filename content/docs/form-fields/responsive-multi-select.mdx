@@ -1,0 +1,85 @@
+---
+title: ResponsiveMultiSelect
+description: A searchable multi select with chips and a popover on desktop, and a bottom drawer on mobile.
+---
+
+`ResponsiveMultiSelect` keeps the desktop experience of [`ComboboxMultiField`](/docs/form-fields/combobox-multi-field) (removable chips inside the input, with a popover list) and swaps it for a touch-friendly trigger plus a shadcn `Drawer` on small screens. Inside the drawer, the search input and list are Base UI's `Combobox` in `multiple` mode rendered inline, so users can tick several options and close the drawer with **Done**.
+
+Resize your browser below `768px` (the `useIsMobile` breakpoint) to see the drawer.
+
+## Installation
+
+<InstallationTabs componentName="responsive-multi-select" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/responsive-multi-select-demo.tsx">
+  <ResponsiveMultiSelectDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/responsive-multi-select-form-demo.tsx">
+  <ResponsiveMultiSelectFormDemo />
+</ComponentPreview>
+
+## Behavior
+
+- **Desktop (`≥ 768px`)** renders `ComboboxMultiField` with every prop forwarded, including `overflow` and `showAllSelectedLabel`.
+- **Mobile (`< 768px`)** renders a button styled like an input that lists the selected options as chips. Tapping it opens a bottom drawer with a search input, the option list, and a footer with **Clear** and **Done (N)**.
+- **Selections apply immediately**: `onValueChange` fires on every tick, and the drawer stays open until the user taps **Done** or swipes it down.
+- **`overflow="hide"`** on mobile keeps the trigger on one line and shows the first chip plus "and N more...". `showAllSelectedLabel` shows "All N items are selected" once every option is picked.
+- **`name`** is written as one hidden input per selected value on mobile, so native form submission keeps working while the drawer is closed.
+- The first render (and SSR) uses the desktop layout, then switches once the viewport is measured.
+
+## Accessibility
+
+- The label uses `htmlFor`: on desktop it focuses the search input, on mobile it points at the trigger button.
+- The mobile trigger has `aria-haspopup="dialog"` and `aria-expanded` synced to the drawer.
+- `aria-describedby` points to the description only while there's no error. The error is wired through `aria-errormessage`, and `aria-invalid` flips to `true` whenever `error` is set.
+- The drawer always has a title (`drawerTitle`, then `label`, then `placeholder`) and a description. Without `drawerDescription`, a visually hidden "N of M selected" is used.
+- The clear button has `aria-label="Clear selection"`. The chevron and loading spinner are `aria-hidden`.
+
+## API Reference
+
+### ResponsiveMultiSelect
+
+Accepts every [`ComboboxMultiField`](/docs/form-fields/combobox-multi-field#api-reference) prop, plus the mobile-only props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the input. |
+| `description` | `string` | — | Helper text shown below the input. Hidden when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `placeholder` | `string` | `"Select options"` | Shown while nothing is selected. |
+| `emptyText` | `string` | `"No results found."` | Shown when filtering matches nothing. |
+| `options` | `ResponsiveMultiSelectOption[]` | — | **Required.** The list of selectable options. |
+| `value` | `string[]` | — | **Required.** Controlled selected values. |
+| `onValueChange` | `(value: string[]) => void` | — | **Required.** Fires with the selected values. |
+| `overflow` | `"stack" \| "hide"` | `"stack"` | Wrap chips onto new lines, or keep one line with "and N more...". |
+| `showAllSelectedLabel` | `boolean` | `overflow === "hide"` | Show "All N items are selected" once every option is selected. |
+| `name` | `string` | — | Form field name. |
+| `id` | `string` | auto | Id of the input (desktop) or trigger (mobile). |
+| `disabled` | `boolean` | `false` | Disables the field. |
+| `required` | `boolean` | `false` | Adds the required asterisk. |
+| `loading` | `boolean` | `false` | Shows a spinner and disables the field. |
+| `showClear` | `boolean` | `true` | Shows a clear-all ("×") button once a value is selected. |
+| `autoHighlight` | `boolean` | `false` | Auto-highlights the first matching item while filtering. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Label layout. |
+| `fieldClassName` | `string` | — | Class name for the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name for the `FieldLabel`. |
+| `inputClassName` | `string` | — | Class name for the chips container (desktop) or trigger (mobile). |
+| `drawerTitle` | `string` | `label ?? placeholder` | Drawer heading on mobile. |
+| `drawerDescription` | `string` | — | Helper text under the drawer heading on mobile. |
+| `searchPlaceholder` | `string` | `"Search..."` | Placeholder (and accessible name) of the search input in the drawer. |
+| `doneText` | `string` | `"Done"` | Label of the button that closes the drawer. The selected count is appended. |
+
+### ResponsiveMultiSelectOption
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Text shown in the chip and list, and matched while filtering. |
+| `value` | `string` | — | Value reported through `onValueChange`. |
+| `disabled` | `boolean` | `false` | Prevents this option from being selected. |

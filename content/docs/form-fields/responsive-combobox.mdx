@@ -1,0 +1,81 @@
+---
+title: ResponsiveCombobox
+description: A searchable single select that opens a popover on desktop and a bottom drawer on mobile.
+---
+
+`ResponsiveCombobox` keeps the desktop experience of [`ComboboxField`](/docs/form-fields/combobox-field) (an input you type into, with a popover list) and swaps it for a touch-friendly trigger plus a shadcn `Drawer` on small screens. Inside the drawer, the search input and list are Base UI's `Combobox` rendered inline, so filtering and keyboard navigation behave the same on both layouts. Picking an option closes the drawer.
+
+Resize your browser below `768px` (the `useIsMobile` breakpoint) to see the drawer.
+
+## Installation
+
+<InstallationTabs componentName="responsive-combobox" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/responsive-combobox-demo.tsx">
+  <ResponsiveComboboxDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/responsive-combobox-form-demo.tsx">
+  <ResponsiveComboboxFormDemo />
+</ComponentPreview>
+
+## Behavior
+
+- **Desktop (`≥ 768px`)** renders `ComboboxField` with every prop forwarded, so it looks and behaves exactly like the existing combobox.
+- **Mobile (`< 768px`)** renders a button styled like an input. Tapping it opens a bottom drawer with a search input and the option list. The search input is not auto-focused, so the on-screen keyboard only opens when the user taps it.
+- **Selecting an option** reports the value and closes the drawer. The clear ("×") button on the trigger resets the value to `undefined`.
+- **`name`** is written to a hidden input on mobile, so native form submission keeps working while the drawer is closed.
+- The first render (and SSR) uses the desktop layout, then switches once the viewport is measured.
+
+## Accessibility
+
+- The label uses `htmlFor`: on desktop it focuses the search input, on mobile it points at the trigger button.
+- The mobile trigger has `aria-haspopup="dialog"` and `aria-expanded` synced to the drawer.
+- `aria-describedby` points to the description only while there's no error. The error is wired through `aria-errormessage`, and `aria-invalid` flips to `true` whenever `error` is set.
+- The drawer always has a title (`drawerTitle`, then `label`, then `placeholder`) and a description (visually hidden unless `drawerDescription` is set). The search input inside it is labelled with `searchPlaceholder`.
+- The clear button has `aria-label="Clear selection"`. The chevron and loading spinner are `aria-hidden`.
+
+## API Reference
+
+### ResponsiveCombobox
+
+Accepts every [`ComboboxField`](/docs/form-fields/combobox-field#api-reference) prop, plus the mobile-only props below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above (or beside) the input. |
+| `description` | `string` | — | Helper text shown below the input. Hidden when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `placeholder` | `string` | `"Select an option"` | Shown while nothing is selected. |
+| `emptyText` | `string` | `"No results found."` | Shown when filtering matches nothing. |
+| `options` | `ResponsiveComboboxOption[]` | — | **Required.** The list of selectable options. |
+| `value` | `string` | — | **Required.** Controlled selected value. |
+| `onValueChange` | `(value: string \| undefined) => void` | — | **Required.** Fires with the new value, or `undefined` when cleared. |
+| `name` | `string` | — | Form field name. |
+| `id` | `string` | auto | Id of the input (desktop) or trigger (mobile). |
+| `disabled` | `boolean` | `false` | Disables the field. |
+| `required` | `boolean` | `false` | Adds the required asterisk. |
+| `loading` | `boolean` | `false` | Shows a spinner and disables the field. |
+| `showClear` | `boolean` | `true` | Shows a clear ("×") button once a value is selected. |
+| `autoHighlight` | `boolean` | `false` | Auto-highlights the first matching item while filtering. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Label layout. |
+| `fieldClassName` | `string` | — | Class name for the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name for the `FieldLabel`. |
+| `inputClassName` | `string` | — | Class name for the input (desktop) or trigger (mobile). |
+| `drawerTitle` | `string` | `label ?? placeholder` | Drawer heading on mobile. |
+| `drawerDescription` | `string` | — | Helper text under the drawer heading on mobile. |
+| `searchPlaceholder` | `string` | `"Search..."` | Placeholder (and accessible name) of the search input in the drawer. |
+
+### ResponsiveComboboxOption
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Text shown in the list and matched while filtering. |
+| `value` | `string` | — | Value reported through `onValueChange`. |
+| `disabled` | `boolean` | `false` | Prevents this option from being selected. |

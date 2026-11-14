@@ -41,6 +41,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ResponsiveCombobox } from "@/components/ui/responsive-combobox";
+import { ResponsiveMultiSelect } from "@/components/ui/responsive-multi-select";
 import { SelectField } from "@/components/ui/select-field";
 import { TextField } from "@/components/ui/text-field";
 import { TextareaField } from "@/components/ui/textarea-field";
@@ -619,6 +621,28 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
     case "combobox-multi":
       return (
         <ComboboxMultiField
+          {...common}
+          placeholder={field.placeholder}
+          options={field.options ?? []}
+          value={formField.state.value ?? []}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "responsive-combobox":
+      return (
+        <ResponsiveCombobox
+          {...common}
+          placeholder={field.placeholder}
+          options={field.options ?? []}
+          value={formField.state.value ?? ""}
+          onValueChange={(v: string | undefined) =>
+            formField.handleChange(v ?? "")
+          }
+        />
+      );
+    case "responsive-multi-select":
+      return (
+        <ResponsiveMultiSelect
           {...common}
           placeholder={field.placeholder}
           options={field.options ?? []}
