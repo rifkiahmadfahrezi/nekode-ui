@@ -7,6 +7,9 @@ import {
   DataTable,
   DataTableAction,
   type DataTableColumn,
+  DataTableContextMenu,
+  DataTablePagination,
+  DataTableRecordsPerPage,
   type SortStatus,
 } from "@/components/ui/datatable";
 
@@ -290,51 +293,58 @@ export function DataTableDemo() {
         </div>
       </div>
 
-      <DataTable<User>
-        data={pageData}
-        fetching={fetching}
-        idAccessor="id"
-        height={420}
-        columns={columns}
-        sortStatus={sortStatus}
-        onSortStatusChange={(status) => {
-          setSortStatus(status);
-          setPage(1);
-        }}
-        selectedRecords={selected}
-        onSelectedRecordsChange={setSelected}
-        headerClassName="bg-muted/40"
-        rowClassName={(record) =>
-          record.status === "inactive" ? "opacity-50" : undefined
-        }
-        renderRowSubContent={(record) => (
-          <div className="space-y-1">
-            <p className="text-sm">{record.bio}</p>
-            <p className="text-xs text-muted-foreground">
-              Based in {record.location}
-            </p>
-          </div>
-        )}
-        rowContextMenu={(record) => getRowActions(record)}
-        headerRef={headerRef}
-        bodyRef={bodyRef}
-        footerRef={footerRef}
-        tableRef={tableRef}
-        scrollViewportRef={scrollViewportRef}
-        pagination={{
-          page,
-          totalRecords: DUMMY_USERS.length,
-          recordsPerPage,
-          onPageChange: setPage,
-          recordsPerPageOptions: [10, 25, 50],
-          onRecordsPerPageChange: (n) => {
-            setRecordsPerPage(n);
+      <DataTableContextMenu items={getRowActions}>
+        <DataTable<User>
+          data={pageData}
+          fetching={fetching}
+          idAccessor="id"
+          height={420}
+          columns={columns}
+          sortStatus={sortStatus}
+          onSortStatusChange={(status) => {
+            setSortStatus(status);
             setPage(1);
-          },
-          renderInfo: ({ from, to, totalRecords }) =>
-            `rank ${from} to ${to} of ${totalRecords}`,
-        }}
-      />
+          }}
+          selectedRecords={selected}
+          onSelectedRecordsChange={setSelected}
+          headerClassName="bg-muted/40"
+          rowClassName={(record) =>
+            record.status === "inactive" ? "opacity-50" : undefined
+          }
+          renderRowSubContent={(record) => (
+            <div className="space-y-1">
+              <p className="text-sm">{record.bio}</p>
+              <p className="text-xs text-muted-foreground">
+                Based in {record.location}
+              </p>
+            </div>
+          )}
+          headerRef={headerRef}
+          bodyRef={bodyRef}
+          tableRef={tableRef}
+          scrollViewportRef={scrollViewportRef}
+        >
+          <DataTablePagination
+            ref={footerRef}
+            page={page}
+            totalRecords={DUMMY_USERS.length}
+            recordsPerPage={recordsPerPage}
+            onPageChange={setPage}
+            renderInfo={({ from, to, totalRecords }) =>
+              `rank ${from} to ${to} of ${totalRecords}`
+            }
+          >
+            <DataTableRecordsPerPage
+              value={recordsPerPage}
+              options={[10, 25, 50]}
+              onValueChange={(n) => {
+                setRecordsPerPage(n);
+                setPage(1);
+              }}
+            />
+          </DataTablePagination>
+        </DataTable>
+      </DataTableContextMenu>
     </div>
   );
 }
