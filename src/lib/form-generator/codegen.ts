@@ -30,6 +30,7 @@ function zodSource(field: FieldConfig): string {
       return field.required ? `z.boolean()` : `z.boolean().optional()`;
     case "checkbox-group":
     case "combobox-multi":
+    case "responsive-multi-select":
       return field.required
         ? `z.array(z.string()).min(1, ${jsStringLiteral(`${label} is required`)})`
         : `z.array(z.string()).optional()`;
@@ -52,6 +53,7 @@ function defaultValueSource(field: FieldConfig): string {
       return "undefined";
     case "date-multi-picker":
     case "combobox-multi":
+    case "responsive-multi-select":
     case "checkbox-group":
     case "file":
       return "[]";
@@ -102,6 +104,8 @@ function fieldJsx(field: FieldConfig): string {
     case "select":
     case "combobox":
     case "combobox-multi":
+    case "responsive-combobox":
+    case "responsive-multi-select":
     case "checkbox-group":
     case "radio":
       valueProps = [

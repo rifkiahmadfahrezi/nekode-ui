@@ -311,6 +311,60 @@
       ]
     },
     {
+      "name": "responsive-combobox",
+      "type": "registry:ui",
+      "title": "Responsive Combobox",
+      "description": "A searchable single select that uses a popover on desktop and a bottom drawer on mobile.",
+      "dependencies": [
+        "class-variance-authority",
+        "lucide-react",
+        "vaul"
+      ],
+      "registryDependencies": [
+        "field",
+        "combobox",
+        "button",
+        "label",
+        "drawer",
+        "use-mobile",
+        "https://ui.nekode.id/r/radix/combobox-field.json"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/responsive-combobox.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/responsive-combobox.tsx"
+        }
+      ]
+    },
+    {
+      "name": "responsive-multi-select",
+      "type": "registry:ui",
+      "title": "Responsive Multi Select",
+      "description": "A searchable multi select with chips on desktop and a bottom drawer on mobile.",
+      "dependencies": [
+        "class-variance-authority",
+        "lucide-react",
+        "vaul"
+      ],
+      "registryDependencies": [
+        "field",
+        "combobox",
+        "button",
+        "label",
+        "drawer",
+        "use-mobile",
+        "https://ui.nekode.id/r/radix/combobox-multi-field.json"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/responsive-multi-select.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/responsive-multi-select.tsx"
+        }
+      ]
+    },
+    {
       "name": "datatable",
       "type": "registry:ui",
       "title": "DataTable",
