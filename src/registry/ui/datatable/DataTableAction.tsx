@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import type { RowContextMenuItem } from "./types";
 
 export interface DataTableActionProps {
-  /** Menu items — same shape as `rowContextMenu`'s per-row return value, so
+  /** Menu items — same shape as `DataTableContextMenu`'s per-row `items`, so
    * you can reuse the exact same list for both the right-click context menu
    * and this button. */
   items: RowContextMenuItem[];
@@ -27,7 +27,7 @@ export interface DataTableActionProps {
 
 /**
  * A "kebab" (3-dot) button that opens a menu — meant for a table's actions
- * column. Typically used together with (or instead of) `rowContextMenu`:
+ * column. Typically used together with (or instead of) `DataTableContextMenu`:
  *
  *   {
  *     accessor: "actions",

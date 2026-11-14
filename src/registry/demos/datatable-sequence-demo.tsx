@@ -5,6 +5,7 @@ import {
   createSequenceColumn,
   DataTable,
   type DataTableColumn,
+  DataTablePagination,
 } from "@/components/ui/datatable";
 
 type Ticket = { id: number; subject: string; priority: string };
@@ -36,12 +37,13 @@ export function DataTableSequenceDemo() {
         ...columns,
       ]}
       idAccessor="id"
-      pagination={{
-        page,
-        totalRecords: tickets.length,
-        recordsPerPage,
-        onPageChange: setPage,
-      }}
-    />
+    >
+      <DataTablePagination
+        page={page}
+        totalRecords={tickets.length}
+        recordsPerPage={recordsPerPage}
+        onPageChange={setPage}
+      />
+    </DataTable>
   );
 }

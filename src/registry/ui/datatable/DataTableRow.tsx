@@ -3,15 +3,10 @@
 import { ChevronRight } from "lucide-react";
 import * as React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { DataTableColumn, RowContextMenuItem } from "./types";
+import { DataTableRowMenuContext } from "./context";
+import type { DataTableColumn } from "./types";
 
 interface DataTableRowProps<T> {
   record: T;
@@ -32,7 +27,6 @@ interface DataTableRowProps<T> {
   highlightOnHover: boolean;
   rowClassName?: string;
   rowStyle?: React.CSSProperties;
-  contextMenuItems?: RowContextMenuItem[];
   getColumnKey: (col: DataTableColumn<T>) => string;
   pinnedCellStyle: (col: DataTableColumn<T>) => React.CSSProperties;
   pinnedCellClassName: (
@@ -69,7 +63,6 @@ function DataTableRowInner<T>({
   highlightOnHover,
   rowClassName,
   rowStyle,
-  contextMenuItems,
   getColumnKey,
   pinnedCellStyle,
   pinnedCellClassName,
@@ -79,6 +72,7 @@ function DataTableRowInner<T>({
   rowRef,
 }: DataTableRowProps<T>) {
   const shiftKeyRef = React.useRef(false);
+  const menu = React.useContext(DataTableRowMenuContext);
 
   function handleRowClick() {
     if (expandable && canExpand && expandOnRowClick) onToggleExpand(record);
@@ -162,53 +156,19 @@ function DataTableRowInner<T>({
     </React.Fragment>
   );
 
-  const mainRow =
-    contextMenuItems && contextMenuItems.length > 0 ? (
-      <ContextMenu>
-        <ContextMenuTrigger
-          render={
-            <TableRow
-              ref={(el: HTMLTableRowElement | null) =>
-                rowRef?.(el, record, rowIndex)
-              }
-              data-state={isSelected ? "selected" : undefined}
-              className={rowShellClassName}
-              style={rowStyle}
-              onClick={handleRowClick}
-            />
-          }
-        >
-          {cells}
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          {contextMenuItems.map((item) => (
-            <ContextMenuItem
-              key={item.key}
-              disabled={item.disabled}
-              onClick={item.onClick}
-              className={cn(
-                item.danger && "text-destructive focus:text-destructive",
-              )}
-            >
-              {item.icon && (
-                <span className="mr-2 flex items-center">{item.icon}</span>
-              )}
-              {item.label}
-            </ContextMenuItem>
-          ))}
-        </ContextMenuContent>
-      </ContextMenu>
-    ) : (
-      <TableRow
-        ref={(el) => rowRef?.(el, record, rowIndex)}
-        data-state={isSelected ? "selected" : undefined}
-        className={rowShellClassName}
-        style={rowStyle}
-        onClick={handleRowClick}
-      >
-        {cells}
-      </TableRow>
-    );
+  const rowProps: React.ComponentProps<"tr"> = {
+    ref: (el) => rowRef?.(el, record, rowIndex),
+    "data-state": isSelected ? "selected" : undefined,
+    className: rowShellClassName,
+    style: rowStyle,
+    onClick: handleRowClick,
+  } as React.ComponentProps<"tr">;
+
+  const mainRow = menu ? (
+    menu.renderRow({ record, rowIndex, rowProps, children: cells })
+  ) : (
+    <TableRow {...rowProps}>{cells}</TableRow>
+  );
 
   if (!canExpand || !isExpanded) return mainRow;
 
@@ -231,6 +191,19 @@ function DataTableRowInner<T>({
   );
 }
 
+// `rowStyle` is often a function returning a fresh object per call, so
+// compare by value instead of identity to keep the row memo effective.
+function shallowEqualStyle(
+  a: React.CSSProperties | undefined,
+  b: React.CSSProperties | undefined,
+) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const aKeys = Object.keys(a) as (keyof React.CSSProperties)[];
+  if (aKeys.length !== Object.keys(b).length) return false;
+  return aKeys.every((k) => a[k] === b[k]);
+}
+
 function propsAreEqual<T>(
   prev: Readonly<DataTableRowProps<T>>,
   next: Readonly<DataTableRowProps<T>>,
@@ -243,8 +216,7 @@ function propsAreEqual<T>(
     prev.canExpand === next.canExpand &&
     prev.columns === next.columns &&
     prev.rowClassName === next.rowClassName &&
-    prev.rowStyle === next.rowStyle &&
-    prev.contextMenuItems === next.contextMenuItems &&
+    shallowEqualStyle(prev.rowStyle, next.rowStyle) &&
     prev.pinnedCellStyle === next.pinnedCellStyle &&
     prev.pinnedCellClassName === next.pinnedCellClassName &&
     prev.getColumnKey === next.getColumnKey &&

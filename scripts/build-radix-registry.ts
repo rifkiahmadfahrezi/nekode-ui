@@ -24,10 +24,10 @@ const rewrites: Record<string, Rewrite[]> = {
     [/\n\s*items=\{items\}/, ""],
   ],
   // Base UI's `render` prop → Radix `asChild`.
-  "src/registry/ui/datatable/DataTableRow.tsx": [
+  "src/registry/ui/datatable/DataTableContextMenu.tsx": [
     [
-      /<ContextMenuTrigger\s+render=\{\s*(<TableRow[\s\S]*?)\s*\/>\s*\}\s*>\s*\{cells\}\s*<\/ContextMenuTrigger>/,
-      "<ContextMenuTrigger asChild>$1>{cells}</TableRow></ContextMenuTrigger>",
+      /<ContextMenuTrigger\s+render=\{\s*(<TableRow[\s\S]*?)\s*\/>\s*\}\s*>\s*\{children\}\s*<\/ContextMenuTrigger>/,
+      "<ContextMenuTrigger asChild>$1>{children}</TableRow></ContextMenuTrigger>",
     ],
   ],
   // Radix Checkbox has no `indeterminate` prop; it's a `checked` state.

@@ -368,18 +368,15 @@
       "name": "datatable",
       "type": "registry:ui",
       "title": "DataTable",
-      "description": "Advanced table component with sorting, selection, pagination, filtering, row expansion, and more.",
+      "description": "Data table with sorting, selection, column pinning, row expansion, and opt-in pagination and row context menu.",
       "dependencies": [
         "class-variance-authority",
         "lucide-react"
       ],
       "registryDependencies": [
         "checkbox",
-        "label",
         "button",
-        "popover",
         "context-menu",
-        "separator",
         "select",
         "dropdown-menu",
         "table"
@@ -394,6 +391,11 @@
           "path": "./.registry-radix/src/registry/ui/datatable/DataTableAction.tsx",
           "type": "registry:ui",
           "target": "components/ui/datatable/DataTableAction.tsx"
+        },
+        {
+          "path": "./.registry-radix/src/registry/ui/datatable/DataTableContextMenu.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableContextMenu.tsx"
         },
         {
           "path": "./.registry-radix/src/registry/ui/datatable/DataTableEmptyState.tsx",
@@ -421,9 +423,19 @@
           "target": "components/ui/datatable/DataTablePagination.tsx"
         },
         {
+          "path": "./.registry-radix/src/registry/ui/datatable/DataTableRecordsPerPage.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableRecordsPerPage.tsx"
+        },
+        {
           "path": "./.registry-radix/src/registry/ui/datatable/DataTableRow.tsx",
           "type": "registry:ui",
           "target": "components/ui/datatable/DataTableRow.tsx"
+        },
+        {
+          "path": "./.registry-radix/src/registry/ui/datatable/context.ts",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/context.ts"
         },
         {
           "path": "./.registry-radix/src/registry/ui/datatable/index.ts",

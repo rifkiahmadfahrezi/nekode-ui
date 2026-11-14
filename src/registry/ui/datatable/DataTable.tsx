@@ -3,11 +3,11 @@
 import * as React from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { DataTableContext } from "./context";
 import { DataTableEmptyState } from "./DataTableEmptyState";
 import { DataTableFooter } from "./DataTableFooter";
 import { DataTableHeader } from "./DataTableHeader";
 import { DataTableLoader } from "./DataTableLoader";
-import { DataTablePagination } from "./DataTablePagination";
 import { DataTableRow } from "./DataTableRow";
 import type {
   BaseDataTableProps,
@@ -54,8 +54,6 @@ export function DataTable<
     selectedRecords,
     onSelectedRecordsChange,
     height,
-    rowContextMenu,
-    pagination,
     noRecordsText = "No records to show",
     highlightOnHover = true,
     onRowClick,
@@ -73,12 +71,12 @@ export function DataTable<
     onExpandedRecordIdsChange,
     headerRef,
     bodyRef,
-    footerRef,
     tableRef,
     scrollViewportRef,
     rowRef,
     sortStatus,
     onSortStatusChange,
+    children,
   } = props as BaseDataTableProps<T> & SortProps<T>;
 
   const selectable = !!onSelectedRecordsChange;
@@ -106,8 +104,42 @@ export function DataTable<
   const [lastSelectionId, setLastSelectionId] =
     React.useState<React.Key | null>(null);
 
+  // Row handlers read the latest props/state through this ref so their
+  // identity never changes. Otherwise every select/expand would hand all
+  // memoized rows a new callback and re-render the whole body.
+  const latest = React.useRef({
+    data,
+    idAccessor,
+    selectedRecords,
+    selectedIds,
+    onSelectedRecordsChange,
+    lastSelectionId,
+    onRowClick,
+    rowRef,
+  });
+  React.useLayoutEffect(() => {
+    latest.current = {
+      data,
+      idAccessor,
+      selectedRecords,
+      selectedIds,
+      onSelectedRecordsChange,
+      lastSelectionId,
+      onRowClick,
+      rowRef,
+    };
+  });
+
   const handleToggleSelect = React.useCallback(
     (record: T, rowIndex: number, shiftKey: boolean) => {
+      const {
+        data,
+        idAccessor,
+        selectedRecords,
+        selectedIds,
+        onSelectedRecordsChange,
+        lastSelectionId,
+      } = latest.current;
       if (!onSelectedRecordsChange) return;
       const id = getRecordId(record, idAccessor);
 
@@ -159,14 +191,18 @@ export function DataTable<
       }
       setLastSelectionId(id);
     },
-    [
-      onSelectedRecordsChange,
-      selectedRecords,
-      selectedIds,
-      idAccessor,
-      data,
-      lastSelectionId,
-    ],
+    [],
+  );
+
+  const handleRowClick = React.useCallback((record: T, rowIndex: number) => {
+    latest.current.onRowClick?.(record, rowIndex);
+  }, []);
+
+  const handleRowRef = React.useCallback(
+    (element: HTMLTableRowElement | null, record: T, rowIndex: number) => {
+      latest.current.rowRef?.(element, record, rowIndex);
+    },
+    [],
   );
 
   const handleToggleAll = React.useCallback(() => {
@@ -206,28 +242,43 @@ export function DataTable<
     [isExpandControlled, expandedRecordIds, internalExpanded],
   );
 
-  const toggleExpand = React.useCallback(
-    (record: T) => {
-      const id = getRecordId(record, idAccessor);
-      let next: Set<React.Key>;
-      if (singleExpand) {
-        next = expandedSet.has(id) ? new Set() : new Set([id]);
-      } else {
-        next = new Set(expandedSet);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-      }
-      if (isExpandControlled) onExpandedRecordIdsChange?.(Array.from(next));
-      else setInternalExpanded(next);
-    },
-    [
+  const expandLatest = React.useRef({
+    expandedSet,
+    singleExpand,
+    isExpandControlled,
+    onExpandedRecordIdsChange,
+    idAccessor,
+  });
+  React.useLayoutEffect(() => {
+    expandLatest.current = {
       expandedSet,
       singleExpand,
       isExpandControlled,
       onExpandedRecordIdsChange,
       idAccessor,
-    ],
-  );
+    };
+  });
+
+  const toggleExpand = React.useCallback((record: T) => {
+    const {
+      expandedSet,
+      singleExpand,
+      isExpandControlled,
+      onExpandedRecordIdsChange,
+      idAccessor,
+    } = expandLatest.current;
+    const id = getRecordId(record, idAccessor);
+    let next: Set<React.Key>;
+    if (singleExpand) {
+      next = expandedSet.has(id) ? new Set() : new Set([id]);
+    } else {
+      next = new Set(expandedSet);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+    }
+    if (isExpandControlled) onExpandedRecordIdsChange?.(Array.from(next));
+    else setInternalExpanded(next);
+  }, []);
 
   /* --------------------------------- Sort ---------------------------------- */
 
@@ -312,10 +363,13 @@ export function DataTable<
   const updateScrollShadow = React.useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setScrollShadow({
-      left: el.scrollLeft > 1,
-      right: el.scrollLeft + el.clientWidth < el.scrollWidth - 1,
-    });
+    const left = el.scrollLeft > 1;
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    // Bail out unless an edge actually flipped: scroll fires many times per
+    // frame and a fresh object would re-render the whole table each time.
+    setScrollShadow((prev) =>
+      prev.left === left && prev.right === right ? prev : { left, right },
+    );
   }, []);
 
   React.useEffect(() => {
@@ -324,10 +378,13 @@ export function DataTable<
     return () => window.removeEventListener("resize", updateScrollShadow);
   }, [updateScrollShadow, data, orderedColumns]);
 
-  /* ------------------------------ Pagination -------------------------------- */
-
   const totalCols =
     orderedColumns.length + (selectable ? 1 : 0) + (expandable ? 1 : 0);
+
+  const contextValue = React.useMemo(
+    () => ({ variant, sticky, fetching }),
+    [variant, sticky, fetching],
+  );
 
   /* --------------------------------- Render --------------------------------- */
 
@@ -403,7 +460,6 @@ export function DataTable<
                   const canExpand =
                     expandable &&
                     (rowExpandable ? rowExpandable(record, rowIndex) : true);
-                  const contextMenuItems = rowContextMenu?.(record, rowIndex);
                   const resolvedRowClassName =
                     typeof rowClassName === "function"
                       ? rowClassName(record, rowIndex)
@@ -429,19 +485,18 @@ export function DataTable<
                       renderSubContent={renderRowSubContent}
                       onToggleSelect={handleToggleSelect}
                       onToggleExpand={toggleExpand}
-                      onRowClick={onRowClick}
+                      onRowClick={onRowClick ? handleRowClick : undefined}
                       expandOnRowClick={expandOnRowClick}
                       highlightOnHover={highlightOnHover}
                       rowClassName={resolvedRowClassName}
                       rowStyle={resolvedRowStyle}
-                      contextMenuItems={contextMenuItems}
                       getColumnKey={getColumnKey}
                       pinnedCellStyle={pinnedCellStyle}
                       pinnedCellClassName={pinnedCellClassName}
                       leadingGutter={leadingGutter}
                       totalCols={totalCols}
                       variant={variant}
-                      rowRef={rowRef}
+                      rowRef={rowRef ? handleRowRef : undefined}
                     />
                   );
                 })
@@ -465,14 +520,10 @@ export function DataTable<
         </div>
       </div>
 
-      {pagination && (
-        <DataTablePagination
-          pagination={pagination}
-          variant={variant}
-          sticky={sticky}
-          footerRef={footerRef}
-          fetching={fetching}
-        />
+      {children != null && (
+        <DataTableContext.Provider value={contextValue}>
+          {children}
+        </DataTableContext.Provider>
       )}
     </div>
   );

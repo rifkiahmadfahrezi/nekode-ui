@@ -1,7 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { createEvent, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import * as React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { DataTable } from "./DataTable";
+import { DataTableContextMenu } from "./DataTableContextMenu";
+import { DataTablePagination } from "./DataTablePagination";
 import type { DataTableColumn } from "./types";
 
 interface Row {
@@ -225,22 +228,91 @@ describe("DataTable", () => {
     const user = userEvent.setup();
     const onPageChange = vi.fn();
     render(
-      <DataTable
-        data={data}
-        columns={columns}
-        idAccessor="id"
-        pagination={{
-          page: 1,
-          totalRecords: 30,
-          recordsPerPage: 10,
-          onPageChange,
-        }}
-      />,
+      <DataTable data={data} columns={columns} idAccessor="id">
+        <DataTablePagination
+          page={1}
+          totalRecords={30}
+          recordsPerPage={10}
+          onPageChange={onPageChange}
+        />
+      </DataTable>,
     );
 
     expect(screen.getByText("Showing 1–10 of 30")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "2" }));
     expect(onPageChange).toHaveBeenCalledWith(2);
+  });
+
+  it("disables pagination while the parent table is fetching", () => {
+    render(
+      <DataTable data={data} columns={columns} idAccessor="id" fetching>
+        <DataTablePagination
+          page={1}
+          totalRecords={30}
+          recordsPerPage={10}
+          onPageChange={() => {}}
+        />
+      </DataTable>,
+    );
+
+    expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled();
+  });
+
+  it("opens the shared context menu only for rows that have items", () => {
+    const onView = vi.fn();
+    const items = (record: Row) =>
+      record.id === 2
+        ? undefined
+        : [{ key: "view", label: `View ${record.name}`, onClick: onView }];
+    render(
+      <DataTableContextMenu items={items}>
+        <DataTable data={data} columns={columns} idAccessor="id" />
+      </DataTableContextMenu>,
+    );
+
+    fireEvent.contextMenu(screen.getByText("Ada"));
+    expect(screen.getByText("View Ada")).toBeInTheDocument();
+
+    // A row without items doesn't get our menu, so the browser's stays.
+    const event = createEvent.contextMenu(screen.getByText("Grace"));
+    fireEvent(screen.getByText("Grace"), event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("re-renders only the toggled row when selection changes", async () => {
+    const user = userEvent.setup();
+    const renders: Record<number, number> = {};
+    const countingColumns: DataTableColumn<Row>[] = [
+      {
+        accessor: "name",
+        render: (record) => {
+          renders[record.id] = (renders[record.id] ?? 0) + 1;
+          return record.name;
+        },
+      },
+    ];
+
+    function Harness() {
+      const [selected, setSelected] = React.useState<Row[]>([]);
+      return (
+        <DataTable
+          data={data}
+          columns={countingColumns}
+          idAccessor="id"
+          selectedRecords={selected}
+          onSelectedRecordsChange={setSelected}
+          onRowClick={() => {}}
+        />
+      );
+    }
+    render(<Harness />);
+    const before = { ...renders };
+
+    await user.click(screen.getByRole("checkbox", { name: "Select record 1" }));
+
+    expect(renders[1]).toBe(before[1] + 1);
+    expect(renders[2]).toBe(before[2]);
+    expect(renders[3]).toBe(before[3]);
   });
 });
