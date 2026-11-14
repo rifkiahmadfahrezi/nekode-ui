@@ -280,6 +280,57 @@ describe("DataTable", () => {
     expect(event.defaultPrevented).toBe(false);
   });
 
+  it("calls context menu items only for the right-clicked row, at open time", () => {
+    const items = vi.fn((record: Row) => [
+      { key: "view", label: `View ${record.name}`, onClick: () => {} },
+    ]);
+    render(
+      <DataTableContextMenu items={items}>
+        <DataTable data={data} columns={columns} idAccessor="id" />
+      </DataTableContextMenu>,
+    );
+    expect(items).not.toHaveBeenCalled();
+
+    fireEvent.contextMenu(screen.getByText("Alan"));
+    expect(items).toHaveBeenCalledTimes(1);
+    expect(items).toHaveBeenCalledWith(data[2], 2);
+    expect(screen.getByText("View Alan")).toBeInTheDocument();
+  });
+
+  it("offsets pinned columns by their measured width, not a guess", () => {
+    const rect = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        const width = this.dataset.colKey === "name" ? 230 : 0;
+        return {
+          width,
+          height: 0,
+          x: 0,
+          y: 0,
+          top: 0,
+          left: 0,
+          right: width,
+          bottom: 0,
+          toJSON() {},
+        } as DOMRect;
+      });
+    render(
+      <DataTable
+        data={data}
+        idAccessor="id"
+        columns={[
+          { accessor: "name", title: "Name", pinned: "left", width: "20%" },
+          { accessor: "id", title: "Id", pinned: "left" },
+        ]}
+      />,
+    );
+    // Without measuring, "Id" would sit at the 150px fallback.
+    expect(screen.getByRole("columnheader", { name: "Id" })).toHaveStyle({
+      left: "230px",
+    });
+    rect.mockRestore();
+  });
+
   it("re-renders only the toggled row when selection changes", async () => {
     const user = userEvent.setup();
     const renders: Record<number, number> = {};

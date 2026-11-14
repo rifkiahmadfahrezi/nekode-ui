@@ -12,7 +12,7 @@ Features that pull in heavier primitives are separate components you compose in 
 <InstallationTabs componentName="datatable" />
 
 <Callout type="info">
-  The Base UI and Radix builds share one API. Under the hood they differ in two places: the header checkbox uses Base UI's separate `checked`/`indeterminate` props or Radix's `checked="indeterminate"`, and `DataTableContextMenu` turns `<TableRow>` into the trigger with Base UI's `render` prop or Radix's `asChild`.
+  The Base UI and Radix builds share one API. Under the hood they differ in one place: the header checkbox uses Base UI's separate `checked`/`indeterminate` props or Radix's `checked="indeterminate"`.
 </Callout>
 
 ## Usage Example
@@ -51,7 +51,7 @@ Pass the [selection props](#selection), `selectedRecords` and `onSelectedRecords
 
 ### Column pinning
 
-Set [`pinned`](#datatablecolumn) to `"left"` or `"right"` on any column. Pinned columns group to their edge in the order they appear in `columns`: every `"left"` column first, every `"right"` column last. They also get a subtle shadow divider where they meet the scrolling columns.
+Set [`pinned`](#datatablecolumn) to `"left"` or `"right"` on any column. Pinned columns group to their edge in the order they appear in `columns`: every `"left"` column first, every `"right"` column last. They also get a subtle shadow divider where they meet the scrolling columns. Sticky offsets come from each pinned header's rendered width, measured with `ResizeObserver`, so `width` can be a number, a string like `"20%"`, or omitted, and the offsets stay exact when content or the container resizes.
 
 <ComponentPreview path="src/registry/demos/datatable-pinning-demo.tsx" allowFullscreen>
   <DataTablePinningDemo />
@@ -292,11 +292,21 @@ A "Rows per page" select, placed inside `DataTablePagination`. It's a separate c
 
 ## DataTableContextMenu
 
-Wraps a `DataTable` and gives its rows a right-click (or long-press) menu.
+Wraps a `DataTable` and gives its rows a right-click (or long-press) menu. The whole table shares **one** menu: rows only report which record was clicked, and `items` runs for that row when the menu opens, never during render. A table with 1,000 rows still mounts a single menu, and per-row conditions always see the row's current data.
+
+```tsx
+const getRowActions = (user: User) => {
+  if (user.status === "deleted") return undefined; // native browser menu on this row
+  return [
+    { key: "edit", label: "Edit", disabled: !canEdit(user), onClick: () => edit(user) },
+    { key: "delete", label: "Delete", danger: true, onClick: () => remove(user) },
+  ];
+};
+```
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `items` | `(record: T, rowIndex: number) => RowContextMenuItem[] \| undefined` | — | Menu items for a row. Return `undefined` or `[]` to keep the browser's native menu on that row. Keep it stable (a module-level function or `useCallback`) so rows only re-render when their own data changes. |
+| `items` | `(record: T, rowIndex: number) => RowContextMenuItem[] \| undefined` | — | Menu items for the right-clicked row, called when the menu opens. Return `undefined` or `[]` to keep the browser's native menu on that row. Async checks (e.g. permissions from the server) should be loaded with the data beforehand. |
 | `children` | `React.ReactNode` | — | The `DataTable` to wrap. |
 
 ### Migrating from `pagination`, `rowContextMenu`, and `footerRef`

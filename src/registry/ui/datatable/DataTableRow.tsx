@@ -156,18 +156,25 @@ function DataTableRowInner<T>({
     </React.Fragment>
   );
 
-  const rowProps: React.ComponentProps<"tr"> = {
-    ref: (el) => rowRef?.(el, record, rowIndex),
-    "data-state": isSelected ? "selected" : undefined,
-    className: rowShellClassName,
-    style: rowStyle,
-    onClick: handleRowClick,
-  } as React.ComponentProps<"tr">;
-
-  const mainRow = menu ? (
-    menu.renderRow({ record, rowIndex, rowProps, children: cells })
-  ) : (
-    <TableRow {...rowProps}>{cells}</TableRow>
+  const mainRow = (
+    <TableRow
+      ref={(el: HTMLTableRowElement | null) => rowRef?.(el, record, rowIndex)}
+      data-state={isSelected ? "selected" : undefined}
+      className={rowShellClassName}
+      style={rowStyle}
+      onClick={handleRowClick}
+      {...(menu && {
+        onContextMenu: (e: React.MouseEvent<HTMLTableRowElement>) =>
+          menu.onContextMenu(e, record, rowIndex),
+        onTouchStart: (e: React.TouchEvent<HTMLTableRowElement>) =>
+          menu.onTouchStart(e, record, rowIndex),
+        onTouchMove: menu.onTouchMove,
+        onTouchEnd: menu.onTouchEnd,
+        onTouchCancel: menu.onTouchEnd,
+      })}
+    >
+      {cells}
+    </TableRow>
   );
 
   if (!canExpand || !isExpanded) return mainRow;

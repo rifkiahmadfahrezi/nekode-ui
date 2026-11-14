@@ -24,16 +24,23 @@ export function useDataTableContext(): DataTableContextValue {
 
 /**
  * Bridge between rows and an optional `DataTableContextMenu` wrapper. Lives
- * here (not in the menu file) so the core table never imports menu code:
- * when present, the wrapper renders each row's `<tr>` itself.
+ * here (not in the menu file) so the core table never imports menu code.
+ * Rows forward their right-click / long-press events; the wrapper decides
+ * whether to open its single shared menu for that record.
  */
 export interface DataTableRowMenuBridge {
-  renderRow: (args: {
-    record: unknown;
-    rowIndex: number;
-    rowProps: React.ComponentProps<"tr">;
-    children: React.ReactNode;
-  }) => React.ReactNode;
+  onContextMenu: (
+    event: React.MouseEvent<HTMLTableRowElement>,
+    record: unknown,
+    rowIndex: number,
+  ) => void;
+  onTouchStart: (
+    event: React.TouchEvent<HTMLTableRowElement>,
+    record: unknown,
+    rowIndex: number,
+  ) => void;
+  onTouchMove: (event: React.TouchEvent<HTMLTableRowElement>) => void;
+  onTouchEnd: () => void;
 }
 
 export const DataTableRowMenuContext =

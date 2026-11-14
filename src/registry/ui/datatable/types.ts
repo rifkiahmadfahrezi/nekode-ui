@@ -17,7 +17,7 @@ export interface DataTableColumn<T> {
   width?: number | string;
   render?: (record: T, rowIndex: number) => React.ReactNode;
   textAlign?: "left" | "center" | "right";
-  /** Pinned columns should use a numeric `width` (px); string widths fall back to 150px for sticky offsets. */
+  /** Sticky offsets use each pinned column's rendered width (measured with ResizeObserver), so any `width` works. */
   pinned?: "left" | "right";
   footer?: React.ReactNode | ((data: T[]) => React.ReactNode);
 }

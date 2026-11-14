@@ -106,6 +106,8 @@ function DataTableHeaderInner<T>(
           return (
             <TableHead
               key={key}
+              data-col-key={key}
+              data-pinned={col.pinned}
               className={cn(
                 "bg-background",
                 pinnedCellClassName(col, "z-20"),

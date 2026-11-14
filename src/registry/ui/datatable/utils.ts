@@ -31,11 +31,23 @@ export function computeOrderedColumns<T>(
   return [...left, ...middle, ...right];
 }
 
+/**
+ * Sticky offsets for pinned columns. `measuredWidths` (rendered `<th>`
+ * widths by column key) wins over the declared `width`, which only covers
+ * numeric widths; anything else falls back to `defaultWidth`.
+ */
 export function computePinOffsets<T>(
   orderedColumns: DataTableColumn<T>[],
   leadingGutter: number,
   defaultWidth: number,
+  measuredWidths?: Record<string, number>,
 ) {
+  const widthOf = (col: DataTableColumn<T>) => {
+    const measured = measuredWidths?.[getColumnKey(col)];
+    if (measured && measured > 0) return measured;
+    return typeof col.width === "number" ? col.width : defaultWidth;
+  };
+
   const leftPinnedCols = orderedColumns.filter((c) => c.pinned === "left");
   const rightPinnedCols = orderedColumns.filter((c) => c.pinned === "right");
 
@@ -44,7 +56,7 @@ export function computePinOffsets<T>(
   for (const col of leftPinnedCols) {
     const key = getColumnKey(col);
     leftOffsets[key] = lo;
-    lo += typeof col.width === "number" ? col.width : defaultWidth;
+    lo += widthOf(col);
   }
 
   const rightOffsets: Record<string, number> = {};
@@ -53,7 +65,7 @@ export function computePinOffsets<T>(
     const col = rightPinnedCols[i];
     const key = getColumnKey(col);
     rightOffsets[key] = ro;
-    ro += typeof col.width === "number" ? col.width : defaultWidth;
+    ro += widthOf(col);
   }
 
   return { leftOffsets, rightOffsets, leftPinnedCols, rightPinnedCols };

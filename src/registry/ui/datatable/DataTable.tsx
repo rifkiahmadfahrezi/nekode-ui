@@ -306,11 +306,53 @@ export function DataTable<
     (selectable ? SELECTION_COL_WIDTH : 0) +
     (expandable ? EXPAND_COL_WIDTH : 0);
 
+  // Measure the rendered width of every pinned header cell so sticky offsets
+  // stay exact for string/omitted widths and for content wider than `width`.
+  const headRef = React.useRef<HTMLTableSectionElement>(null);
+  const mergedHeadRef = useMergedRef(headRef, headerRef);
+  const pinnedKeys = React.useMemo(
+    () =>
+      orderedColumns
+        .filter((c) => c.pinned)
+        .map(getColumnKey)
+        .join("\u0000"),
+    [orderedColumns],
+  );
+  const [measuredWidths, setMeasuredWidths] = React.useState<
+    Record<string, number>
+  >({});
+
+  React.useLayoutEffect(() => {
+    const thead = headRef.current;
+    if (!thead || !pinnedKeys) return;
+    const cells = Array.from(
+      thead.querySelectorAll<HTMLElement>("th[data-pinned]"),
+    );
+    const measure = () => {
+      const next: Record<string, number> = {};
+      for (const cell of cells) {
+        const key = cell.dataset.colKey;
+        if (key) next[key] = cell.getBoundingClientRect().width;
+      }
+      setMeasuredWidths((prev) => (sameWidths(prev, next) ? prev : next));
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    for (const cell of cells) observer.observe(cell);
+    return () => observer.disconnect();
+  }, [pinnedKeys]);
+
   const { leftOffsets, rightOffsets, leftPinnedCols, rightPinnedCols } =
     React.useMemo(
       () =>
-        computePinOffsets(orderedColumns, leadingGutter, DEFAULT_PINNED_WIDTH),
-      [orderedColumns, leadingGutter],
+        computePinOffsets(
+          orderedColumns,
+          leadingGutter,
+          DEFAULT_PINNED_WIDTH,
+          measuredWidths,
+        ),
+      [orderedColumns, leadingGutter, measuredWidths],
     );
 
   const pinnedCellStyle = React.useCallback(
@@ -372,11 +414,27 @@ export function DataTable<
     );
   }, []);
 
+  const tableElRef = React.useRef<HTMLTableElement>(null);
+  const mergedTableRef = useMergedRef(tableElRef, tableRef);
+
+  // Re-check the shadows whenever the viewport or the table itself changes
+  // size (sidebar toggles, new data widening a column), not only on window
+  // resize.
   React.useEffect(() => {
     updateScrollShadow();
-    window.addEventListener("resize", updateScrollShadow);
-    return () => window.removeEventListener("resize", updateScrollShadow);
-  }, [updateScrollShadow, data, orderedColumns]);
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateScrollShadow);
+      return () => window.removeEventListener("resize", updateScrollShadow);
+    }
+    const observer = new ResizeObserver(updateScrollShadow);
+    if (scrollRef.current) observer.observe(scrollRef.current);
+    if (tableElRef.current) observer.observe(tableElRef.current);
+    return () => observer.disconnect();
+  }, [updateScrollShadow]);
+
+  // Content changes don't always resize the table box (e.g. same width,
+  // different data), so re-check on those too.
+  React.useEffect(updateScrollShadow, [data, orderedColumns]);
 
   const totalCols =
     orderedColumns.length + (selectable ? 1 : 0) + (expandable ? 1 : 0);
@@ -419,14 +477,14 @@ export function DataTable<
           style={height ? { height, overflow: "auto" } : { overflow: "auto" }}
         >
           <Table
-            ref={tableRef}
+            ref={mergedTableRef}
             className="min-w-full"
             style={{
               tableLayout: columns.some((c) => c.width) ? "fixed" : "auto",
             }}
           >
             <DataTableHeader<T>
-              ref={headerRef}
+              ref={mergedHeadRef}
               columns={orderedColumns}
               selectable={selectable}
               expandable={expandable}
@@ -530,3 +588,10 @@ export function DataTable<
 }
 
 export default DataTable;
+
+function sameWidths(a: Record<string, number>, b: Record<string, number>) {
+  const aKeys = Object.keys(a);
+  if (aKeys.length !== Object.keys(b).length) return false;
+  // Sub-pixel jitter isn't worth a re-render.
+  return aKeys.every((k) => Math.abs(a[k] - (b[k] ?? Number.NaN)) < 0.5);
+}
