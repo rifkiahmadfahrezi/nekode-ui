@@ -1,16 +1,18 @@
 ---
 title: DataTable
-description: A data table with sorting, selection, column pinning, expandable rows, row actions, and pagination built in.
+description: A data table with sorting, selection, column pinning, and expandable rows, plus opt-in pagination and row context menus.
 ---
 
-`DataTable` renders tabular data without you wiring up sorting, selection, or pagination by hand. It wraps `Table`, `Checkbox`, `Select`, `ContextMenu`, and `DropdownMenu` into one component, and splits its internals into memoized pieces so toggling one row's selection doesn't re-render the other 500. Reach for it whenever a page needs more than a static table: bulk actions, a column pinned while the rest scrolls, or rows that expand into detail.
+`DataTable` renders tabular data without you wiring up sorting, selection, or pagination by hand. The core wraps `Table` and `Checkbox`, and splits its internals into memoized pieces so toggling one row's selection doesn't re-render the other 500. Reach for it whenever a page needs more than a static table: bulk actions, a column pinned while the rest scrolls, or rows that expand into detail.
+
+Features that pull in heavier primitives are separate components you compose in only when you need them: [`DataTablePagination`](#datatablepagination), [`DataTableRecordsPerPage`](#datatablerecordsperpage) (uses `Select`), [`DataTableContextMenu`](#datatablecontextmenu) (uses `ContextMenu`), and [`DataTableAction`](#datatableaction) (uses `DropdownMenu`). A table that only renders a list never ships their code: the core is about 22 KB gzipped, versus about 74 KB with every part included.
 
 ## Installation
 
 <InstallationTabs componentName="datatable" />
 
 <Callout type="info">
-  The Base UI and Radix builds share one API. Under the hood they differ in two places: the header checkbox uses Base UI's separate `checked`/`indeterminate` props or Radix's `checked="indeterminate"`, and row context menus turn `<TableRow>` into the trigger with Base UI's `render` prop or Radix's `asChild`.
+  The Base UI and Radix builds share one API. Under the hood they differ in one place: the header checkbox uses Base UI's separate `checked`/`indeterminate` props or Radix's `checked="indeterminate"`.
 </Callout>
 
 ## Usage Example
@@ -19,7 +21,23 @@ description: A data table with sorting, selection, column pinning, expandable ro
   <DataTableDemo />
 </ComponentPreview>
 
-A minimal table needs `data` and `columns`, nothing else. Add [`sortStatus`/`onSortStatusChange`](#sorting) to make a column sortable, and a [`pagination`](#pagination) object to page through results server-side or client-side.
+A minimal table needs `data` and `columns`, nothing else. Add [`sortStatus`/`onSortStatusChange`](#sorting) to make a column sortable, and render a [`DataTablePagination`](#pagination) as a child to page through results server-side or client-side:
+
+```tsx
+<DataTable data={pageData} columns={columns} idAccessor="id">
+  <DataTablePagination
+    page={page}
+    totalRecords={total}
+    recordsPerPage={recordsPerPage}
+    onPageChange={setPage}
+  >
+    {/* optional: only add this if you want the rows-per-page select */}
+    <DataTableRecordsPerPage value={recordsPerPage} onValueChange={setRecordsPerPage} />
+  </DataTablePagination>
+</DataTable>
+```
+
+Children of `DataTable` render below the table and read its `variant` and `fetching` state, so the pagination bar matches the table's border and disables itself while loading.
 
 ## Examples
 
@@ -33,7 +51,7 @@ Pass the [selection props](#selection), `selectedRecords` and `onSelectedRecords
 
 ### Column pinning
 
-Set [`pinned`](#datatablecolumn) to `"left"` or `"right"` on any column. Pinned columns group to their edge in the order they appear in `columns`: every `"left"` column first, every `"right"` column last. They also get a subtle shadow divider where they meet the scrolling columns.
+Set [`pinned`](#datatablecolumn) to `"left"` or `"right"` on any column. Pinned columns group to their edge in the order they appear in `columns`: every `"left"` column first, every `"right"` column last. They also get a subtle shadow divider where they meet the scrolling columns. Sticky offsets come from each pinned header's rendered width, measured with `ResizeObserver`, so `width` can be a number, a string like `"20%"`, or omitted, and the offsets stay exact when content or the container resizes.
 
 <ComponentPreview path="src/registry/demos/datatable-pinning-demo.tsx" allowFullscreen>
   <DataTablePinningDemo />
@@ -41,7 +59,7 @@ Set [`pinned`](#datatablecolumn) to `"left"` or `"right"` on any column. Pinned 
 
 ### Sticky header, scrolling body, and column footers
 
-Set [`height`](#layout--styling) and only the `<tbody>` scrolls; the header and pagination bar stay put. Add [`footer`](#datatablecolumn) to any column to render a `<tfoot>` row automatically; the example below sums a salary column across the current page.
+Set [`height`](#layout--styling) and only the `<tbody>` scrolls; the header and any pagination bar below it stay put. Add [`footer`](#datatablecolumn) to any column to render a `<tfoot>` row automatically; the example below sums a salary column across the current page.
 
 <ComponentPreview path="src/registry/demos/datatable-sticky-demo.tsx" allowFullscreen>
   <DataTableStickyDemo />
@@ -86,7 +104,13 @@ A few props extend this without changing `renderRowSubContent` itself:
 
 ### Row actions: context menu and action button
 
-[`rowContextMenu`](#row-interaction) and [`DataTableAction`](#datatableaction) both take a [`RowContextMenuItem[]`](#rowcontextmenuitem): the same shape, so one function can back a right-click menu and a visible "kebab" button at once.
+Wrap the table in [`DataTableContextMenu`](#datatablecontextmenu) for a right-click menu, and use [`DataTableAction`](#datatableaction) in a column for a visible "kebab" button. Both take a [`RowContextMenuItem[]`](#rowcontextmenuitem): the same shape, so one function can back both at once.
+
+```tsx
+<DataTableContextMenu items={getRowActions}>
+  <DataTable data={rows} columns={columns} idAccessor="id" />
+</DataTableContextMenu>
+```
 
 <ComponentPreview path="src/registry/demos/datatable-actions-demo.tsx" allowFullscreen>
   <DataTableActionsDemo />
@@ -110,7 +134,7 @@ A few props extend this without changing `renderRowSubContent` itself:
 
 ### Refs and scroll shadows
 
-The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `scrollViewportRef`, expose the underlying DOM nodes; `rowRef` fires for every row's `<tr>` as rows mount and unmount. The table also tracks its own scroll position and fades in a shadow on whichever edge still has hidden columns. That's useful feedback once you're pinning columns on a table wider than its container.
+The [ref props](#refs), `headerRef`, `bodyRef`, `tableRef`, and `scrollViewportRef`, expose the underlying DOM nodes; `rowRef` fires for every row's `<tr>` as rows mount and unmount. The table also tracks its own scroll position and fades in a shadow on whichever edge still has hidden columns. That's useful feedback once you're pinning columns on a table wider than its container.
 
 <ComponentPreview path="src/registry/demos/datatable-refs-demo.tsx" allowFullscreen>
   <DataTableRefsDemo />
@@ -121,7 +145,7 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 - The header "select all" checkbox exposes a real mixed state through the `Checkbox` primitive. Screen readers announce the mixed state correctly because it comes from the primitive, not a faked `aria-checked` value.
 - Every checkbox carries its own `aria-label`: `"Select all records"` on the header, `"Select record N"` per row.
 - Sort toggles and the expand chevron are real `<button>` elements. They're keyboard-focusable and respond to Enter and Space without extra wiring. The sort direction icons (`ArrowUp`/`ArrowDown`/`ChevronsUpDown`) are purely visual.
-- Context menus and the `DataTableAction` dropdown both render through shadcn's menu primitives, which handle roving focus, arrow-key navigation, `Escape` to close, and correct `role="menu"`/`role="menuitem"` semantics without any extra work on your side.
+- `DataTableContextMenu` and the `DataTableAction` dropdown both render through shadcn's menu primitives, which handle roving focus, arrow-key navigation, `Escape` to close, and correct `role="menu"`/`role="menuitem"` semantics without any extra work on your side.
 - The loading overlay (`fetching`) is visual only. It doesn't announce anything to assistive tech. Wire up your own `aria-live` region around the table if that matters for your users.
 - A row itself (the `<tr>`) is clickable via `onRowClick` or `expandOnRowClick`, but a table row isn't a native interactive element. It's not keyboard-focusable, and screen readers won't announce it as actionable. If a row click is the only way to reach some functionality, also expose it through a real button (the expand chevron, a `DataTableAction` item) so keyboard and screen reader users aren't stuck.
 
@@ -164,7 +188,6 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 |---|---|---|---|
 | `onRowClick` | `(record: T, rowIndex: number) => void` | — | Called when a row is clicked. Fires alongside expand-on-click if `renderRowSubContent` is set. |
 | `highlightOnHover` | `boolean` | `true` | Adds a hover background to rows. |
-| `rowContextMenu` | `(record: T, rowIndex: number) => RowContextMenuItem[] \| undefined` | — | Right-click menu items for a row. Return `undefined` or `[]` to skip the menu for that row. |
 
 #### Expansion
 
@@ -181,7 +204,7 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `pagination` | `DataTablePaginationProps` | — | Enables the pagination bar. See [DataTablePaginationProps](#datatablepaginationprops). |
+| `children` | `React.ReactNode` | — | Rendered below the table, e.g. [`DataTablePagination`](#datatablepagination). Children read the table's `variant` and `fetching` through context. |
 
 #### Layout & styling
 
@@ -202,7 +225,6 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 |---|---|---|---|
 | `headerRef` | `React.Ref<HTMLTableSectionElement>` | — | Ref to the `<thead>`. |
 | `bodyRef` | `React.Ref<HTMLTableSectionElement>` | — | Ref to the `<tbody>`. |
-| `footerRef` | `React.Ref<HTMLDivElement>` | — | Ref to the pagination bar's wrapping `<div>`. |
 | `tableRef` | `React.Ref<HTMLTableElement>` | — | Ref to the `<table>` element. |
 | `scrollViewportRef` | `React.Ref<HTMLDivElement>` | — | Ref to the scrolling container — the same element the table watches for scroll shadows. |
 | `rowRef` | `(element: HTMLTableRowElement \| null, record: T, rowIndex: number) => void` | — | Called for every row's `<tr>` as rows mount and unmount. |
@@ -236,7 +258,11 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 | `danger` | `boolean` | `false` | Styles the item as destructive. |
 | `disabled` | `boolean` | `false` | Disables the item. |
 
-#### DataTablePaginationProps
+---
+
+## DataTablePagination
+
+An opt-in pagination bar. Render it as a child of `DataTable`. It only uses `Button`, so adding it costs about 2 KB gzipped.
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
@@ -244,16 +270,59 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `footerRef`, `tableRef`, and `sc
 | `totalRecords` | `number` | — | Total record count across all pages. |
 | `recordsPerPage` | `number` | — | Records shown per page. |
 | `onPageChange` | `(page: number) => void` | — | Called when a page control is clicked. |
-| `recordsPerPageOptions` | `number[]` | `[10, 25, 50, 100]` | Options in the rows-per-page select. |
-| `onRecordsPerPageChange` | `(recordsPerPage: number) => void` | — | Providing this shows the rows-per-page select. |
 | `renderInfo` | `(info) => React.ReactNode` | `"Showing X–Y of Z"` | Custom info text. `info` is `{ from, to, totalRecords, page, totalPages }`. |
 | `siblingCount` | `number` | `1` | Page numbers shown on each side of the current page before collapsing into "…". |
+| `disabled` | `boolean` | table's `fetching` | Disables every page control. |
+| `children` | `React.ReactNode` | — | Extra controls next to the page buttons, e.g. `DataTableRecordsPerPage`. |
+| `className` | `string` | — | Class applied to the bar's wrapping `<div>`. |
+| `ref` | `React.Ref<HTMLDivElement>` | — | Ref to the bar's wrapping `<div>`. Replaces the old `footerRef` prop. |
+
+## DataTableRecordsPerPage
+
+A "Rows per page" select, placed inside `DataTablePagination`. It's a separate component because it brings in `Select`, the single heaviest part of the old pagination bar (about 40 KB gzipped).
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `number` | — | Current records per page. |
+| `onValueChange` | `(recordsPerPage: number) => void` | — | Called when an option is picked. |
+| `options` | `number[]` | `[10, 25, 50, 100]` | Options in the select. |
+| `label` | `React.ReactNode` | `"Rows per page"` | Text before the select. Pass `null` to hide it. |
+| `disabled` | `boolean` | table's `fetching` | Disables the select. |
+| `className` | `string` | — | Class applied to the wrapping `<div>`. |
+
+## DataTableContextMenu
+
+Wraps a `DataTable` and gives its rows a right-click (or long-press) menu. The whole table shares **one** menu: rows only report which record was clicked, and `items` runs for that row when the menu opens, never during render. A table with 1,000 rows still mounts a single menu, and per-row conditions always see the row's current data.
+
+```tsx
+const getRowActions = (user: User) => {
+  if (user.status === "deleted") return undefined; // native browser menu on this row
+  return [
+    { key: "edit", label: "Edit", disabled: !canEdit(user), onClick: () => edit(user) },
+    { key: "delete", label: "Delete", danger: true, onClick: () => remove(user) },
+  ];
+};
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `items` | `(record: T, rowIndex: number) => RowContextMenuItem[] \| undefined` | — | Menu items for the right-clicked row, called when the menu opens. Return `undefined` or `[]` to keep the browser's native menu on that row. Async checks (e.g. permissions from the server) should be loaded with the data beforehand. |
+| `children` | `React.ReactNode` | — | The `DataTable` to wrap. |
+
+### Migrating from `pagination`, `rowContextMenu`, and `footerRef`
+
+| Before | After |
+|---|---|
+| `pagination={{ page, totalRecords, recordsPerPage, onPageChange }}` | `<DataTablePagination page={page} totalRecords={totalRecords} recordsPerPage={recordsPerPage} onPageChange={onPageChange} />` as a child of `DataTable` |
+| `pagination.onRecordsPerPageChange` / `recordsPerPageOptions` | `<DataTableRecordsPerPage value={recordsPerPage} onValueChange={...} options={...} />` inside `DataTablePagination` |
+| `rowContextMenu={getActions}` | wrap the table: `<DataTableContextMenu items={getActions}>…</DataTableContextMenu>` |
+| `footerRef={ref}` | `ref={ref}` on `DataTablePagination` |
 
 ---
 
 ## DataTableAction
 
-A "kebab" button, three dots that open a dropdown menu on click, is meant for an actions column. It takes the same `RowContextMenuItem[]` shape as `rowContextMenu`, so a table can share one list of actions between a right-click menu and a visible button, as shown in [Row actions](#row-actions-context-menu-and-action-button).
+A "kebab" button, three dots that open a dropdown menu on click, is meant for an actions column. It takes the same `RowContextMenuItem[]` shape as `DataTableContextMenu`, so a table can share one list of actions between a right-click menu and a visible button, as shown in [Row actions](#row-actions-context-menu-and-action-button).
 
 ### Usage Example
 

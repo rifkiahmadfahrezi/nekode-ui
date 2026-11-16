@@ -9,110 +9,81 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useDataTableContext } from "./context";
 import type { DataTablePaginationProps } from "./types";
 import { getPaginationRange } from "./utils";
 
-interface Props {
-  pagination: DataTablePaginationProps;
-  variant: "bordered" | "borderless";
-  sticky: boolean;
-  footerRef?: React.Ref<HTMLDivElement>;
-  fetching?: boolean;
-}
-
+/**
+ * Opt-in pagination bar. Render it as a child of `DataTable` so it picks up
+ * the table's `variant` and `fetching` state:
+ *
+ *   <DataTable data={rows} columns={columns}>
+ *     <DataTablePagination page={page} totalRecords={total}
+ *       recordsPerPage={10} onPageChange={setPage} />
+ *   </DataTable>
+ *
+ * Children render next to the page buttons, e.g. `<DataTableRecordsPerPage />`.
+ */
 export function DataTablePagination({
-  pagination,
-  variant,
-  sticky,
-  footerRef,
-  fetching,
-}: Props) {
-  const totalPages = Math.max(
-    1,
-    Math.ceil(pagination.totalRecords / pagination.recordsPerPage),
-  );
-  const rangeStart =
-    pagination.totalRecords === 0
-      ? 0
-      : (pagination.page - 1) * pagination.recordsPerPage + 1;
-  const rangeEnd = Math.min(
-    pagination.page * pagination.recordsPerPage,
-    pagination.totalRecords,
-  );
+  page,
+  totalRecords,
+  recordsPerPage,
+  onPageChange,
+  renderInfo,
+  siblingCount = 1,
+  disabled,
+  className,
+  children,
+  ref,
+}: DataTablePaginationProps) {
+  const table = useDataTableContext();
+  const isDisabled = disabled ?? table.fetching;
+
+  const totalPages = Math.max(1, Math.ceil(totalRecords / recordsPerPage));
+  const rangeStart = totalRecords === 0 ? 0 : (page - 1) * recordsPerPage + 1;
+  const rangeEnd = Math.min(page * recordsPerPage, totalRecords);
 
   const pageNumbers = React.useMemo(
-    () =>
-      getPaginationRange(
-        pagination.page,
-        totalPages,
-        pagination.siblingCount ?? 1,
-      ),
-    [pagination.page, totalPages, pagination.siblingCount],
+    () => getPaginationRange(page, totalPages, siblingCount),
+    [page, totalPages, siblingCount],
   );
 
   return (
     <div
-      ref={footerRef}
+      ref={ref}
       className={cn(
         "flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
-        variant === "bordered" && "border-t",
-        sticky && "shrink-0",
+        table.variant === "bordered" && "border-t",
+        table.sticky && "shrink-0",
+        className,
       )}
     >
       <div className="text-sm text-muted-foreground">
-        {pagination.renderInfo
-          ? pagination.renderInfo({
+        {renderInfo
+          ? renderInfo({
               from: rangeStart,
               to: rangeEnd,
-              totalRecords: pagination.totalRecords,
-              page: pagination.page,
+              totalRecords,
+              page,
               totalPages,
             })
-          : pagination.totalRecords === 0
+          : totalRecords === 0
             ? "No records"
-            : `Showing ${rangeStart}\u2013${rangeEnd} of ${pagination.totalRecords}`}
+            : `Showing ${rangeStart}\u2013${rangeEnd} of ${totalRecords}`}
       </div>
+
       <div className="flex items-center gap-4">
-        {pagination.onRecordsPerPageChange && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Rows per page</span>
-            <Select
-              value={String(pagination.recordsPerPage)}
-              onValueChange={(v) =>
-                pagination.onRecordsPerPageChange?.(Number(v))
-              }
-              disabled={fetching}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(pagination.recordsPerPageOptions ?? [10, 25, 50, 100]).map(
-                  (n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {n}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        {children}
+
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={fetching || pagination.page <= 1}
-            onClick={() => pagination.onPageChange(1)}
+            aria-label="First page"
+            disabled={isDisabled || page <= 1}
+            onClick={() => onPageChange(1)}
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -120,11 +91,13 @@ export function DataTablePagination({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={fetching || pagination.page <= 1}
-            onClick={() => pagination.onPageChange(pagination.page - 1)}
+            aria-label="Previous page"
+            disabled={isDisabled || page <= 1}
+            onClick={() => onPageChange(page - 1)}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
+
           {pageNumbers.map((p, i) =>
             p === "ellipsis" ? (
               <span
@@ -137,22 +110,25 @@ export function DataTablePagination({
             ) : (
               <Button
                 key={p}
-                disabled={fetching}
-                variant={p === pagination.page ? "default" : "outline"}
+                disabled={isDisabled}
+                variant={p === page ? "default" : "outline"}
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => pagination.onPageChange(p)}
+                aria-current={p === page ? "page" : undefined}
+                onClick={() => onPageChange(p)}
               >
                 {p}
               </Button>
             ),
           )}
+
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={fetching || pagination.page >= totalPages}
-            onClick={() => pagination.onPageChange(pagination.page + 1)}
+            aria-label="Next page"
+            disabled={isDisabled || page >= totalPages}
+            onClick={() => onPageChange(page + 1)}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -160,8 +136,9 @@ export function DataTablePagination({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={fetching || pagination.page >= totalPages}
-            onClick={() => pagination.onPageChange(totalPages)}
+            aria-label="Last page"
+            disabled={isDisabled || page >= totalPages}
+            onClick={() => onPageChange(totalPages)}
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

@@ -17,7 +17,7 @@ export interface DataTableColumn<T> {
   width?: number | string;
   render?: (record: T, rowIndex: number) => React.ReactNode;
   textAlign?: "left" | "center" | "right";
-  /** Pinned columns should use a numeric `width` (px); string widths fall back to 150px for sticky offsets. */
+  /** Sticky offsets use each pinned column's rendered width (measured with ResizeObserver), so any `width` works. */
   pinned?: "left" | "right";
   footer?: React.ReactNode | ((data: T[]) => React.ReactNode);
 }
@@ -36,8 +36,6 @@ export interface DataTablePaginationProps {
   totalRecords: number;
   recordsPerPage: number;
   onPageChange: (page: number) => void;
-  recordsPerPageOptions?: number[];
-  onRecordsPerPageChange?: (recordsPerPage: number) => void;
   renderInfo?: (info: {
     from: number;
     to: number;
@@ -46,6 +44,12 @@ export interface DataTablePaginationProps {
     totalPages: number;
   }) => React.ReactNode;
   siblingCount?: number;
+  /** Defaults to the parent table's `fetching` state. */
+  disabled?: boolean;
+  className?: string;
+  /** Extra controls next to the page buttons, e.g. `<DataTableRecordsPerPage />`. */
+  children?: React.ReactNode;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 export interface BaseDataTableProps<T> {
@@ -56,11 +60,6 @@ export interface BaseDataTableProps<T> {
   selectedRecords?: T[];
   onSelectedRecordsChange?: (records: T[]) => void;
   height?: number;
-  rowContextMenu?: (
-    record: T,
-    rowIndex: number,
-  ) => RowContextMenuItem[] | undefined;
-  pagination?: DataTablePaginationProps;
   noRecordsText?: string;
   highlightOnHover?: boolean;
   onRowClick?: (record: T, rowIndex: number) => void;
@@ -80,9 +79,14 @@ export interface BaseDataTableProps<T> {
   expandedRecordIds?: React.Key[];
   onExpandedRecordIdsChange?: (ids: React.Key[]) => void;
 
+  /**
+   * Opt-in parts rendered below the table, e.g. `<DataTablePagination />`.
+   * They read `variant`/`fetching` from the table through context.
+   */
+  children?: React.ReactNode;
+
   headerRef?: React.Ref<HTMLTableSectionElement>;
   bodyRef?: React.Ref<HTMLTableSectionElement>;
-  footerRef?: React.Ref<HTMLDivElement>;
   tableRef?: React.Ref<HTMLTableElement>;
   scrollViewportRef?: React.Ref<HTMLDivElement>;
   rowRef?: (

@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { parseISODate, toISODateString } from "../lib/date-vanilla";
-import { DataTable } from "./datatable";
+import { DataTable, DataTablePagination } from "./datatable";
 import { DatePickerField } from "./date-picker-field";
 import { FieldRadio } from "./field-radio";
 import { FileField } from "./file-field";
@@ -114,13 +114,14 @@ describe("registry regressions", () => {
       <DataTable
         data={[{ id: 1, name: "Ada" }]}
         columns={[{ accessor: "name" }]}
-        pagination={{
-          page: 5,
-          totalRecords: 100,
-          recordsPerPage: 10,
-          onPageChange: () => {},
-        }}
-      />,
+      >
+        <DataTablePagination
+          page={5}
+          totalRecords={100}
+          recordsPerPage={10}
+          onPageChange={() => {}}
+        />
+      </DataTable>,
     );
     // page 5 of 10 renders [1, …, 4, 5, 6, …, 10]
     expect(

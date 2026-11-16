@@ -5,6 +5,7 @@ import {
   DataTable,
   DataTableAction,
   type DataTableColumn,
+  DataTableContextMenu,
   type RowContextMenuItem,
 } from "@/components/ui/datatable";
 
@@ -54,12 +55,13 @@ const columns: DataTableColumn<Project>[] = [
 
 export function DataTableActionsDemo() {
   return (
-    <DataTable
-      className="w-full max-w-xl"
-      data={projects}
-      columns={columns}
-      idAccessor="id"
-      rowContextMenu={actions}
-    />
+    <DataTableContextMenu items={actions}>
+      <DataTable
+        className="w-full max-w-xl"
+        data={projects}
+        columns={columns}
+        idAccessor="id"
+      />
+    </DataTableContextMenu>
   );
 }
