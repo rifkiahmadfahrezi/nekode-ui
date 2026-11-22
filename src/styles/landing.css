@@ -557,17 +557,36 @@
 
     /* tickets */
     .ticket {
+      --ticket-line: var(--ink-line);
       position: relative;
       display: flex;
       flex-direction: column;
       background: var(--card);
-      border: 3px solid var(--ink-line);
+      border: 3px solid var(--ticket-line);
       border-radius: 12px;
       box-shadow: 6px 6px 0 var(--shadow-color);
       transition:
         rotate 0.18s ease,
         translate 0.18s ease,
         box-shadow 0.18s ease;
+      /* Lubang menembus badan dan bayangan. Area mask dilebihkan 20px di tiap
+         sisi, jadi lingkaran utuh tanpa sambungan di tepi kupon. */
+      mask:
+        radial-gradient(circle at 20px 96px, transparent 7.75px, #000 8.25px),
+        radial-gradient(
+          circle at calc(100% - 20px) 96px,
+          transparent 7.75px,
+          #000 8.25px
+        );
+      mask-position: -20px -20px;
+      mask-size: calc(100% + 40px) calc(100% + 40px);
+      mask-clip: no-clip;
+      mask-composite: intersect;
+
+      .dark & {
+        /* versi solid dari --ink-line, supaya tumpukan garis tidak dobel */
+        --ticket-line: color-mix(in srgb, var(--paper) 20%, var(--card));
+      }
     }
     .ticket::before,
     .ticket::after {
@@ -576,20 +595,20 @@
       top: 62px;
       width: 22px;
       height: 22px;
-      border: 3px solid var(--ink-line);
+      border: 3px solid var(--ticket-line);
       border-radius: 50%;
-      background: var(--background);
     }
     .ticket::before {
-      left: -13px;
+      left: -14px;
       clip-path: inset(0 0 0 50%);
     }
     .ticket::after {
-      right: -13px;
+      right: -14px;
       clip-path: inset(0 50% 0 0);
     }
     .ticket .perf {
       border-top: 2.5px dashed var(--border);
+      clip-path: inset(0 9px); /* jangan menimpa cincin lubang */
     }
     .ticket:nth-child(8n + 1) {
       rotate: -1.6deg;

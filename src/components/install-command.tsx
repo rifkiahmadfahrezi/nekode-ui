@@ -5,20 +5,15 @@ import { useEffect, useRef, useState } from "react";
 import { useCopy } from "@/hooks/use-copy";
 import { getRegistryRef, useOrigin } from "@/hooks/use-origin";
 
-const items = [
-  "date-picker-field",
-  "text-field",
-  "select-field",
-  "combobox-field",
-  "password-field",
-  "login-form",
-];
-
-export function InstallCommand() {
+export function InstallCommand({
+  name,
+  onPauseChange,
+}: {
+  name: string;
+  onPauseChange?: (paused: boolean) => void;
+}) {
   const origin = useOrigin();
   const [copied, copy] = useCopy();
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
   const reduceMotion = useReducedMotion();
   const measureRef = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState<number>();
@@ -33,13 +28,6 @@ export function InstallCommand() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (paused || reduceMotion) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % items.length), 2500);
-    return () => clearInterval(id);
-  }, [paused, reduceMotion]);
-
-  const name = items[index];
   const isLocalDev = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(origin);
   const prefix = isLocalDev ? `${origin}/r/` : "@nekode/";
   const suffix = isLocalDev ? ".json" : "";
@@ -47,10 +35,10 @@ export function InstallCommand() {
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover cuma pause animasi
     <div
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onMouseEnter={() => onPauseChange?.(true)}
+      onMouseLeave={() => onPauseChange?.(false)}
+      onFocus={() => onPauseChange?.(true)}
+      onBlur={() => onPauseChange?.(false)}
       className="pill max-sm:h-[52px] max-sm:gap-2.5 max-sm:pl-4 max-sm:text-[13px]"
     >
       <span className="font-bold text-brand">$</span>

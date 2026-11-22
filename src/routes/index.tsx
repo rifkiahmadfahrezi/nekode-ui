@@ -12,7 +12,8 @@ import {
   Play,
   X,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useReducedMotion } from "motion/react";
+import { lazy, type ReactNode, Suspense, useEffect, useState } from "react";
 import { InstallCommand } from "@/components/install-command";
 import {
   Dialog,
@@ -31,7 +32,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () =>
     seo({
-      title: "nekode/ui — shadcn form fields, blocks & templates",
+      title: "nekode/ui: shadcn form fields, blocks & templates",
       path: "/",
     }),
   component: Home,
@@ -47,21 +48,21 @@ const tickerWords = [
   "PASTE",
   "SHIP",
   "FORM GENERATOR",
-  "NO LOCK-IN",
-  "ACCESSIBLE BY DEFAULT",
+  "YOU OWN THE CODE",
+  "BASE UI + RADIX",
   "SHADCN/UI REGISTRY",
 ];
 
 const steps = [
   {
     title: "Copy the command",
-    body: "Pick a component in the docs and copy one command.",
+    body: "Open a component in the docs and copy its install command.",
   },
   {
     title: "Paste it",
     body: (
       <>
-        Run it in your project. The file lands in{" "}
+        Run it in your project. The CLI writes the file to{" "}
         <span className="font-mono text-base text-foreground">
           components/ui
         </span>
@@ -70,8 +71,8 @@ const steps = [
     ),
   },
   {
-    title: "Ship",
-    body: "It's your code now. Edit anything, no package to update.",
+    title: "Edit the file",
+    body: "Change the markup, styles, or props, then commit it with your own code.",
   },
 ];
 
@@ -276,44 +277,12 @@ function Paw({ className }: { className?: string }) {
   );
 }
 
-function RegMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 30 30"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      aria-hidden="true"
-      className={cn(
-        "absolute top-[18px] hidden size-[30px] opacity-85 lg:block",
-        className,
-      )}
-    >
-      <circle cx="15" cy="15" r="8" />
-      <path d="M15 0v30M0 15h30" />
-    </svg>
-  );
-}
-
-function GitHubIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className="size-5"
-    >
-      <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z" />
-    </svg>
-  );
-}
-
 /** Video di-mount hanya saat modal terbuka: tidak ada byte video dimuat sebelum user klik,
     dan playback berhenti saat ditutup. Popup di-portal ke luar .nz, jadi pakai utility langsung. */
 function DemoVideo() {
   return (
     <Dialog>
-      <DialogTrigger className="btn btn-outline">
+      <DialogTrigger className="foot-link inline-flex cursor-pointer items-center gap-2">
         <Play className="size-[18px] fill-brand text-brand" />
         Watch demo
       </DialogTrigger>
@@ -324,7 +293,7 @@ function DemoVideo() {
         <div className="flex h-11 items-center gap-2 border-b-[2.5px] border-foreground bg-muted pr-2 pl-4 dark:border-foreground/20">
           <span className="size-[13px] shrink-0 rounded-full bg-brand" />
           <DialogTitle className="ml-2 truncate font-mono text-[12.5px] font-normal text-muted-foreground">
-            nekode/ui — demo.mp4
+            demo.mp4
           </DialogTitle>
           <DialogClose
             aria-label="Close"
@@ -383,109 +352,91 @@ function SectionHead({
   );
 }
 
+// JS papan cukup besar, jadi dipisah dari chunk landing; HTML-nya tetap di-SSR.
+const HeroBoard = lazy(() => import("@/components/hero-board"));
+
+const heroNames = [
+  "datatable",
+  "number-ticker",
+  "dialog-modal",
+  "login-form",
+  "dashboard",
+  "date-range-picker-field",
+];
+
+/** Rotasi dipegang di sini: perintah install dan kartu aktif selalu sinkron. */
+function Hero() {
+  const [name, setName] = useState(heroNames[0]);
+  const [paused, setPaused] = useState(false);
+  const [picked, setPicked] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (paused || picked || reduceMotion) return;
+    const id = setInterval(
+      () =>
+        setName(
+          (current) =>
+            heroNames[(heroNames.indexOf(current) + 1) % heroNames.length],
+        ),
+      3500,
+    );
+    return () => clearInterval(id);
+  }, [paused, picked, reduceMotion]);
+
+  return (
+    <section className="pt-12 pb-20 lg:pt-16 xl:pb-26">
+      <div className={cn(wrap, "flex flex-col items-center gap-6 text-center")}>
+        <div className="eyebrow text-muted-foreground">
+          For Base UI and Radix projects
+        </div>
+        <h1 className="display text-[clamp(3rem,6vw,5.5rem)]">
+          Install the component,{" "}
+          <span className="serif mt-1.5 block">keep the code.</span>
+        </h1>
+        <p className="lede max-w-[600px] text-lg md:text-[21px]">
+          Install form fields, blocks, and templates with the shadcn CLI. You
+          get the source files in your own repo.
+        </p>
+        <InstallCommand name={name} onPauseChange={setPaused} />
+        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+          <Link
+            to="/docs/$"
+            params={{ _splat: "" }}
+            className="btn btn-primary"
+          >
+            Browse components <span aria-hidden="true">→</span>
+          </Link>
+          <DemoVideo />
+        </div>
+      </div>
+      <div className="mx-auto mt-12 w-full max-w-[1840px] px-5 md:px-10 lg:mt-14">
+        <Suspense>
+          <HeroBoard
+            active={name}
+            onPick={(next) => {
+              setName(next);
+              setPicked(true);
+            }}
+          />
+        </Suspense>
+      </div>
+    </section>
+  );
+}
+
 function Home() {
   return (
     <HomeLayout {...baseOptions()}>
       <div className="nz bg-grain w-full bg-background">
-        {/* Hero */}
-        <section
-          className={cn(wrap, "relative pt-10 pb-20 xl:pr-[110px] xl:pb-26")}
-        >
-          <RegMark className="left-[22px]" />
-          <RegMark className="right-[22px]" />
-          <Neko className="top-[110px] -right-[34px] w-[230px]" />
-          <div className="mb-10 flex justify-between font-mono text-xs tracking-[0.12em] text-muted-foreground uppercase lg:mb-14">
-            <span>nekode/ui ✦ vol.01</span>
-            <span>ui.nekode.id</span>
-          </div>
-          <div className="relative z-2 grid grid-cols-1 items-end gap-24 xl:grid-cols-[minmax(0,1.66fr)_minmax(0,1fr)] xl:gap-12">
-            <div className="flex flex-col items-start gap-8">
-              <div className="eyebrow text-brand">
-                Components as a service —
-              </div>
-              <h1 className="display text-[clamp(3.25rem,13vw,7.75rem)] xl:text-[min(8.6vw,7.75rem)]">
-                Components as a service{" "}
-                <span className="serif mt-2.5 block">
-                  for your shadcn/ui project.
-                </span>
-              </h1>
-              <p className="lede max-w-[600px] text-lg md:text-[21px]">
-                Form fields, blocks, and full templates — installed straight
-                into your codebase, no dependency added.
-              </p>
-              <InstallCommand />
-              <div className="flex flex-wrap items-center gap-5">
-                <Link
-                  to="/docs/$"
-                  params={{ _splat: "" }}
-                  className="btn btn-primary"
-                >
-                  Browse components <span aria-hidden="true">→</span>
-                </Link>
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-outline"
-                >
-                  <GitHubIcon />
-                  GitHub
-                </a>
-                <DemoVideo />
-              </div>
-            </div>
-
-            <div className="relative mb-5" aria-hidden="true">
-              <div className="stamp absolute -top-[74px] left-0 z-3 -rotate-6 xl:-left-11">
-                Copy.
-              </div>
-              <div className="stamp absolute -top-[46px] left-[136px] z-3 rotate-4 xl:left-[92px]">
-                Paste.
-              </div>
-              <div className="win z-2">
-                <div className="winbar">
-                  <WindowDots />
-                  <span className="ml-3 font-mono text-[12.5px] text-muted-foreground">
-                    ~/my-app — zsh
-                  </span>
-                </div>
-                <div className="term min-h-[330px] overflow-hidden px-4 pt-7 pb-[30px] text-[11.5px] whitespace-nowrap sm:px-6 sm:text-[13px] min-[1400px]:text-[14.5px]">
-                  <div className="dim"># paste it in your project</div>
-                  <div>
-                    <span className="ok">$</span> npx shadcn@latest add
-                    @nekode/text-field
-                  </div>
-                  <div className="h-3" />
-                  <div>
-                    <span className="ok">✔</span> Checking registry.
-                  </div>
-                  <div>
-                    <span className="ok">✔</span> Created 1 file:
-                  </div>
-                  <div className="dim pl-[22px]">
-                    - components/ui/text-field.tsx
-                  </div>
-                  <div className="h-3" />
-                  <div>
-                    <span className="ok">$</span> <span className="cur" />
-                  </div>
-                </div>
-              </div>
-              <div className="stamp absolute -right-1 -bottom-[34px] z-3 -rotate-4 text-4xl xl:-right-[26px]">
-                Done.
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <Ticker />
+        <Hero />
 
         {/* How it works */}
         <section className={cn(wrap, "py-20 lg:pt-32 lg:pb-30")}>
           <SectionHead
             eyebrow={
               <div className="eyebrow text-muted-foreground">
-                01 — How it works
+                01 / How it works
               </div>
             }
             aside={
@@ -510,15 +461,14 @@ function Home() {
                     <i>·</i> input.tsx
                   </div>
                   <div className="row new ml-[46px]">+ text-field.tsx</div>
-                  <div className="row mt-2">
-                    package.json <i>{"// untouched"}</i>
-                  </div>
+                  <div className="row mt-2">package.json</div>
                 </div>
               </div>
             }
           >
             <h2 className="display text-[clamp(3.5rem,8.9vw,8.25rem)]">
-              Copy. Paste. <span className="serif text-brand">Ship.</span>
+              Run one command,{" "}
+              <span className="serif text-brand">get the source.</span>
             </h2>
           </SectionHead>
           <div className="mt-16 grid grid-cols-1 gap-10 md:grid-cols-3 lg:mt-22">
@@ -546,16 +496,15 @@ function Home() {
               className="lg:gap-14"
               eyebrow={
                 <span className="eyebrow inline-flex h-[34px] items-center rounded-full bg-(--fg-text) px-3.5 text-(--fg-bg)">
-                  New — Form Generator
+                  New: Form Generator
                 </span>
               }
               aside={
                 <div className="flex flex-col items-start gap-7 pb-2">
                   <p className="lede">
-                    Pick fields from the sidebar, split them into steps, and
-                    copy the source. You get a ready-to-use form built with
-                    TanStack Form and Zod, plus one install command for every
-                    field it uses.
+                    Choose fields in the sidebar and split them into steps. You
+                    copy a React form that uses TanStack Form and Zod, along
+                    with one command that installs its fields.
                   </p>
                   <Link to="/form-generator" className="btn btn-primary">
                     Open Form Generator <span aria-hidden="true">→</span>
@@ -564,7 +513,7 @@ function Home() {
               }
             >
               <h2 className="display text-[clamp(3.25rem,8.9vw,8rem)]">
-                Don't even write <span className="serif">the form.</span>
+                Pick the fields, copy <span className="serif">the form.</span>
               </h2>
             </SectionHead>
             <div className="mt-12 mb-9 flex flex-wrap gap-3.5 md:mt-16">
@@ -731,13 +680,13 @@ function Home() {
           <div className="mb-12 flex flex-wrap items-end justify-between gap-8 lg:mb-18">
             <div className="flex flex-col gap-7">
               <div className="eyebrow text-muted-foreground">
-                03 — More than fields
+                03 / What you install
               </div>
               <h2 className="display text-[clamp(3.25rem,8.3vw,7.5rem)]">
-                More than <span className="serif">fields.</span>
+                Inside the <span className="serif">registry.</span>
               </h2>
             </div>
-            <div className="stamp mb-5 rotate-5">No lock-in.</div>
+            <div className="stamp mb-5 rotate-5">Your code.</div>
           </div>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
             <article className="card lift flex flex-col gap-[22px] p-5 md:p-8 lg:col-[1/8]">
@@ -780,8 +729,8 @@ function Home() {
               </div>
               <h3>Fields, blocks, and templates</h3>
               <p>
-                Form fields today, full blocks and starter templates alongside —
-                one registry, growing past forms.
+                Install a date picker, a login form, or a dashboard from the
+                same registry.
               </p>
             </article>
 
@@ -821,10 +770,10 @@ function Home() {
                   TAB <span className="text-[22px] text-brand">⇥</span>
                 </div>
               </div>
-              <h3>Keyboard and screen reader tested</h3>
+              <h3>Accessible error states</h3>
               <p>
-                Focus order, ARIA roles, and error announcements are handled —
-                not bolted on after launch.
+                Invalid fields set aria-invalid, and screen readers announce the
+                error message through role=&quot;alert&quot;.
               </p>
             </article>
 
@@ -873,10 +822,10 @@ function Home() {
                   </span>
                 </div>
               </div>
-              <h3>One command, no lock-in</h3>
+              <h3>Styled by your tokens</h3>
               <p>
-                Pulls straight from this registry into your project, styled with
-                the shadcn/ui tokens you already have.
+                The components read the shadcn/ui tokens in your CSS, so they
+                match the rest of your app.
               </p>
             </article>
 
@@ -906,10 +855,10 @@ function Home() {
                   <Paw className="size-1/2" />
                 </div>
               </div>
-              <h3>Whole flows, not just fields</h3>
+              <h3>Multi-step forms and dashboards</h3>
               <p>
-                A form generator and starter templates for the pages you'd
-                otherwise rebuild from scratch every project.
+                Start from a multi-step register form or a dashboard template,
+                then change what you need.
               </p>
             </article>
 
@@ -925,15 +874,15 @@ function Home() {
                   <span className="ok">+ new file:</span>
                   {"  components/ui/text-field.tsx"}
                 </div>
-                <div className="dim">{"  package.json    // untouched"}</div>
-                <div className="dim">
-                  {"  node_modules    // nothing new from us"}
+                <div>
+                  <span className="ok">$</span> grep nekode package.json
                 </div>
+                <div className="dim">{"  (no matches)"}</div>
               </div>
-              <h3>Nothing to import from us</h3>
+              <h3>No nekode package to install</h3>
               <p>
-                Every component lands in your repo as plain code. No package to
-                update, no version to chase.
+                The CLI copies each component into your repo. nekode/ui
+                publishes no npm package, so you have no version to bump.
               </p>
             </article>
           </div>
@@ -945,13 +894,13 @@ function Home() {
             className="mb-14 lg:mb-20"
             eyebrow={
               <div className="eyebrow text-muted-foreground">
-                04 — Form fields
+                04 / Form fields
               </div>
             }
             aside={
               <p className="lede pb-2.5">
-                Each one is a drop-in replacement for the shadcn/ui input you're
-                already using. Blocks and templates ship the same way.
+                Each field bundles the label, input, and error message. Open one
+                for examples and its install command.
               </p>
             }
           >
@@ -1010,8 +959,7 @@ function Home() {
               </div>
             </div>
             <p className="lede max-w-[640px] md:text-[22px]">
-              Install the components, wire up the flow, and get back to the part
-              of the product only you can build.
+              Install a login form, then connect it to your API.
             </p>
             <div className="relative z-2 flex max-w-full flex-wrap items-center gap-x-7 gap-y-5">
               <Link
@@ -1021,7 +969,7 @@ function Home() {
               >
                 Read the docs <span aria-hidden="true">→</span>
               </Link>
-              <InstallPill />
+              <InstallPill names={["login-form"]} />
             </div>
           </div>
         </section>

@@ -1,6 +1,6 @@
 export const siteUrl = "https://ui.nekode.id";
 export const siteDescription =
-  "Copy-paste form fields, blocks, and templates for shadcn/ui — accessible by default, styled with your own tokens.";
+  "Copy-paste form fields, blocks, and templates for shadcn/ui, styled with your own tokens.";
 
 /** Meta + link tags for a route's `head()`. Pass an absolute `path` (e.g. "/blocks"). */
 export function seo({
