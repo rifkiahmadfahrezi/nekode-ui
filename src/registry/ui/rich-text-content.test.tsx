@@ -74,4 +74,30 @@ describe("RichTextContent", () => {
     expect(container.textContent).toContain("evil");
     expect(container.querySelector("img")?.getAttribute("width")).toBe("320");
   });
+
+  it("only honours target=_blank, always with noopener", () => {
+    const link = (target: string) => ({
+      type: "text",
+      text: target,
+      marks: [{ type: "link", attrs: { href: "https://x.dev", target } }],
+    });
+    const { container } = render(
+      <RichTextContent
+        json={{
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [link("_BLANK"), link("popup"), link("_self")],
+            },
+          ],
+        }}
+      />,
+    );
+    const [upper, named, self] = Array.from(container.querySelectorAll("a"));
+    expect(upper.getAttribute("target")).toBe("_blank");
+    expect(upper.getAttribute("rel")).toContain("noopener");
+    expect(named.hasAttribute("target")).toBe(false);
+    expect(self.hasAttribute("target")).toBe(false);
+  });
 });

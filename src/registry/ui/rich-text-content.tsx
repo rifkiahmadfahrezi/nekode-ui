@@ -79,16 +79,14 @@ function renderText(node: RichTextNode, key: React.Key) {
       case "link": {
         const href = safeUrl(mark.attrs?.href);
         if (href) {
-          const target = str(mark.attrs?.target);
+          // Only `_blank` is honoured; named or odd-cased targets could open
+          // a window without `noopener` (reverse tabnabbing).
+          const newTab = str(mark.attrs?.target)?.toLowerCase() === "_blank";
           out = (
             <a
               href={href}
-              target={target}
-              rel={
-                target === "_blank"
-                  ? "noopener noreferrer nofollow"
-                  : "nofollow"
-              }
+              target={newTab ? "_blank" : undefined}
+              rel={newTab ? "noopener noreferrer nofollow" : "nofollow"}
             >
               {out}
             </a>
