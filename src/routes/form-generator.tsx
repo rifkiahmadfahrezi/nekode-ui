@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/popover";
 import { ResponsiveCombobox } from "@/components/ui/responsive-combobox";
 import { ResponsiveMultiSelect } from "@/components/ui/responsive-multi-select";
+import { RichTextField } from "@/components/ui/rich-text-field";
 import { SelectField } from "@/components/ui/select-field";
 import { TextField } from "@/components/ui/text-field";
 import { TextareaField } from "@/components/ui/textarea-field";
@@ -571,6 +572,16 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             formField.handleChange(e.currentTarget.value)
           }
+          onBlur={formField.handleBlur}
+        />
+      );
+    case "rich-text":
+      return (
+        <RichTextField
+          {...common}
+          placeholder={field.placeholder}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
           onBlur={formField.handleBlur}
         />
       );

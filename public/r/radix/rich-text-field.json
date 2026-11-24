@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "rich-text-field",
+  "title": "Rich Text Field",
+  "description": "Rich text editor composed with field label, description, and error for forms.",
+  "dependencies": [],
+  "registryDependencies": [
+    "field",
+    "label",
+    "https://ui.nekode.id/r/radix/rich-text-editor.json"
+  ],
+  "files": [
+    {
+      "path": ".registry-radix/src/registry/ui/rich-text-field.tsx",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport {\n  Field,\n  FieldDescription,\n  FieldError,\n  FieldLabel,\n} from \"@/components/ui/field\";\nimport {\n  RichTextEditor,\n  type RichTextEditorHandle,\n  type RichTextEditorProps,\n} from \"@/components/ui/rich-text-editor\";\nimport { cn } from \"@/lib/utils\";\n\nexport type RichTextFieldProps = RichTextEditorProps & {\n  label?: string;\n  description?: string;\n  error?: string;\n  required?: boolean;\n  fieldClassName?: string;\n  labelClassName?: string;\n  orientation?: \"vertical\" | \"horizontal\" | \"responsive\";\n};\n\nexport const RichTextField = React.forwardRef<\n  RichTextEditorHandle,\n  RichTextFieldProps\n>(\n  (\n    {\n      label,\n      description,\n      error,\n      required,\n      fieldClassName,\n      labelClassName,\n      orientation = \"vertical\",\n      id,\n      disabled,\n      ...props\n    },\n    ref,\n  ) => {\n    const generatedId = React.useId();\n    const editorId = id ?? generatedId;\n    const labelId = `${editorId}-label`;\n    const descriptionId = description ? `${editorId}-description` : undefined;\n    const errorId = error ? `${editorId}-error` : undefined;\n    const editorRef = React.useRef<RichTextEditorHandle>(null);\n    React.useImperativeHandle(\n      ref,\n      () => editorRef.current as RichTextEditorHandle,\n    );\n\n    return (\n      <Field\n        orientation={orientation}\n        data-invalid={error ? true : undefined}\n        className={fieldClassName}\n      >\n        {label && (\n          // A contenteditable isn't labelable, so the label is wired with\n          // aria-labelledby and focuses the editor on click.\n          <FieldLabel\n            id={labelId}\n            onClick={() => editorRef.current?.editor?.commands.focus()}\n            className={cn(\n              error && \"text-destructive\",\n              disabled && \"opacity-70 cursor-not-allowed\",\n              labelClassName,\n            )}\n          >\n            {label}\n            {required && (\n              <>\n                <span aria-hidden=\"true\" className=\"text-destructive ml-0.5\">\n                  *\n                </span>\n                <span className=\"sr-only\"> (required)</span>\n              </>\n            )}\n          </FieldLabel>\n        )}\n\n        <RichTextEditor\n          {...(props as RichTextEditorProps)}\n          ref={editorRef}\n          id={editorId}\n          disabled={disabled}\n          aria-labelledby={label ? labelId : props[\"aria-labelledby\"]}\n          aria-describedby={descriptionId ?? props[\"aria-describedby\"]}\n          aria-invalid={!!error}\n          aria-errormessage={errorId}\n        />\n\n        {description && !error && (\n          <FieldDescription id={descriptionId}>{description}</FieldDescription>\n        )}\n\n        {error && <FieldError id={errorId}>{error}</FieldError>}\n      </Field>\n    );\n  },\n);\n\nRichTextField.displayName = \"RichTextField\";\n",
+      "type": "registry:ui",
+      "target": "components/ui/rich-text-field.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

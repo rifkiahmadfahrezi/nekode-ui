@@ -475,6 +475,65 @@
       ]
     },
     {
+      "name": "rich-text-content",
+      "type": "registry:ui",
+      "title": "Rich Text Content",
+      "description": "Renders rich text (Tiptap JSON or trusted HTML) with built-in typography styles, no @tailwindcss/typography needed.",
+      "files": [
+        {
+          "path": "./src/registry/ui/rich-text-content.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/rich-text-content.tsx"
+        }
+      ]
+    },
+    {
+      "name": "rich-text-editor",
+      "type": "registry:ui",
+      "title": "Rich Text Editor",
+      "description": "Tiptap rich text editor with configurable tools, a fixed toolbar or selection bubble menu, and image upload and resize.",
+      "dependencies": [
+        "@tiptap/react",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/extension-image",
+        "@tiptap/extensions",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "button",
+        "https://ui.nekode.id/r/rich-text-content.json"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/rich-text-editor.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/rich-text-editor.tsx"
+        }
+      ]
+    },
+    {
+      "name": "rich-text-field",
+      "type": "registry:ui",
+      "title": "Rich Text Field",
+      "description": "Rich text editor composed with field label, description, and error for forms.",
+      "dependencies": [
+        "@base-ui/react"
+      ],
+      "registryDependencies": [
+        "field",
+        "label",
+        "https://ui.nekode.id/r/rich-text-editor.json"
+      ],
+      "files": [
+        {
+          "path": "./src/registry/ui/rich-text-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/rich-text-field.tsx"
+        }
+      ]
+    },
+    {
       "name": "file-field",
       "type": "registry:ui",
       "title": "File Field",

@@ -1,6 +1,7 @@
 export type FieldKind =
   | "text"
   | "textarea"
+  | "rich-text"
   | "password"
   | "number"
   | "select"

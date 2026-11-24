@@ -9,6 +9,7 @@ import {
   Clock,
   Hash,
   KeyRound,
+  LetterText,
   ListChecks,
   ListFilter,
   ListTodo,
@@ -45,6 +46,13 @@ export const FIELD_KINDS: FieldKindMeta[] = [
     component: "TextareaField",
     importPath: "@/components/ui/textarea-field",
     icon: AlignLeft,
+  },
+  {
+    kind: "rich-text",
+    label: "Rich Text",
+    component: "RichTextField",
+    importPath: "@/components/ui/rich-text-field",
+    icon: LetterText,
   },
   {
     kind: "password",

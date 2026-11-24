@@ -1,0 +1,54 @@
+---
+title: Rich Text Field
+description: A rich text editor with a label, description, and error message, ready for TanStack Form and the Form Generator.
+---
+
+`RichTextField` composes [`RichTextEditor`](/docs/ui-components/rich-text-editor) with `Field`, `FieldLabel`, `FieldDescription`, and `FieldError`, the same way `TextareaField` wraps `Textarea`. Use it when formatted text is one field of a larger form, like a product description or a post body. It accepts every `RichTextEditor` prop, including tools, variants, image upload, and the ref handle.
+
+<Callout type="info" title="Tested in a real browser">
+  `RichTextField` is covered by [Playwright end-to-end tests](https://github.com/rifkiahmadfahrezi/nekode-ui/blob/main/e2e/rich-text.e2e.ts) that run against the demos on this page: label and description wiring, the character limit, required validation with TanStack Form, and its Form Generator entry.
+</Callout>
+
+## Installation
+
+<InstallationTabs componentName="rich-text-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/rich-text-field-demo.tsx">
+  <RichTextFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+An empty editor emits `""`, so `z.string().min(1)` makes the field required. This example also uses `uploadMode="deferred"`: images stay local until the form submits, then `uploadPendingImages()` uploads them and returns the final HTML.
+
+<ComponentPreview path="src/registry/demos/rich-text-field-form-demo.tsx">
+  <RichTextFieldFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+- A `contenteditable` element can't be targeted by `<label for>`, so the label is linked with `aria-labelledby`. Clicking the label focuses the editor.
+- `aria-describedby` points to the description, and to the counter when `showCount` is set.
+- `aria-invalid` is synced to `error`, and `aria-errormessage` points to the error message.
+- The required asterisk is `aria-hidden`, with a visually hidden " (required)" for screen readers.
+- Everything else (toolbar keyboard navigation, `aria-pressed` buttons, the alt text menu) comes from [`RichTextEditor`](/docs/ui-components/rich-text-editor#accessibility).
+
+## API Reference
+
+### RichTextField
+
+Accepts every [`RichTextEditor` prop](/docs/ui-components/rich-text-editor#richtexteditor) and its `ref` handle, plus:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Field label. |
+| `description` | `string` | - | Helper text below the editor, hidden while there's an error. |
+| `error` | `string` | - | Error message. Also sets `aria-invalid` and the destructive border. |
+| `required` | `boolean` | - | Shows the required asterisk. Validation is up to your schema. |
+| `fieldClassName` | `string` | - | Classes for the `Field` wrapper. |
+| `labelClassName` | `string` | - | Classes for the label. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | `Field` layout. |
