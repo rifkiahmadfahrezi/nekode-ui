@@ -153,6 +153,13 @@ function fieldJsx(field: FieldConfig): string {
         `onValueChange={field.handleChange}`,
       ];
       break;
+    case "rich-text":
+      valueProps = [
+        `value={field.state.value}`,
+        `onValueChange={field.handleChange}`,
+        `onBlur={field.handleBlur}`,
+      ];
+      break;
     default:
       valueProps = [
         `value={field.state.value}`,

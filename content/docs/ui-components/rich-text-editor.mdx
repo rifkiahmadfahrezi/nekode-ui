@@ -1,0 +1,249 @@
+---
+title: Rich Text Editor
+description: A Tiptap-based editor where you pick the tools, choose a fixed toolbar or a selection bubble menu, and plug in your own image upload.
+---
+
+`RichTextEditor` wraps [Tiptap](https://tiptap.dev) (ProseMirror) so you get a working editor in one line, then lets you configure it through props instead of wiring extensions by hand. Reach for it for comments, posts, descriptions, or anywhere a `Textarea` is not enough.
+
+It stays as light as a full editor can be:
+
+- **Typing doesn't re-render the toolbar.** Button state is read with `useEditorState` selectors, and the editor runs with `shouldRerenderOnTransaction: false`.
+- **Load it only where it's used.** Tiptap and ProseMirror are about 160 KB gzipped, so lazy-load the editor (see [Lazy loading](#lazy-loading)). Pages that only display content use [`RichTextContent`](/docs/ui-components/rich-text-content), which is about 1.5 KB and has no Tiptap dependency.
+- **SSR-safe.** The editor mounts on the client (`immediatelyRender: false`), so it works in TanStack Start and Next.js without hydration errors.
+- **Styles come from [`RichTextContent`](/docs/ui-components/rich-text-content).** The editor and the renderer share one class list, so you don't need `@tailwindcss/typography`.
+
+<Callout type="info" title="Tested in a real browser">
+  The editor is covered by [Playwright end-to-end tests](https://github.com/rifkiahmadfahrezi/nekode-ui/blob/main/e2e/rich-text.e2e.ts) that run against the demos on this page: toolbar and bubble formatting, keyboard navigation, `Mod+K` links, Markdown shortcuts, image upload (immediate and deferred), paste, drop, resize, alt text, and the touch-screen toolbar fallback.
+</Callout>
+
+## Installation
+
+<InstallationTabs componentName="rich-text-editor" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/rich-text-editor-demo.tsx">
+  <RichTextEditorDemo />
+</ComponentPreview>
+
+```tsx
+function PostEditor() {
+  const [html, setHtml] = useState("");
+  return (
+    <RichTextEditor value={html} onValueChange={setHtml} placeholder="Write something…" />
+  );
+}
+```
+
+## Examples
+
+### Bubble menu
+
+`variant="bubble"` hides the fixed toolbar and shows formatting in a menu above the selected text. Use `variant="both"` for a toolbar plus a bubble menu, and `variant="none"` for keyboard shortcuts and Markdown-style input rules only (`**bold**`, `# `, `- `, `> `).
+
+<ComponentPreview path="src/registry/demos/rich-text-editor-bubble-demo.tsx">
+  <RichTextEditorBubbleDemo />
+</ComponentPreview>
+
+On touch screens (`pointer: coarse`), the bubble menu would compete with the system's copy/paste menu. There, `variant="bubble"` shows `bubbleTools` in a fixed toolbar instead, and `variant="both"` drops the bubble menu.
+
+Press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> to add or edit a link. It opens in the bubble menu when text is selected, otherwise in the toolbar.
+
+### Choosing tools
+
+Pass tools in the order you want them. `"|"` adds a separator.
+
+```tsx
+<RichTextEditor
+  tools={["bold", "italic", "|", "bulletList", "orderedList", "|", "link"]}
+/>
+```
+
+Available tools: `bold`, `italic`, `underline`, `strike`, `code`, `heading1`, `heading2`, `heading3`, `bulletList`, `orderedList`, `blockquote`, `codeBlock`, `horizontalRule`, `link`, `image`, `undo`, `redo`. Tools only choose which buttons appear. The editor always understands every format, so content saved elsewhere (a heading, an image) is kept when it loads into an editor without that button, and keyboard and Markdown shortcuts keep working.
+
+### Image upload and resize
+
+Add `"image"` to the tools and pass `onUpload`. Passing `onUpload` alone also enables images, so with `variant="bubble"` or `"none"` users insert images by pasting or dragging them in; no button needed. It receives each pasted, dropped, or picked image and resolves to the URL to store. Click an image and drag a corner to resize it; the width is saved on the image (`width` attribute in HTML, `attrs.width` in JSON).
+
+Images show a local preview immediately, dimmed and pulsing while they upload, and several images upload in parallel. When an upload fails, the image is removed and `onUploadError` is called. Clicking an image opens a small menu to set its alt text or remove it.
+
+<ComponentPreview path="src/registry/demos/rich-text-editor-upload-demo.tsx">
+  <RichTextEditorUploadDemo />
+</ComponentPreview>
+
+```tsx
+<RichTextEditor
+  tools={[...defaultToolbarTools]}
+  onUpload={async (file) => {
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body });
+    if (!res.ok) throw new Error("Upload failed");
+    return (await res.json()).url;
+  }}
+  maxFileSize={5 * 1024 * 1024}
+  onUploadError={(error) => toast.error(error.message)}
+/>
+```
+
+<Callout type="warning">
+  Without `onUpload`, images are embedded as base64 data URLs. That's fine for prototypes, but it makes stored documents large. Use an upload handler in production.
+</Callout>
+
+### Upload images on submit
+
+By default (`uploadMode="immediate"`), each image uploads as soon as it's added. If users can abandon a draft, that leaves orphaned files in your storage. With `uploadMode="deferred"`, images stay in the browser as local `blob:` previews, and nothing uploads until you call `uploadPendingImages()` from a ref, usually in your submit handler. Images the user deleted before submitting are never uploaded.
+
+<ComponentPreview path="src/registry/demos/rich-text-editor-deferred-upload-demo.tsx">
+  <RichTextEditorDeferredUploadDemo />
+</ComponentPreview>
+
+```tsx
+function PostForm() {
+  const editorRef = useRef<RichTextEditorHandle>(null);
+
+  async function onSubmit() {
+    const body = await editorRef.current?.uploadPendingImages();
+    await savePost({ body });
+  }
+
+  return (
+    <form action={onSubmit}>
+      <RichTextEditor ref={editorRef} uploadMode="deferred" onUpload={uploadImage} />
+    </form>
+  );
+}
+```
+
+<Callout type="warning">
+  In deferred mode, `onValueChange` still emits local `blob:` URLs, which only work in this browser tab. Save the value that `uploadPendingImages()` returns, not the one from `onValueChange`.
+</Callout>
+
+Uploads run in parallel. If some fail, the successful ones are still applied, and then the call throws an `AggregateError`. Calling it again only retries the images that are still local.
+
+### Character limit
+
+`maxLength` stops typing and pasting at the limit, and `showCount` shows a counter below the editor.
+
+```tsx
+<RichTextEditor maxLength={280} showCount />
+```
+
+### HTML or JSON output
+
+`output="html"` (default) gives you a string. An empty editor emits `""` rather than `<p></p>`, so `z.string().min(1)` works for required fields. `output="json"` gives you Tiptap's document JSON, and the `value` and `onValueChange` types follow it. Store JSON when the content comes from users: [`RichTextContent`](/docs/ui-components/rich-text-content) renders it safely without a sanitizer.
+
+```tsx
+function JsonEditor() {
+  const [doc, setDoc] = useState<JSONContent>();
+  return <RichTextEditor output="json" value={doc} onValueChange={setDoc} />;
+}
+```
+
+### Custom extensions
+
+`extensions` is appended after the built-in ones, and `onEditorReady` gives you the Tiptap `Editor` instance for anything the props don't cover.
+
+```tsx
+import TextAlign from "@tiptap/extension-text-align";
+
+const extensions = [TextAlign.configure({ types: ["heading", "paragraph"] })];
+
+export function AlignedEditor() {
+  return (
+    <RichTextEditor
+      extensions={extensions}
+      onEditorReady={(editor) => editor.commands.focus("end")}
+    />
+  );
+}
+```
+
+### In a form
+
+Use [`RichTextField`](/docs/form-fields/rich-text-field). It wraps the editor with a label, description, and error, the same way `TextField` wraps `Input`, and it's available in the Form Generator.
+
+### Sticky toolbar
+
+For long documents, keep the toolbar in view while scrolling:
+
+```tsx
+<RichTextEditor toolbarClassName="sticky top-0 z-10 rounded-t-md bg-background" />
+```
+
+### Lazy loading
+
+Load the editor only on pages that render it, so Tiptap stays out of your main bundle:
+
+```tsx
+import { lazy, Suspense, useState } from "react";
+
+const RichTextEditor = lazy(() =>
+  import("@/components/ui/rich-text-editor").then((m) => ({
+    default: m.RichTextEditor,
+  })),
+);
+
+export function LazyEditor() {
+  const [html, setHtml] = useState("");
+  return (
+    <Suspense fallback={<div className="h-40 rounded-md border" />}>
+      <RichTextEditor value={html} onValueChange={setHtml} />
+    </Suspense>
+  );
+}
+```
+
+## Accessibility
+
+- The editable area has `role="textbox"` and `aria-multiline="true"`. `id`, `aria-label`, `aria-labelledby`, `aria-describedby`, `aria-invalid`, and `aria-errormessage` are forwarded to it, and stay in sync when they change after mount.
+- With `showCount`, the counter is linked to the editable area through `aria-describedby`.
+- The image menu has a labelled alt text input. Uploaded images start with an empty `alt`, so prompt users to describe images that carry meaning.
+- Toolbars use `role="toolbar"` with an `aria-label`. Arrow keys, Home, and End move focus between buttons.
+- Toggle buttons expose `aria-pressed`. Each button has an `aria-label`, and its tooltip shows the keyboard shortcut.
+- The link editor is a labelled input. Enter applies the link, Escape cancels and returns focus to the editor.
+- Toolbar icons are `aria-hidden`.
+
+## API Reference
+
+### RichTextEditor
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `output` | `"html" \| "json"` | `"html"` | Format of `value`, `defaultValue`, and `onValueChange`. |
+| `value` | `string \| JSONContent` | - | Controlled content. |
+| `defaultValue` | `string \| JSONContent` | - | Initial content when uncontrolled. |
+| `onValueChange` | `(value: string \| JSONContent) => void` | - | Called on every change, in the `output` format. |
+| `variant` | `"toolbar" \| "bubble" \| "both" \| "none"` | `"toolbar"` | Where formatting controls appear. |
+| `tools` | `RichTextTool[]` | `defaultToolbarTools` | Tools in the fixed toolbar. `"\|"` is a separator. |
+| `bubbleTools` | `RichTextTool[]` | `defaultBubbleTools` | Tools in the selection bubble menu. |
+| `placeholder` | `string` | - | Shown while the editor is empty. |
+| `disabled` | `boolean` | `false` | Makes the editor read-only and dims it. |
+| `onUpload` | `(file: File) => Promise<string>` | - | Uploads an image and resolves to its URL. Also enables image paste and drop without an `"image"` tool. Without it, images are embedded as base64. |
+| `onUploadError` | `(error: Error, file: File) => void` | - | Called when a file is over `maxFileSize` or `onUpload` throws. |
+| `uploadMode` | `"immediate" \| "deferred"` | `"immediate"` | Upload images when added, or keep them local until `uploadPendingImages()`. |
+| `maxFileSize` | `number` | - | Max image size in bytes. |
+| `maxLength` | `number` | - | Max number of characters. |
+| `showCount` | `boolean` | - | Show a character counter. |
+| `imageResize` | `boolean` | `true` | Corner handles to resize images. |
+| `extensions` | `Extensions` | - | Extra Tiptap extensions. |
+| `onBlur` | `() => void` | - | Called when the editable area loses focus. |
+| `onEditorReady` | `(editor: Editor) => void` | - | Receives the Tiptap editor instance once it's created. |
+| `className` | `string` | - | Classes for the outer container. |
+| `toolbarClassName` | `string` | - | Classes for the fixed toolbar. |
+| `contentClassName` | `string` | - | Classes for the editable area (e.g. `min-h-64`). |
+| `id` | `string` | - | `id` of the editable area. |
+| `aria-label` | `string` | - | Accessible name of the editable area. |
+| `aria-labelledby` | `string` | - | Id of the element labelling the editor. |
+| `aria-describedby` | `string` | - | Id of the description or error. |
+| `aria-invalid` | `boolean` | - | Marks the editor invalid and adds the destructive border. |
+| `aria-errormessage` | `string` | - | Id of the error message, applied while `aria-invalid` is set. |
+| `ref` | `Ref<RichTextEditorHandle>` | - | Imperative handle, see below. |
+
+### RichTextEditorHandle
+
+| Member | Type | Description |
+|---|---|---|
+| `editor` | `Editor \| null` | The Tiptap editor instance, `null` until it mounts. |
+| `pendingImageCount` | `() => number` | Images in the document not uploaded yet: waiting in deferred mode, or still uploading. |
+| `uploadPendingImages` | `() => Promise<string \| JSONContent>` | Uploads pending images with `onUpload` (or waits for uploads already running), swaps in their URLs, and resolves to the final value in `output` format. Throws `AggregateError` if any upload failed. |

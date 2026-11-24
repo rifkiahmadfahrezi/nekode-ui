@@ -1,0 +1,75 @@
+---
+title: Rich Text Content
+description: Render content from the Rich Text Editor with matching typography, without @tailwindcss/typography.
+---
+
+`RichTextContent` displays what [`RichTextEditor`](/docs/ui-components/rich-text-editor) produces, styled exactly like the editor. Its typography is a plain list of Tailwind classes (`richTextClassName`), so you don't need the typography plugin or any setup. It doesn't depend on Tiptap either (about 1.5 KB gzipped, versus about 160 KB for the editor), so pages that only show content, like a blog post or a product description, stay light.
+
+<Callout type="info" title="Tested in a real browser">
+  `RichTextContent` is covered by [Playwright end-to-end tests](https://github.com/rifkiahmadfahrezi/nekode-ui/blob/main/e2e/rich-text.e2e.ts) that run against the demos on this page: rendering the editor's JSON live with the built-in typography.
+</Callout>
+
+## Installation
+
+<InstallationTabs componentName="rich-text-content" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/rich-text-content-demo.tsx">
+  <RichTextContentDemo />
+</ComponentPreview>
+
+```tsx
+// Saved with <RichTextEditor output="json" />
+<RichTextContent json={post.body} />
+
+// Saved with <RichTextEditor /> (HTML) that you trust or sanitized on the server
+<RichTextContent html={post.bodyHtml} />
+```
+
+<Callout type="warning">
+  `html` is injected as-is. Only pass HTML you wrote yourself or sanitized on the server (for example with DOMPurify). For content written by users, store JSON and use `json`: it renders as React elements, escapes text, and drops `javascript:` and other unsafe link and image URLs.
+</Callout>
+
+### Styling your own markup
+
+The styles are exported, so you can apply them anywhere, such as to Markdown output:
+
+```tsx
+import { richTextClassName } from "@/components/ui/rich-text-content";
+
+export function Article({ trustedHtml }: { trustedHtml: string }) {
+  return (
+    <article
+      className={richTextClassName}
+      dangerouslySetInnerHTML={{ __html: trustedHtml }}
+    />
+  );
+}
+```
+
+## Accessibility
+
+- Renders semantic HTML (`h1`–`h6`, `ul`/`ol`, `blockquote`, `pre`/`code`, `a`, `img`), so the heading outline and lists reach assistive technology unchanged.
+- Images keep the `alt` text stored in the document. Uploaded images start with an empty `alt` (treated as decorative) until the author describes them in the editor's image menu.
+- Links that open in a new tab get `rel="noopener noreferrer nofollow"`.
+
+## API Reference
+
+### RichTextContent
+
+Also accepts every `div` prop.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `json` | `RichTextNode \| null` | - | Tiptap JSON document. Rendered safely as React elements. Takes priority over `html`. |
+| `html` | `string \| null` | - | Trusted HTML string, injected as-is. |
+| `className` | `string` | - | Merged with `richTextClassName`. |
+
+### richTextClassName
+
+`string`. The shared typography classes used by `RichTextContent` and `RichTextEditor`.
+
+### safeUrl
+
+`(url: unknown, allowDataImage?: boolean) => string | undefined`. Returns the URL when it's relative or uses `http`, `https`, `mailto`, or `tel` (plus `data:image/*` when `allowDataImage` is true), and `undefined` otherwise.

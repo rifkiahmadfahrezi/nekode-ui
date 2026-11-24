@@ -41,6 +41,7 @@ Useful scripts:
 | `bun run lint` | Lints with Biome. |
 | `bun run lint:fix` | Lints and auto-fixes what it can. |
 | `bun test` | Runs the Vitest suite. |
+| `bun run test:e2e` | Runs the Playwright end-to-end tests in `e2e/` against a production build of the docs site. Run `bunx playwright install chromium` once first, or set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome. |
 | `bun run shadcn:build` | Regenerates `public/r/*.json` (Base UI) and `public/r/radix/*.json` (Radix) from `registry.json`. **Required** after any change to `registry.json` or a registry source file. |
 | `bun run build` | Production build — also useful to confirm new/changed docs pages actually prerender. |
 
@@ -212,6 +213,7 @@ Run all of these — CI will fail if any of them do:
 bun run types:check
 bun run lint
 bun test
+bun run test:e2e      # if you touched a component that has tests in e2e/
 bun run shadcn:build   # if you touched registry.json or any registry source file
 bun run build          # if you added/changed a doc page — confirms it prerenders
 ```
