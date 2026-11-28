@@ -53,7 +53,11 @@ import {
   generateFormCode,
   generateInstallCommand,
 } from "@/lib/form-generator/codegen";
-import { FIELD_KINDS, kindMeta } from "@/lib/form-generator/field-kinds";
+import {
+  FIELD_KIND_GROUPS,
+  FIELD_KINDS,
+  kindMeta,
+} from "@/lib/form-generator/field-kinds";
 import { buildFormSchema } from "@/lib/form-generator/schema";
 import type {
   FieldConfig,
@@ -314,9 +318,16 @@ function ViewToggle({
 
 function FieldSidebar({ onAdd }: { onAdd: (kind: FieldKind) => void }) {
   const [query, setQuery] = React.useState("");
+  const q = query.trim().toLowerCase();
   const filtered = FIELD_KINDS.filter((meta) =>
-    meta.label.toLowerCase().includes(query.trim().toLowerCase()),
+    meta.label.toLowerCase().includes(q),
   );
+  const sections = FIELD_KIND_GROUPS.map((group) => ({
+    ...group,
+    items: filtered
+      .filter((meta) => meta.group === group.id)
+      .sort((a, b) => a.label.localeCompare(b.label)),
+  })).filter((section) => section.items.length > 0);
 
   return (
     <div className="flex w-full shrink-0 flex-col gap-3 lg:sticky lg:top-6 lg:w-64 lg:self-start">
@@ -339,19 +350,26 @@ function FieldSidebar({ onAdd }: { onAdd: (kind: FieldKind) => void }) {
       </div>
 
       <div className="flex max-h-[70vh] flex-col gap-0.5 overflow-y-auto rounded-md border bg-card p-1.5">
-        {filtered.map((meta) => (
-          <button
-            key={meta.kind}
-            type="button"
-            onClick={() => onAdd(meta.kind)}
-            className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent"
-          >
-            <meta.icon
-              className="size-4 shrink-0 text-muted-foreground"
-              strokeWidth={1.75}
-            />
-            {meta.label}
-          </button>
+        {sections.map((section) => (
+          <div key={section.id} className="flex flex-col gap-0.5">
+            <p className="px-2.5 pt-2 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+              {section.label}
+            </p>
+            {section.items.map((meta) => (
+              <button
+                key={meta.kind}
+                type="button"
+                onClick={() => onAdd(meta.kind)}
+                className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent"
+              >
+                <meta.icon
+                  className="size-4 shrink-0 text-muted-foreground"
+                  strokeWidth={1.75}
+                />
+                {meta.label}
+              </button>
+            ))}
+          </div>
         ))}
         {filtered.length === 0 && (
           <p className="px-2.5 py-6 text-center text-xs text-muted-foreground">

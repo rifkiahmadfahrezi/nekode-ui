@@ -23,8 +23,20 @@ import {
 
 import type { FieldKind } from "./types";
 
+export type FieldKindGroup = "text" | "selection" | "choice" | "date" | "file";
+
+/** Sidebar sections, in display order. Fields are sorted A-Z inside each. */
+export const FIELD_KIND_GROUPS: { id: FieldKindGroup; label: string }[] = [
+  { id: "text", label: "Text input" },
+  { id: "selection", label: "Selection" },
+  { id: "choice", label: "Choice" },
+  { id: "date", label: "Date & time" },
+  { id: "file", label: "File" },
+];
+
 export interface FieldKindMeta {
   kind: FieldKind;
+  group: FieldKindGroup;
   label: string;
   component: string;
   importPath: string;
@@ -35,6 +47,7 @@ export interface FieldKindMeta {
 export const FIELD_KINDS: FieldKindMeta[] = [
   {
     kind: "text",
+    group: "text",
     label: "Text",
     component: "TextField",
     importPath: "@/components/ui/text-field",
@@ -42,6 +55,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "textarea",
+    group: "text",
     label: "Textarea",
     component: "TextareaField",
     importPath: "@/components/ui/textarea-field",
@@ -49,6 +63,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "rich-text",
+    group: "text",
     label: "Rich Text",
     component: "RichTextField",
     importPath: "@/components/ui/rich-text-field",
@@ -56,6 +71,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "password",
+    group: "text",
     label: "Password",
     component: "PasswordField",
     importPath: "@/components/ui/password-field",
@@ -63,6 +79,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "number",
+    group: "text",
     label: "Number",
     component: "NumberField",
     importPath: "@/components/ui/number-field",
@@ -70,6 +87,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "select",
+    group: "selection",
     label: "Select",
     component: "SelectField",
     importPath: "@/components/ui/select-field",
@@ -78,6 +96,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "combobox",
+    group: "selection",
     label: "Combobox",
     component: "ComboboxField",
     importPath: "@/components/ui/combobox-field",
@@ -86,6 +105,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "combobox-multi",
+    group: "selection",
     label: "Combobox Multi",
     component: "ComboboxMultiField",
     importPath: "@/components/ui/combobox-multi-field",
@@ -94,6 +114,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "responsive-combobox",
+    group: "selection",
     label: "Responsive Combobox",
     component: "ResponsiveCombobox",
     importPath: "@/components/ui/responsive-combobox",
@@ -102,6 +123,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "responsive-multi-select",
+    group: "selection",
     label: "Responsive Multi Select",
     component: "ResponsiveMultiSelect",
     importPath: "@/components/ui/responsive-multi-select",
@@ -110,6 +132,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "checkbox",
+    group: "choice",
     label: "Checkbox",
     component: "FieldCheckbox",
     importPath: "@/components/ui/field-checkbox",
@@ -117,6 +140,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "checkbox-group",
+    group: "choice",
     label: "Checkbox Group",
     component: "FieldCheckboxGroup",
     importPath: "@/components/ui/field-checkbox",
@@ -125,6 +149,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "radio",
+    group: "choice",
     label: "Radio",
     component: "FieldRadio",
     importPath: "@/components/ui/field-radio",
@@ -133,6 +158,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "switch",
+    group: "choice",
     label: "Switch",
     component: "FieldSwitch",
     importPath: "@/components/ui/field-switch",
@@ -140,6 +166,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "date-picker",
+    group: "date",
     label: "Date Picker",
     component: "DatePickerField",
     importPath: "@/components/ui/date-picker-field",
@@ -147,6 +174,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "date-range-picker",
+    group: "date",
     label: "Date Range Picker",
     component: "DateRangePickerField",
     importPath: "@/components/ui/date-range-picker-field",
@@ -154,6 +182,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "date-multi-picker",
+    group: "date",
     label: "Date Multi Picker",
     component: "DateMultiPickerField",
     importPath: "@/components/ui/date-multi-picker-field",
@@ -161,6 +190,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "time-picker",
+    group: "date",
     label: "Time Picker",
     component: "TimePickerField",
     importPath: "@/components/ui/time-picker-field",
@@ -168,6 +198,7 @@ export const FIELD_KINDS: FieldKindMeta[] = [
   },
   {
     kind: "file",
+    group: "file",
     label: "File",
     component: "FileField",
     importPath: "@/components/ui/file-field",
