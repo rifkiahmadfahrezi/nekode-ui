@@ -333,7 +333,7 @@
       "name": "datatable",
       "type": "registry:ui",
       "title": "DataTable",
-      "description": "Data table with sorting, selection, column pinning, row expansion, and opt-in pagination and row context menu.",
+      "description": "Data table with sorting, selection, column pinning, row expansion, and opt-in pagination, row context menu and row virtualization (datatable-virtual).",
       "dependencies": [
         "@base-ui/react",
         "class-variance-authority",
@@ -417,6 +417,21 @@
           "path": "src/registry/ui/datatable/utils.ts",
           "type": "registry:ui",
           "target": "components/ui/datatable/utils.ts"
+        }
+      ]
+    },
+    {
+      "name": "datatable-virtual",
+      "type": "registry:ui",
+      "title": "DataTable Virtual Body",
+      "description": "Opt-in row virtualization for DataTable, powered by @tanstack/react-virtual. Only installed when you need it.",
+      "dependencies": ["@tanstack/react-virtual"],
+      "registryDependencies": ["https://ui.nekode.id/r/datatable.json"],
+      "files": [
+        {
+          "path": "src/registry/ui/datatable/DataTableVirtualBody.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableVirtualBody.tsx"
         }
       ]
     },
@@ -517,9 +532,7 @@
       "type": "registry:ui",
       "title": "Rich Text Field",
       "description": "Rich text editor composed with field label, description, and error for forms.",
-      "dependencies": [
-        "@base-ui/react"
-      ],
+      "dependencies": ["@base-ui/react"],
       "registryDependencies": [
         "field",
         "label",

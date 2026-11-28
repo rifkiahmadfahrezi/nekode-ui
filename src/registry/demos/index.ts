@@ -13,6 +13,7 @@ export * from "./datatable-selection-demo";
 export * from "./datatable-sequence-demo";
 export * from "./datatable-sticky-demo";
 export * from "./datatable-styling-demo";
+export * from "./datatable-virtual-demo";
 export * from "./date-multi-picker-field-demo";
 export * from "./date-multi-picker-field-form-demo";
 export * from "./date-picker-field-demo";
