@@ -1,0 +1,76 @@
+---
+title: CurrencyField
+description: A money input that groups thousands as you type and reports a plain number, with locale-aware separators and symbols.
+---
+
+`CurrencyField` shows an amount the way people read it, like `1,234,567.89` or `Rp 2.500.000`, while your form only ever sees a `number`. Separators, the currency symbol and its position, and the number of decimals all come from `Intl.NumberFormat`, so `locale` and `currency` are usually the only props you set. For plain numbers with a stepper, use [`NumberField`](/docs/form-fields/number-field) instead.
+
+## Installation
+
+<InstallationTabs componentName="currency-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/currency-field-demo.tsx">
+  <CurrencyFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### Locales and currencies
+
+<ComponentPreview path="src/registry/demos/currency-field-locales-demo.tsx">
+  <CurrencyFieldLocalesDemo />
+</ComponentPreview>
+
+### With TanStack Form and Zod
+
+<ComponentPreview path="src/registry/demos/currency-field-form-demo.tsx">
+  <CurrencyFieldFormDemo />
+</ComponentPreview>
+
+## Behavior
+
+- **Grouping happens while typing**, and the caret stays next to the digit you just typed.
+- **Decimals follow the currency.** USD and EUR allow 2, IDR and JPY allow none. Override with `decimalPlaces`. Extra decimal digits are cut off, not rounded.
+- **Only the locale's decimal separator starts the decimals.** In `id-ID`, `.` is the thousands separator and `,` is the decimal one.
+- **On blur, the amount is padded and clamped.** `12.5` becomes `12.50`, and a value outside `min`/`max` snaps to the nearest bound.
+- **`onValueChange` reports `undefined` when the field is empty.** Clearing the field doesn't turn it into `0`.
+- **Negative amounts are off** by default. Set `allowNegative` to accept a leading `-`.
+
+## Accessibility
+
+- The label targets the input. `aria-describedby` points at the description, and `aria-errormessage` at the error, matching `TextField`.
+- The input uses `inputMode="decimal"` (or `"numeric"` with no decimals) so phones show a number keypad.
+- The currency symbol is `aria-hidden`, since screen readers would read it as part of the value. Without a `label`, the input is named "Amount in USD" (or whichever `currency` is set).
+
+## API Reference
+
+### CurrencyField
+
+`CurrencyField` accepts every native `<input>` attribute except `type`, `value`, `defaultValue`, `min` and `max`, which are redefined below.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the input. |
+| `description` | `string` | — | Helper text shown below. Hidden while `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `number` | — | Controlled amount. |
+| `defaultValue` | `number` | — | Initial amount for uncontrolled use. |
+| `onValueChange` | `(value: number \| undefined) => void` | — | Fires with the parsed amount, or `undefined` when empty. |
+| `onChange` | `React.ChangeEventHandler<HTMLInputElement>` | — | Native change handler. `target.value` holds the formatted text. |
+| `currency` | `string` | `"USD"` | ISO 4217 currency code. |
+| `locale` | `string` | `"en-US"` | Locale for separators and symbol placement. |
+| `currencyDisplay` | `"symbol" \| "narrowSymbol" \| "code" \| "none"` | `"symbol"` | How the currency is labelled. `"none"` hides it. |
+| `decimalPlaces` | `number` | currency's own | Max digits after the decimal separator. |
+| `allowNegative` | `boolean` | `false` | Accepts a leading `-`. |
+| `min` | `number` | — | Lower bound, applied on blur. |
+| `max` | `number` | — | Upper bound, applied on blur. |
+| `placeholder` | `string` | formatted `0` | Placeholder text, e.g. `0.00`. |
+| `disabled` | `boolean` | `false` | Disables the input. |
+| `required` | `boolean` | `false` | Adds the required asterisk and `aria-required`. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the input. |
+| `className` | `string` | — | Class name for the `InputGroup` around the symbol and input. |
+| `inputClassName` | `string` | — | Class name applied to the input. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |

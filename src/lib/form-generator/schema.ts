@@ -3,7 +3,14 @@ import type { FieldConfig, StepConfig } from "./types";
 
 function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
   switch (field.kind) {
-    case "number": {
+    case "otp": {
+      const base = z.string();
+      return field.required
+        ? base.length(6, `${field.label || field.name} must be 6 characters`)
+        : base.optional();
+    }
+    case "number":
+    case "currency": {
       const base = z.number({
         error: `${field.label || field.name} is required`,
       });
@@ -21,7 +28,8 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
     }
     case "checkbox-group":
     case "combobox-multi":
-    case "responsive-multi-select": {
+    case "responsive-multi-select":
+    case "tags": {
       const base = z.array(z.string());
       return field.required
         ? base.min(1, `${field.label || field.name} is required`)
@@ -56,6 +64,7 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
 export function defaultValueFor(field: FieldConfig): unknown {
   switch (field.kind) {
     case "number":
+    case "currency":
     case "date-picker":
     case "date-range-picker":
       return undefined;
@@ -63,6 +72,7 @@ export function defaultValueFor(field: FieldConfig): unknown {
     case "combobox-multi":
     case "responsive-multi-select":
     case "checkbox-group":
+    case "tags":
       return [];
     case "file":
       return [];

@@ -1,0 +1,77 @@
+---
+title: OtpField
+description: A one-time code or PIN input with one box per character, built for verification and two-factor screens.
+---
+
+`OtpField` renders one slot per character inside the same `Field` layout as [`TextField`](/docs/form-fields/text-field). Focus moves forward as people type and back on Backspace, a pasted code fills every slot at once, and the first slot carries `autocomplete="one-time-code"` so iOS and Android can offer the code from an SMS. It has no third-party dependencies.
+
+## Installation
+
+<InstallationTabs componentName="otp-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/otp-field-demo.tsx">
+  <OtpFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### PIN and alphanumeric codes
+
+Use `mask` to hide a PIN, `pattern="alphanumeric"` for codes with letters (they're uppercased), and `groupSize` to split the slots with a separator.
+
+<ComponentPreview path="src/registry/demos/otp-field-variants-demo.tsx">
+  <OtpFieldVariantsDemo />
+</ComponentPreview>
+
+### With TanStack Form and Zod
+
+`onValueChange` gives you the whole code as one string, so the schema is just `z.string().length(6)`. This example also submits from `onComplete`, as soon as the last digit is typed.
+
+<ComponentPreview path="src/registry/demos/otp-field-form-demo.tsx">
+  <OtpFieldFormDemo />
+</ComponentPreview>
+
+## Behavior
+
+- **The code never has gaps.** Clicking an empty slot past the filled ones jumps to the next empty slot, and deleting a character shifts the ones after it back.
+- **Only allowed characters are kept.** With the default `pattern="numeric"`, letters and symbols are dropped as they're typed or pasted, so `"98-76"` pastes as `9876`.
+- **A full-length paste replaces the whole code**, wherever the caret is. A shorter paste fills from the current slot.
+- **`onComplete` fires once** when the last slot is filled, not again on every re-render.
+
+## Accessibility
+
+- The slots sit in a `role="group"` labelled by the field label (`aria-labelledby`), and each slot has its own `aria-label` such as "Character 1 of 6".
+- `aria-describedby` on the group points at the description. Each slot gets `aria-invalid` and `aria-errormessage` pointing at the error.
+- Only one slot is in the tab order at a time (the next empty one), so Tab moves past the field instead of through every box. Arrow keys, Home and End move between slots.
+- The separator added by `groupSize` is `aria-hidden`.
+
+## API Reference
+
+### OtpField
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the slots. |
+| `description` | `string` | — | Helper text shown below. Hidden while `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `length` | `number` | `6` | Number of slots. |
+| `pattern` | `"numeric" \| "alphanumeric"` | `"numeric"` | Characters a slot accepts. Alphanumeric input is uppercased. |
+| `mask` | `boolean` | `false` | Hides typed characters, for PINs. |
+| `groupSize` | `number` | — | Adds a separator after every `groupSize` slots. |
+| `value` | `string` | — | Controlled code. |
+| `defaultValue` | `string` | — | Initial code for uncontrolled use. |
+| `onValueChange` | `(value: string) => void` | — | Fires with the code typed so far. |
+| `onComplete` | `(value: string) => void` | — | Fires once every slot is filled. |
+| `onBlur` | `React.FocusEventHandler<HTMLDivElement>` | — | Fires when focus leaves the whole group, not when it moves between slots. |
+| `id` | `string` | auto | Id of the first slot (the label targets it). Other slots get `${id}-1`, `${id}-2`, … |
+| `name` | `string` | — | Adds a hidden input with this name holding the code, for native form posts. |
+| `disabled` | `boolean` | `false` | Disables every slot. |
+| `required` | `boolean` | `false` | Adds the required asterisk and `aria-required`. |
+| `autoFocus` | `boolean` | `false` | Focuses the first slot on mount. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the slots. |
+| `className` | `string` | — | Class name for the row that holds the slots. |
+| `slotClassName` | `string` | — | Class name applied to every slot input. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |

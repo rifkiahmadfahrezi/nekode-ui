@@ -1,0 +1,108 @@
+---
+title: PhoneField
+description: A phone number input with a searchable country code picker that hands your form a single E.164 string.
+---
+
+`PhoneField` pairs a country picker (flag and calling code, in a `Popover`) with a `tel` input inside an `InputGroup`. People type the local number the way they know it, and the field reports the full international number, such as `+6281234567890`, through `onValueChange`. It ships a compact list of countries in `PHONE_COUNTRIES` and needs no phone library.
+
+## Installation
+
+<InstallationTabs componentName="phone-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/phone-field-demo.tsx">
+  <PhoneFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### Detect the country from the calling code
+
+With `autoDetectCountry`, people can type the calling code first, without a `+`. Here the field starts on the United States: type `62812…` and it switches to Indonesia, keeping `812…` as the local number.
+
+<ComponentPreview path="src/registry/demos/phone-field-auto-detect-demo.tsx">
+  <PhoneFieldAutoDetectDemo />
+</ComponentPreview>
+
+<Callout type="warn">
+  It's off by default because a local number can start with a calling code too. With Indonesia selected, a local `81…` would switch to Japan (`+81`). Turn it on when people are likely to type international numbers. Typing or pasting a `+` always switches country, with or without this prop.
+</Callout>
+
+### With TanStack Form and Zod
+
+The value is a plain string, so validate it with a regex. `^\+\d{8,15}$` checks the E.164 shape. For real per-country validation, run the value through a library like `libphonenumber-js` in a `.refine()`.
+
+<ComponentPreview path="src/registry/demos/phone-field-form-demo.tsx">
+  <PhoneFieldFormDemo />
+</ComponentPreview>
+
+### Your own country list
+
+Pass `countries` to limit or extend the picker. Each entry is `{ code, name, dialCode }`.
+
+```tsx
+import { PHONE_COUNTRIES, PhoneField } from "@/components/ui/phone-field";
+
+const asean = PHONE_COUNTRIES.filter((c) =>
+  ["ID", "MY", "SG", "TH", "PH", "VN"].includes(c.code),
+);
+
+<PhoneField label="Phone" countries={asean} defaultCountry="MY" />;
+```
+
+## Behavior
+
+- **The trunk `0` is dropped from the value, not the screen.** Typing `0812…` with Indonesia selected shows `0812…` but reports `+62812…`.
+- **A `+` switches the country.** Typing or pasting `+44 20 7946 0958` selects the United Kingdom and keeps `2079460958` as the local part. While only part of a code is typed (`+3`), the field reports `""`.
+- **`autoDetectCountry` does the same without the `+`**, but only for the first digits typed into an empty field. It waits for the whole code (`35` could still become `351` or `358`), and clearing the field lets it detect again.
+- **The value is `""` while the local part is empty**, even though a country is always selected. That keeps `required` checks simple.
+- **Shared calling codes** (like `+1` for the United States and Canada) resolve to the selected country when it fits, and otherwise to the United States (`+1`) or Russia (`+7`).
+- Only digits are kept, up to 15. Formatting the number for display is left to you.
+- `parsePhoneNumber(value, countries?, preferred?)` is exported for parsing stored numbers elsewhere.
+- Flags are emoji. Windows doesn't draw flag emoji, so there they show as the two-letter country code.
+
+## Accessibility
+
+- The label targets the number input. `aria-describedby` points at the description, and `aria-errormessage` at the error, matching `TextField`.
+- The picker button is labelled with the current country, for example "Country code: Indonesia (+62)".
+- In the picker, the search box is a `combobox` that controls a `listbox` of `option`s. Arrow keys move the highlighted country (announced through `aria-activedescendant`) and Enter selects it. The selected country has `aria-selected`.
+- Flags and icons are `aria-hidden`.
+
+## API Reference
+
+### PhoneField
+
+`PhoneField` accepts every native `<input>` attribute except `type`, `value`, `defaultValue` and `onChange`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the input. |
+| `description` | `string` | — | Helper text shown below. Hidden while `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `string` | — | Controlled international number, e.g. `"+6281234567890"`. |
+| `defaultValue` | `string` | — | Initial number for uncontrolled use. |
+| `onValueChange` | `(value: string) => void` | — | Fires with the international number, or `""` when the local part is empty. |
+| `defaultCountry` | `string` | `"ID"` | ISO code of the country selected until a value picks one. |
+| `autoDetectCountry` | `boolean` | `false` | Switches country from a calling code typed at the start, without a `+`. |
+| `onCountryChange` | `(country: PhoneCountry) => void` | — | Fires when the selected country changes. |
+| `countries` | `PhoneCountry[]` | `PHONE_COUNTRIES` | Countries offered in the picker. |
+| `placeholder` | `string` | `"812 3456 7890"` | Placeholder for the local number. |
+| `searchPlaceholder` | `string` | `"Search country..."` | Placeholder for the picker's search box. |
+| `emptyText` | `string` | `"No country found."` | Shown when the search matches nothing. |
+| `name` | `string` | — | Adds a hidden input with this name holding the international number. |
+| `disabled` | `boolean` | `false` | Disables the input and the picker. |
+| `required` | `boolean` | `false` | Adds the required asterisk and `aria-required`. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the input. |
+| `className` | `string` | — | Class name for the `InputGroup` around the picker and input. |
+| `inputClassName` | `string` | — | Class name applied to the number input. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+
+### PhoneCountry
+
+| Field | Type | Description |
+|---|---|---|
+| `code` | `string` | ISO 3166-1 alpha-2 code, e.g. `"ID"`. Also used for the flag. |
+| `name` | `string` | Name shown and searched in the picker. |
+| `dialCode` | `string` | Calling code with the `+`, e.g. `"+62"`. |

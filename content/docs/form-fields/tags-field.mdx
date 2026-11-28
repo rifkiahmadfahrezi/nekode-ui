@@ -1,0 +1,72 @@
+---
+title: TagsField
+description: A free-text tag input that turns typed or pasted text into removable chips, for keywords, skills or emails.
+---
+
+`TagsField` keeps a `string[]` and shows it as chips in front of a text input, inside the same `Field` layout as [`TextField`](/docs/form-fields/text-field). Unlike [`ComboboxMultiField`](/docs/form-fields/combobox-multi-field), there's no option list: people type whatever they want. Use it when the values are open-ended.
+
+## Installation
+
+<InstallationTabs componentName="tags-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/tags-field-demo.tsx">
+  <TagsFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+The value is a `string[]`, so validate it with `z.array(z.string())`. This example caps the list with `maxTags` and cleans each tag with `transform`.
+
+<ComponentPreview path="src/registry/demos/tags-field-form-demo.tsx">
+  <TagsFieldFormDemo />
+</ComponentPreview>
+
+## Behavior
+
+- **Enter, or any of `delimiters` (default `,`), adds the typed text** as a tag. Text is trimmed, and empty tags are ignored.
+- **Pasting a list splits it.** `"react, vue, svelte"` or one tag per line becomes three tags.
+- **Backspace in an empty input removes the last tag.** Each chip also has its own remove button.
+- **Duplicates are skipped** by default, compared without case. Set `allowDuplicates` to keep them.
+- **`maxTags` stops adding** once reached. Extra tags from a paste are dropped.
+- **`transform` runs on every new tag.** Return a cleaned string, or `null` to reject the tag (for example, an invalid email).
+- Leaving the field adds any pending text, unless `addOnBlur` is `false`.
+
+## Accessibility
+
+- The label targets the text input. `aria-describedby` points at the description, and `aria-errormessage` at the error, matching `TextField`.
+- Each chip's remove button is labelled with its tag, such as "Remove react". Icons are `aria-hidden`.
+- A polite live region announces the tag count and each tag added or removed, since chips appearing aren't otherwise announced.
+
+## API Reference
+
+### TagsField
+
+`TagsField` accepts every native `<input>` attribute except `value`, `defaultValue` and `onChange`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the field. |
+| `description` | `string` | — | Helper text shown below. Hidden while `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `string[]` | — | Controlled tags. |
+| `defaultValue` | `string[]` | — | Initial tags for uncontrolled use. |
+| `onValueChange` | `(value: string[]) => void` | — | Fires with the new list whenever a tag is added or removed. |
+| `maxTags` | `number` | — | Maximum number of tags. |
+| `allowDuplicates` | `boolean` | `false` | Keeps tags that match an existing one. |
+| `delimiters` | `string[]` | `[","]` | Characters that commit the typed text, besides Enter. |
+| `addOnBlur` | `boolean` | `true` | Adds pending text when the input loses focus. |
+| `transform` | `(tag: string) => string \| null` | — | Cleans each new tag, or rejects it with `null`. |
+| `placeholder` | `string` | `"Add a tag..."` | Shown while there are no tags. |
+| `name` | `string` | — | Adds one hidden input per tag with this name, for native form posts. |
+| `disabled` | `boolean` | `false` | Disables the input and the remove buttons. |
+| `required` | `boolean` | `false` | Adds the required asterisk and `aria-required`. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the field. |
+| `className` | `string` | — | Class name for the bordered box around the chips and input. |
+| `inputClassName` | `string` | — | Class name applied to the text input. |
+| `tagClassName` | `string` | — | Class name applied to each chip. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
