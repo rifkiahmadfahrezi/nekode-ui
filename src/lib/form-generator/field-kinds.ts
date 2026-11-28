@@ -107,8 +107,9 @@ export const FIELD_KINDS: FieldKindMeta[] = [
     kind: "combobox-multi",
     group: "selection",
     label: "Combobox Multi",
-    component: "ComboboxMultiField",
-    importPath: "@/components/ui/combobox-multi-field",
+    // Same component as "combobox", rendered with `multiple`.
+    component: "ComboboxField",
+    importPath: "@/components/ui/combobox-field",
     icon: ListChecks,
     needsOptions: true,
   },

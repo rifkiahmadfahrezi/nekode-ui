@@ -64,4 +64,66 @@ describe("option fields: form gets value, UI shows label", () => {
     expect(screen.getByText("Indonesia")).toBeInTheDocument();
     expect(formValues(container, "countries")).toEqual(["us", "id"]);
   });
+
+  it("ComboboxField multiple", () => {
+    const { container } = render(
+      <form>
+        <ComboboxField
+          multiple
+          label="Countries"
+          name="countries"
+          options={options}
+          value={["id"]}
+          onValueChange={() => {}}
+        />
+      </form>,
+    );
+    expect(screen.getByText("Indonesia")).toBeInTheDocument();
+    expect(screen.queryByText("United States")).not.toBeInTheDocument();
+    expect(formValues(container, "countries")).toEqual(["id"]);
+  });
+});
+
+describe("ComboboxField `multiple` props are type-checked", () => {
+  it("narrows value and onValueChange by `multiple`", () => {
+    const single = (value: string | undefined) => value;
+    const many = (value: string[]) => value;
+    const props = { options, label: "Countries" };
+
+    void [
+      <ComboboxField key="a" {...props} value="id" onValueChange={single} />,
+      <ComboboxField
+        key="b"
+        {...props}
+        multiple
+        value={["id"]}
+        onValueChange={many}
+        overflow="hide"
+      />,
+      // @ts-expect-error `multiple` needs a string[] value
+      <ComboboxField
+        key="c"
+        {...props}
+        multiple
+        value="id"
+        onValueChange={many}
+      />,
+      // @ts-expect-error single mode needs a string value
+      <ComboboxField
+        key="d"
+        {...props}
+        value={["id"]}
+        onValueChange={single}
+      />,
+      // @ts-expect-error `overflow` only exists with `multiple`
+      <ComboboxField
+        key="e"
+        {...props}
+        value="id"
+        onValueChange={single}
+        overflow="hide"
+      />,
+    ];
+    expect(true).toBe(true);
+  });
 });

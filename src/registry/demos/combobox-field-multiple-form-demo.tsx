@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
+import { ComboboxField } from "@/components/ui/combobox-field";
 
 const skills = [
   { label: "React", value: "react" },
@@ -19,7 +19,7 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-export function ComboboxMultiFieldFormDemo() {
+export function ComboboxFieldMultipleFormDemo() {
   const form = useForm({
     defaultValues: { skills: [] } as ProfileFormValues,
     validators: {
@@ -48,7 +48,8 @@ export function ComboboxMultiFieldFormDemo() {
     >
       <form.Field name="skills">
         {(field) => (
-          <ComboboxMultiField
+          <ComboboxField
+            multiple
             label="Skills"
             placeholder="Search skills"
             options={skills}

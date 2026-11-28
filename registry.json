@@ -239,13 +239,13 @@
       "name": "combobox-field",
       "type": "registry:ui",
       "title": "Combobox Field",
-      "description": "A labeled combobox input built on Combobox with field layout.",
+      "description": "A labeled, searchable combobox with field layout. Pass `multiple` for a chip-based multi select.",
       "dependencies": [
         "@base-ui/react",
         "class-variance-authority",
         "lucide-react"
       ],
-      "registryDependencies": ["field", "combobox", "label"],
+      "registryDependencies": ["field", "combobox", "button", "label"],
       "files": [
         {
           "path": "./src/registry/ui/combobox-field.tsx",
@@ -258,13 +258,8 @@
       "name": "combobox-multi-field",
       "type": "registry:ui",
       "title": "Combobox Multi Field",
-      "description": "A labeled multi-select combobox with chips that stack or collapse into an overflow count.",
-      "dependencies": [
-        "@base-ui/react",
-        "class-variance-authority",
-        "lucide-react"
-      ],
-      "registryDependencies": ["field", "combobox", "button", "label"],
+      "description": "Deprecated alias of `<ComboboxField multiple />`, kept for backward compatibility.",
+      "registryDependencies": ["https://ui.nekode.id/r/combobox-field.json"],
       "files": [
         {
           "path": "./src/registry/ui/combobox-multi-field.tsx",
@@ -319,7 +314,7 @@
         "label",
         "drawer",
         "use-mobile",
-        "https://ui.nekode.id/r/combobox-multi-field.json"
+        "https://ui.nekode.id/r/combobox-field.json"
       ],
       "files": [
         {
@@ -517,9 +512,7 @@
       "type": "registry:ui",
       "title": "Rich Text Field",
       "description": "Rich text editor composed with field label, description, and error for forms.",
-      "dependencies": [
-        "@base-ui/react"
-      ],
+      "dependencies": ["@base-ui/react"],
       "registryDependencies": [
         "field",
         "label",

@@ -109,6 +109,7 @@ function fieldJsx(field: FieldConfig): string {
     case "checkbox-group":
     case "radio":
       valueProps = [
+        ...(field.kind === "combobox-multi" ? ["multiple"] : []),
         `options={${optionsSource(field)}}`,
         `value={field.state.value}`,
         `onValueChange={field.handleChange}`,
@@ -195,7 +196,7 @@ export function generateFormCode(
   for (const kind of usedKinds) {
     const meta = kindMeta(kind);
     const components = componentsByPath.get(meta.importPath) ?? [];
-    components.push(meta.component);
+    if (!components.includes(meta.component)) components.push(meta.component);
     componentsByPath.set(meta.importPath, components);
   }
   const imports = Array.from(componentsByPath)

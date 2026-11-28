@@ -13,7 +13,7 @@ import {
 import {
   ComboboxField,
   type ComboboxFieldOption,
-  type ComboboxFieldProps,
+  type ComboboxFieldSingleProps,
 } from "@/components/ui/combobox-field";
 import {
   Drawer,
@@ -33,7 +33,8 @@ import { cn } from "@/lib/utils";
 
 export type ResponsiveComboboxOption = ComboboxFieldOption;
 
-export interface ResponsiveComboboxProps extends ComboboxFieldProps {
+export interface ResponsiveComboboxProps
+  extends Omit<ComboboxFieldSingleProps, "multiple"> {
   /** Drawer heading on mobile. Falls back to `label`, then `placeholder`. */
   drawerTitle?: string;
   /** Optional helper text under the drawer heading on mobile. */
