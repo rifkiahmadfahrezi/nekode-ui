@@ -2,7 +2,6 @@ import {
   createRootRoute,
   HeadContent,
   Link,
-  Outlet,
   Scripts,
 } from "@tanstack/react-router";
 import { RootProvider } from "fumadocs-ui/provider/tanstack";
@@ -32,7 +31,7 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
-  component: RootComponent,
+  shellComponent: RootDocument,
 });
 
 type FumadocsLinkProps = Omit<React.ComponentProps<"a">, "href"> & {
@@ -57,7 +56,9 @@ function FumadocsLink({
   );
 }
 
-function RootComponent() {
+/** Shell HTML selalu dirender, termasuk saat root route error, jadi
+ *  halaman error tetap dapat CSS, font, dan provider tema. */
+function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -65,7 +66,7 @@ function RootComponent() {
       </head>
       <body className="flex flex-col min-h-screen">
         <RootProvider components={{ Link: FumadocsLink }}>
-          <Outlet />
+          {children}
           <Toaster position="bottom-right" />
         </RootProvider>
         <Scripts />
