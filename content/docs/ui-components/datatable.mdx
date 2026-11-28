@@ -1,11 +1,11 @@
 ---
 title: DataTable
-description: A data table with sorting, selection, column pinning, and expandable rows, plus opt-in pagination and row context menus.
+description: A data table with sorting, selection, column pinning, expandable rows and keyboard row navigation, plus opt-in pagination, filter toolbar and row context menus.
 ---
 
 `DataTable` renders tabular data without you wiring up sorting, selection, or pagination by hand. The core wraps `Table` and `Checkbox`, and splits its internals into memoized pieces so toggling one row's selection doesn't re-render the other 500. Reach for it whenever a page needs more than a static table: bulk actions, a column pinned while the rest scrolls, or rows that expand into detail.
 
-Features that pull in heavier primitives are separate components you compose in only when you need them: [`DataTablePagination`](#datatablepagination), [`DataTableRecordsPerPage`](#datatablerecordsperpage) (uses `Select`), [`DataTableContextMenu`](#datatablecontextmenu) (uses `ContextMenu`), and [`DataTableAction`](#datatableaction) (uses `DropdownMenu`). A table that only renders a list never ships their code: the core is about 22 KB gzipped, versus about 74 KB with every part included.
+Features that pull in heavier primitives are separate components you compose in only when you need them: [`DataTablePagination`](#datatablepagination), [`DataTableRecordsPerPage`](#datatablerecordsperpage) (uses `Select`), the [filter toolbar](#filter-toolbar) (`DataTableSearch` uses `Input`, `DataTableFacetedFilter` uses `Popover` and `Checkbox`), [`DataTableContextMenu`](#datatablecontextmenu) (uses `ContextMenu`), and [`DataTableAction`](#datatableaction) (uses `DropdownMenu`). A table that only renders a list never ships their code: the core is about 22 KB gzipped, versus about 74 KB with every part included.
 
 ## Installation
 
@@ -37,7 +37,7 @@ A minimal table needs `data` and `columns`, nothing else. Add [`sortStatus`/`onS
 </DataTable>
 ```
 
-Children of `DataTable` render below the table and read its `variant` and `fetching` state, so the pagination bar matches the table's border and disables itself while loading.
+Children of `DataTable` render below the table and read its `variant` and `fetching` state, so the pagination bar matches the table's border and disables itself while loading. The one exception is [`DataTableToolbar`](#datatabletoolbar), which renders above the table.
 
 ## Examples
 
@@ -87,6 +87,59 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
 
   Only do this if you use `DataTable` with `height` set. If other tables in your app rely on the default wrapper for their own horizontal scrolling, scope this change to a variant instead of editing `table.tsx` globally.
 </Callout>
+
+### Filter toolbar
+
+Put a [`DataTableToolbar`](#datatabletoolbar) inside `DataTable` and it renders above the table, inside the same border. Fill it with a [`DataTableSearch`](#datatablesearch), one [`DataTableFacetedFilter`](#datatablefacetedfilter) per column you want to filter by, and a [`DataTableResetFilters`](#datatableresetfilters) button. Every control is controlled, so the state can live anywhere: in React state, in the URL, or in a request to your API.
+
+For client-side data, [`useDataTableFilters`](#usedatatablefilters) holds that state for you and hands back `filteredData`, plus per-option counts for the facet popovers. Search is a case-insensitive "contains" on the fields you list. Facets combine with AND, and the values picked inside one facet combine with OR, so "Role: admin, editor" + "Status: active" means active admins or editors.
+
+<ComponentPreview path="src/registry/demos/datatable-filter-toolbar-demo.tsx" allowFullscreen>
+  <DataTableFilterToolbarDemo />
+</ComponentPreview>
+
+```tsx
+const filters = useDataTableFilters(members, {
+  search: ["name", "email"],
+  facets: { role: "role", status: "status" }, // or (m) => m.tags for arrays
+});
+
+<DataTable data={filters.filteredData} columns={columns} idAccessor="id">
+  <DataTableToolbar actions={<Button size="sm">Invite</Button>}>
+    <DataTableSearch value={filters.search} onValueChange={filters.setSearch} />
+    <DataTableFacetedFilter
+      title="Role"
+      options={roleOptions}
+      value={filters.getFacetValue("role")}
+      onValueChange={(v) => filters.setFacetValue("role", v)}
+      counts={filters.getFacetCounts("role")}
+    />
+    <DataTableResetFilters visible={filters.isFiltered} onReset={filters.reset} />
+  </DataTableToolbar>
+</DataTable>
+```
+
+Filtering on the server instead? Skip the hook, keep `search` and the facet values in your own state, and send them with the request. Pass `debounceMs` to `DataTableSearch` so you don't fire one request per keystroke. When you paginate, set the page back to 1 whenever a filter changes, as the demo does.
+
+### Keyboard navigation
+
+Set [`keyboardNavigation`](#row-interaction) to let people move through rows with the keyboard. The table body becomes a single Tab stop (a roving `tabIndex`): Tab lands on the last focused row, the arrow keys move between rows, and Tab again leaves the table. Clicking a row also moves the cursor there.
+
+<ComponentPreview path="src/registry/demos/datatable-keyboard-demo.tsx" allowFullscreen>
+  <DataTableKeyboardDemo />
+</ComponentPreview>
+
+| Key | Action |
+|---|---|
+| `↓` / `↑` | Next / previous row |
+| `Home` / `End` | First / last row |
+| `PageDown` / `PageUp` | Jump by about one screen of rows |
+| `Enter` | Same as clicking the row: calls `onRowClick`, and toggles expansion when `expandOnRowClick` is on (or when there's no `onRowClick`) |
+| `Space` | Toggle the row's selection; `Shift+Space` selects the range from the last toggled row |
+| `→` / `←` | Expand / collapse the row |
+| `Ctrl+A` / `⌘A` | Select every row on the page |
+
+Keys only count when the row itself has focus. A button, input or checkbox inside a cell keeps its own keys, so an arrow press in an inline input moves the caret, not the row. With `height` set, the focused row is scrolled clear of the sticky header and footer. `onActiveRowChange` tells you which row has focus, for example to show a preview panel next to the table.
 
 ### Expandable rows
 
@@ -147,7 +200,9 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `tableRef`, and `scrollViewportR
 - Sort toggles and the expand chevron are real `<button>` elements. They're keyboard-focusable and respond to Enter and Space without extra wiring. The sort direction icons (`ArrowUp`/`ArrowDown`/`ChevronsUpDown`) are purely visual.
 - `DataTableContextMenu` and the `DataTableAction` dropdown both render through shadcn's menu primitives, which handle roving focus, arrow-key navigation, `Escape` to close, and correct `role="menu"`/`role="menuitem"` semantics without any extra work on your side.
 - The loading overlay (`fetching`) is visual only. It doesn't announce anything to assistive tech. Wire up your own `aria-live` region around the table if that matters for your users.
-- A row itself (the `<tr>`) is clickable via `onRowClick` or `expandOnRowClick`, but a table row isn't a native interactive element. It's not keyboard-focusable, and screen readers won't announce it as actionable. If a row click is the only way to reach some functionality, also expose it through a real button (the expand chevron, a `DataTableAction` item) so keyboard and screen reader users aren't stuck.
+- A row itself (the `<tr>`) is clickable via `onRowClick` or `expandOnRowClick`, but a table row isn't a native interactive element. By default it's not keyboard-focusable. Turn on [`keyboardNavigation`](#keyboard-navigation) to make rows focusable with a roving `tabIndex` (one Tab stop for the whole body), with `Enter` acting as the row click and a visible focus ring. Expandable rows then also expose `aria-expanded`. Screen readers still won't announce a row as a button, so if a row click is the only way to reach some functionality, keep a real button for it too (the expand chevron, a `DataTableAction` item).
+- `DataTableToolbar` is a `role="group"` labelled "Table filters". `DataTableSearch` is a `type="search"` input with an `aria-label` (default `"Search records"`), a labelled clear button, and `Escape` to clear.
+- `DataTableFacetedFilter`'s trigger announces how many values are selected (e.g. "Role: 2 selected"). Inside the popover, options are real checkboxes in a labelled group; `↑`/`↓`/`Home`/`End` move between them and `Space` toggles. The popover primitive handles focus trapping and `Escape`.
 
 ## API Reference
 
@@ -188,6 +243,8 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `tableRef`, and `scrollViewportR
 |---|---|---|---|
 | `onRowClick` | `(record: T, rowIndex: number) => void` | — | Called when a row is clicked. Fires alongside expand-on-click if `renderRowSubContent` is set. |
 | `highlightOnHover` | `boolean` | `true` | Adds a hover background to rows. |
+| `keyboardNavigation` | `boolean` | `false` | Makes rows focusable with a roving `tabIndex` and adds arrow-key navigation. See [Keyboard navigation](#keyboard-navigation) for every key. |
+| `onActiveRowChange` | `(record: T, rowIndex: number) => void` | — | Called when the focused row changes under `keyboardNavigation`, by keyboard or by click. |
 
 #### Expansion
 
@@ -204,7 +261,7 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `tableRef`, and `scrollViewportR
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `children` | `React.ReactNode` | — | Rendered below the table, e.g. [`DataTablePagination`](#datatablepagination). Children read the table's `variant` and `fetching` through context. |
+| `children` | `React.ReactNode` | — | Rendered below the table, e.g. [`DataTablePagination`](#datatablepagination). A [`DataTableToolbar`](#datatabletoolbar) child renders above it instead. Children read the table's `variant` and `fetching` through context. |
 
 #### Layout & styling
 
@@ -317,6 +374,87 @@ const getRowActions = (user: User) => {
 | `pagination.onRecordsPerPageChange` / `recordsPerPageOptions` | `<DataTableRecordsPerPage value={recordsPerPage} onValueChange={...} options={...} />` inside `DataTablePagination` |
 | `rowContextMenu={getActions}` | wrap the table: `<DataTableContextMenu items={getActions}>…</DataTableContextMenu>` |
 | `footerRef={ref}` | `ref={ref}` on `DataTablePagination` |
+
+---
+
+## DataTableToolbar
+
+A row for filter controls. As a child of `DataTable` it renders above the table, inside its border, with a divider under it in the `"bordered"` variant. Outside a table it's a plain flex row.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `children` | `React.ReactNode` | — | Filter controls, laid out left to right and wrapping on narrow screens. |
+| `actions` | `React.ReactNode` | — | Controls pinned to the right edge, e.g. an "Add" button or a column toggle. |
+| `className` | `string` | — | Class applied to the toolbar `<div>`. |
+| `ref` | `React.Ref<HTMLDivElement>` | — | Ref to the toolbar `<div>`. |
+
+### DataTableSearch
+
+A search input with a search icon and a clear button. It accepts every `<input>` prop except `value`, `defaultValue`, `onChange` and `type`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `string` | — | Current query. |
+| `onValueChange` | `(value: string) => void` | — | Called with the new query. Clearing (button or `Escape`) calls it right away, even with `debounceMs`. |
+| `debounceMs` | `number` | `0` | Waits this long after the last keystroke before calling `onValueChange`. |
+| `placeholder` | `string` | `"Search…"` | Input placeholder. |
+| `aria-label` | `string` | `"Search records"` | Accessible name of the input. |
+| `className` | `string` | — | Class applied to the `<input>`. |
+| `wrapperClassName` | `string` | — | Class applied to the wrapping `<div>` (default width `sm:w-64`). |
+
+### DataTableFacetedFilter
+
+A dashed button that opens a popover with one checkbox per option. The selected values show as badges on the button, collapsing to "N selected" past `maxBadges`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | — | Button label, and the accessible name of the option group. |
+| `options` | `DataTableFacetOption[]` | — | `{ value: string; label: ReactNode; icon?: ReactNode; keywords?: string }`. `keywords` is what the option search matches; it defaults to `label` when that's a string. |
+| `value` | `string[]` | — | Selected option values. `onValueChange` always returns them in `options` order. |
+| `onValueChange` | `(value: string[]) => void` | — | Called when an option is toggled or "Clear filter" is clicked. |
+| `counts` | `Map<string, number> \| Record<string, number>` | — | Row count shown next to each option. `useDataTableFilters().getFacetCounts(facet)` returns the right shape. |
+| `searchable` | `boolean` | `options.length > 7` | Shows a search box above the options. |
+| `maxBadges` | `number` | `2` | Most selected labels shown on the button. |
+| `icon` | `React.ReactNode` | a plus-circle icon | Icon before the title. |
+| `disabled` | `boolean` | `false` | Disables the trigger. |
+| `align` | `"start" \| "center" \| "end"` | `"start"` | Popover alignment relative to the button. |
+| `className` | `string` | — | Class applied to the trigger button. |
+
+### DataTableResetFilters
+
+A ghost "Reset ×" button. It takes every `Button` prop except `onClick`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `onReset` | `() => void` | — | Called on click. |
+| `visible` | `boolean` | `true` | Renders nothing when `false`. Pass `isFiltered` to show it only while a filter is active. |
+| `children` | `React.ReactNode` | `"Reset"` | Button label. |
+
+### useDataTableFilters
+
+```ts
+const filters = useDataTableFilters(data, {
+  search: ["name", "email"],          // or (record, query) => boolean
+  facets: { role: "role", tags: (r) => r.tags },
+  initialSearch: "",                  // optional, e.g. from the URL
+  initialFacetValues: { role: ["admin"] },
+});
+```
+
+A facet accessor is a field name or a function. If it returns an array, a row matches when any item is selected. Values are compared as strings.
+
+| Returns | Type | Description |
+|---|---|---|
+| `filteredData` | `T[]` | `data` with the search and every facet applied. The same array as `data` when nothing is filtered. |
+| `search` / `setSearch` | `string` / `(search: string) => void` | Search query. |
+| `facetValues` | `Partial<Record<F, string[]>>` | Every facet's selected values. |
+| `getFacetValue` | `(facet: F) => string[]` | Selected values of one facet, `[]` if none. |
+| `setFacetValue` | `(facet: F, values: string[]) => void` | Replaces one facet's selection. |
+| `getFacetCounts` | `(facet: F) => Map<string, number>` | Rows per value, counting rows that pass the search and every *other* facet, so picking one value doesn't hide the others' counts. |
+| `isFiltered` | `boolean` | `true` while the search or any facet is active. |
+| `reset` | `() => void` | Clears the search and every facet. |
+
+The pure helpers behind it, `filterRecords(data, state, options)` and `getFacetCounts(data, facet, state, options)`, are exported too, for filtering outside React (in a loader or on the server).
 
 ---
 

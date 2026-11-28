@@ -368,7 +368,7 @@
       "name": "datatable",
       "type": "registry:ui",
       "title": "DataTable",
-      "description": "Data table with sorting, selection, column pinning, row expansion, and opt-in pagination and row context menu.",
+      "description": "Data table with sorting, selection, column pinning, row expansion, keyboard row navigation, and opt-in pagination, filter toolbar and row context menu.",
       "dependencies": [
         "class-variance-authority",
         "lucide-react"
@@ -379,7 +379,9 @@
         "context-menu",
         "select",
         "dropdown-menu",
-        "table"
+        "table",
+        "input",
+        "popover"
       ],
       "files": [
         {
@@ -401,6 +403,11 @@
           "path": "./.registry-radix/src/registry/ui/datatable/DataTableEmptyState.tsx",
           "type": "registry:ui",
           "target": "components/ui/datatable/DataTableEmptyState.tsx"
+        },
+        {
+          "path": "./.registry-radix/src/registry/ui/datatable/DataTableFacetedFilter.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableFacetedFilter.tsx"
         },
         {
           "path": "./.registry-radix/src/registry/ui/datatable/DataTableFooter.tsx",
@@ -433,9 +440,19 @@
           "target": "components/ui/datatable/DataTableRow.tsx"
         },
         {
+          "path": "./.registry-radix/src/registry/ui/datatable/DataTableToolbar.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableToolbar.tsx"
+        },
+        {
           "path": "./.registry-radix/src/registry/ui/datatable/context.ts",
           "type": "registry:ui",
           "target": "components/ui/datatable/context.ts"
+        },
+        {
+          "path": "./.registry-radix/src/registry/ui/datatable/filters.ts",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/filters.ts"
         },
         {
           "path": "./.registry-radix/src/registry/ui/datatable/index.ts",

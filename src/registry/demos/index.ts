@@ -7,6 +7,8 @@ export * from "./datatable-action-standalone-demo";
 export * from "./datatable-actions-demo";
 export * from "./datatable-demo";
 export * from "./datatable-expandable-demo";
+export * from "./datatable-filter-toolbar-demo";
+export * from "./datatable-keyboard-demo";
 export * from "./datatable-pinning-demo";
 export * from "./datatable-refs-demo";
 export * from "./datatable-selection-demo";

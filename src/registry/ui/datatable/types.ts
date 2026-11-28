@@ -80,7 +80,18 @@ export interface BaseDataTableProps<T> {
   onExpandedRecordIdsChange?: (ids: React.Key[]) => void;
 
   /**
+   * Arrow keys move a focus cursor between rows (roving `tabIndex`, so the
+   * table is one Tab stop). Enter = row click / expand, Space = toggle
+   * selection (Shift+Space for a range), ArrowRight/Left = expand/collapse,
+   * Home/End/PageUp/PageDown jump, Ctrl/Cmd+A selects the page.
+   */
+  keyboardNavigation?: boolean;
+  /** Fires when the focused row changes under `keyboardNavigation`. */
+  onActiveRowChange?: (record: T, rowIndex: number) => void;
+
+  /**
    * Opt-in parts rendered below the table, e.g. `<DataTablePagination />`.
+   * `<DataTableToolbar />` is the exception: it renders above the table.
    * They read `variant`/`fetching` from the table through context.
    */
   children?: React.ReactNode;
