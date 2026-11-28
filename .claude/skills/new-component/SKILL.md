@@ -93,7 +93,7 @@ Every prop in the component's TS interface must have a row in the API Reference 
 
 8. **Wire form fields into the Form Generator** (required for every form-input component, i.e. anything under `content/docs/form-fields/`). The `/form-generator` page must offer every form field the registry ships. Copy how the closest existing kind is wired (e.g. `combobox` for option-based, `date-multi-picker` for array values):
    - `src/lib/form-generator/types.ts` — add the kind to the `FieldKind` union.
-   - `src/lib/form-generator/field-kinds.ts` — add a `FIELD_KINDS` entry (`kind`, `label`, `component`, `importPath: "@/components/ui/<name>"`, a `lucide-react` icon, `needsOptions: true` if it takes `options`). The `importPath` basename becomes the `shadcn add` name, so it must match the registry item name.
+   - `src/lib/form-generator/field-kinds.ts` — add a `FIELD_KINDS` entry (`kind`, `group` (one of `FIELD_KIND_GROUPS`; the sidebar sorts A-Z inside each group), `label`, `component`, `importPath: "@/components/ui/<name>"`, a `lucide-react` icon, `needsOptions: true` if it takes `options`). The `importPath` basename becomes the `shadcn add` name, so it must match the registry item name.
    - `src/lib/form-generator/schema.ts` — `zodTypeFor` + `defaultValueFor` cases if the value is not a plain string.
    - `src/lib/form-generator/codegen.ts` — matching `zodSource` + `defaultValueSource` cases, a `fieldJsx` `valueProps` case for the component's value/change props, and add the kind to `KINDS_WITHOUT_PLACEHOLDER` if it has no `placeholder` prop.
    - `src/routes/form-generator.tsx` — import the component and add a `renderPreviewField` case.
