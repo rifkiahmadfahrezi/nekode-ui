@@ -9,7 +9,12 @@ function jsStringLiteral(value: string) {
 function zodSource(field: FieldConfig): string {
   const label = field.label || field.name;
   switch (field.kind) {
+    case "otp":
+      return field.required
+        ? `z.string().length(6, ${jsStringLiteral(`${label} must be 6 characters`)})`
+        : `z.string().optional()`;
     case "number":
+    case "currency":
       return field.required
         ? `z.number({ error: ${jsStringLiteral(`${label} is required`)} })`
         : `z.number().optional()`;
@@ -31,6 +36,7 @@ function zodSource(field: FieldConfig): string {
     case "checkbox-group":
     case "combobox-multi":
     case "responsive-multi-select":
+    case "tags":
       return field.required
         ? `z.array(z.string()).min(1, ${jsStringLiteral(`${label} is required`)})`
         : `z.array(z.string()).optional()`;
@@ -48,6 +54,7 @@ function zodSource(field: FieldConfig): string {
 function defaultValueSource(field: FieldConfig): string {
   switch (field.kind) {
     case "number":
+    case "currency":
     case "date-picker":
     case "date-range-picker":
       return "undefined";
@@ -55,6 +62,7 @@ function defaultValueSource(field: FieldConfig): string {
     case "combobox-multi":
     case "responsive-multi-select":
     case "checkbox-group":
+    case "tags":
     case "file":
       return "[]";
     case "checkbox":
@@ -84,6 +92,7 @@ const KINDS_WITHOUT_PLACEHOLDER = new Set<FieldConfig["kind"]>([
   "switch",
   "time-picker",
   "file",
+  "otp",
 ]);
 
 function fieldJsx(field: FieldConfig): string {
@@ -128,7 +137,27 @@ function fieldJsx(field: FieldConfig): string {
         `onValueChange={field.handleChange}`,
       ];
       break;
+    case "otp":
+      valueProps = [
+        `value={field.state.value}`,
+        `onValueChange={field.handleChange}`,
+        `onBlur={field.handleBlur}`,
+      ];
+      break;
     case "number":
+    case "currency":
+      // Required amounts are typed `number`, but the field reports
+      // `undefined` while empty; zod rejects that on submit.
+      valueProps = [
+        `value={field.state.value}`,
+        field.required
+          ? `onValueChange={(value) => field.handleChange(value as number)}`
+          : `onValueChange={field.handleChange}`,
+        `onBlur={field.handleBlur}`,
+      ];
+      break;
+    case "phone":
+    case "tags":
       valueProps = [
         `value={field.state.value}`,
         `onValueChange={field.handleChange}`,
@@ -292,7 +321,7 @@ export function ${componentName}() {
 ${isMultiStep ? "  const [step, setStep] = useState(0);\n" : ""}  const form = useForm({
     defaultValues: {
 ${defaultValueLines}
-    } as FormValues,
+    } as unknown as FormValues,
     validators: {
       onSubmit: formSchema,
     },

@@ -650,6 +650,85 @@
       ]
     },
     {
+      "name": "otp-field",
+      "type": "registry:ui",
+      "title": "OTP Field",
+      "description": "A labeled one-time code / PIN input with one slot per character, paste and autofill support.",
+      "dependencies": [],
+      "registryDependencies": [
+        "field",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/otp-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/otp-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "phone-field",
+      "type": "registry:ui",
+      "title": "Phone Field",
+      "description": "A labeled phone number input with a searchable country code picker that emits E.164 numbers.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "field",
+        "input-group",
+        "popover",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/phone-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/phone-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tags-field",
+      "type": "registry:ui",
+      "title": "Tags Field",
+      "description": "A labeled free-text tag input that turns typed or pasted text into removable chips.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "field",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/tags-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/tags-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "currency-field",
+      "type": "registry:ui",
+      "title": "Currency Field",
+      "description": "A labeled money input that groups thousands as you type, using Intl for locale separators and symbols.",
+      "dependencies": [],
+      "registryDependencies": [
+        "field",
+        "input-group",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/currency-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/currency-field.tsx"
+        }
+      ]
+    },
+    {
       "name": "login-form",
       "type": "registry:block",
       "title": "Login Form",

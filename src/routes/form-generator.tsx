@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ComboboxField } from "@/components/ui/combobox-field";
 import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
+import { CurrencyField } from "@/components/ui/currency-field";
 import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { DateRangePickerField } from "@/components/ui/date-range-picker-field";
@@ -35,7 +36,9 @@ import { FieldSwitch } from "@/components/ui/field-switch";
 import { FileField } from "@/components/ui/file-field";
 import { Label } from "@/components/ui/label";
 import { NumberField } from "@/components/ui/number-field";
+import { OtpField } from "@/components/ui/otp-field";
 import { PasswordField } from "@/components/ui/password-field";
+import { PhoneField } from "@/components/ui/phone-field";
 import {
   Popover,
   PopoverContent,
@@ -45,6 +48,7 @@ import { ResponsiveCombobox } from "@/components/ui/responsive-combobox";
 import { ResponsiveMultiSelect } from "@/components/ui/responsive-multi-select";
 import { RichTextField } from "@/components/ui/rich-text-field";
 import { SelectField } from "@/components/ui/select-field";
+import { TagsField } from "@/components/ui/tags-field";
 import { TextField } from "@/components/ui/text-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
@@ -621,6 +625,45 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
           {...common}
           placeholder={field.placeholder}
           value={formField.state.value}
+          onValueChange={formField.handleChange}
+          onBlur={formField.handleBlur}
+        />
+      );
+    case "currency":
+      return (
+        <CurrencyField
+          {...common}
+          placeholder={field.placeholder || undefined}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+          onBlur={formField.handleBlur}
+        />
+      );
+    case "otp":
+      return (
+        <OtpField
+          {...common}
+          value={formField.state.value ?? ""}
+          onValueChange={formField.handleChange}
+          onBlur={formField.handleBlur}
+        />
+      );
+    case "phone":
+      return (
+        <PhoneField
+          {...common}
+          placeholder={field.placeholder || undefined}
+          value={formField.state.value ?? ""}
+          onValueChange={formField.handleChange}
+          onBlur={formField.handleBlur}
+        />
+      );
+    case "tags":
+      return (
+        <TagsField
+          {...common}
+          placeholder={field.placeholder || undefined}
+          value={formField.state.value ?? []}
           onValueChange={formField.handleChange}
           onBlur={formField.handleBlur}
         />
