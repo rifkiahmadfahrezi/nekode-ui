@@ -1,0 +1,63 @@
+---
+title: ColorPickerField
+description: A hex color input with a swatch button that opens a saturation/brightness and hue picker plus preset colors.
+---
+
+`ColorPickerField` composes `Input`, `Popover`, and `Field`. The text box takes a hex code directly, and the swatch on its left opens a picker with a saturation/brightness area, a hue bar, and preset swatches. The value is always a lowercase `#rrggbb` string, so it is easy to validate and store.
+
+## Installation
+
+<InstallationTabs componentName="color-picker-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/color-picker-field-demo.tsx">
+  <ColorPickerFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+Validate with a hex regex. An empty string means no color, so `required` fields fail until one is picked.
+
+<ComponentPreview path="src/registry/demos/color-picker-field-form-demo.tsx">
+  <ColorPickerFieldFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+- The text input is linked to the label with `htmlFor`, and wires `aria-describedby`, `aria-errormessage`, and `aria-invalid` the same way as `TextField`.
+- The swatch trigger is a real button with an `aria-label` that includes the current color.
+- The saturation/brightness area and the hue bar are `role="slider"` elements you can focus and move with the arrow keys (hold <kbd>Shift</kbd> for bigger steps; <kbd>Home</kbd>/<kbd>End</kbd> on the hue bar).
+- Preset swatches are buttons with `aria-label="Use #hex"` and `aria-pressed` on the current one.
+
+<Callout type="info">
+  Typing updates the value once the text is a full 6-digit hex. Shorthand like `#0af` is expanded on blur, and invalid text is reverted to the last valid color.
+</Callout>
+
+## API Reference
+
+### ColorPickerField
+
+`ColorPickerField` also accepts native `<input>` attributes for the text box (except `value`, `defaultValue`, `onChange`, `type`).
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the input. |
+| `description` | `string` | — | Helper text below the input. Hidden when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `string` | — | Controlled hex color. `""` means no color. |
+| `defaultValue` | `string` | `""` | Initial color when uncontrolled. |
+| `onValueChange` | `(value: string) => void` | — | Called with a lowercase `#rrggbb` string, or `""` when cleared. |
+| `presets` | `string[]` | 12 built-in colors | Swatches shown in the picker. Pass `[]` to hide them. |
+| `placeholder` | `string` | `"#000000"` | Placeholder for the text input. |
+| `required` | `boolean` | `false` | Adds the required asterisk and `aria-required`. |
+| `disabled` | `boolean` | `false` | Disables the input and the swatch trigger. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the input. |
+| `className` | `string` | — | Class name applied to the wrapper around the swatch and input. |
+| `inputClassName` | `string` | — | Class name applied to the text `Input`. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+
+The module also exports `DEFAULT_COLOR_PRESETS` and `normalizeHex(input)`, which returns `#rrggbb` for a valid 3- or 6-digit hex or `null`.

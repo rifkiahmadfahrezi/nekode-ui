@@ -1,0 +1,61 @@
+---
+title: RatingField
+description: A star rating input with hover preview, keyboard support, a custom icon slot, and a read-only mode for showing scores.
+---
+
+`RatingField` renders a row of stars (or any icon you pass) inside a `Field` layout. Hovering previews the score, clicking sets it, and clicking the selected star again clears it. Use it for reviews and feedback forms, or with `readOnly` to display an existing score.
+
+## Installation
+
+<InstallationTabs componentName="rating-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/rating-field-demo.tsx">
+  <RatingFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+The value is a `number` where `0` means "not rated", so `z.number().min(1)` makes it required.
+
+<ComponentPreview path="src/registry/demos/rating-field-form-demo.tsx">
+  <RatingFieldFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+- The stars are a `role="radiogroup"` labelled by the field label via `aria-labelledby`; each star is a `role="radio"` button with `aria-checked` and an `aria-label` from `getItemLabel` (default "3 stars out of 5").
+- Roving tabindex: <kbd>Tab</kbd> lands on the selected star (or the first one), and arrow keys, <kbd>Home</kbd>, and <kbd>End</kbd> move and select.
+- `aria-describedby` points to the description, `aria-errormessage` to the error, and `aria-invalid` follows `error`. `aria-required` and `aria-readonly` are set when relevant.
+- Icons are `aria-hidden`; the button's `aria-label` is the accessible name.
+
+## API Reference
+
+### RatingField
+
+`RatingField` also accepts native `<div>` attributes for the radiogroup element (except `defaultValue`, `onChange`, `children`).
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the stars. |
+| `description` | `string` | — | Helper text below the stars. Hidden when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `number` | — | Controlled rating. `0` means nothing is selected. |
+| `defaultValue` | `number` | `0` | Initial rating when uncontrolled. |
+| `onValueChange` | `(value: number) => void` | — | Called with the new rating (`0` when cleared). |
+| `max` | `number` | `5` | Number of items. |
+| `allowClear` | `boolean` | `true` | Clicking the selected item again resets the rating to `0`. |
+| `readOnly` | `boolean` | `false` | Show the rating without letting the user change it. |
+| `disabled` | `boolean` | `false` | Disables every item. |
+| `required` | `boolean` | `false` | Adds the required asterisk and `aria-required`. |
+| `name` | `string` | — | Name for a hidden input, so a plain `<form>` submit includes the value. |
+| `size` | `"sm" \| "default" \| "lg"` | `"default"` | Icon size. |
+| `icon` | `ReactNode` | `<Star />` | Icon for each item. Filled items get `fill-current` and the `data-filled` attribute. |
+| `getItemLabel` | `(value: number, max: number) => string` | `"n stars out of max"` | Accessible name for each item. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the stars. |
+| `className` | `string` | — | Class name applied to the radiogroup. Target `[data-filled]` to recolor filled items. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |

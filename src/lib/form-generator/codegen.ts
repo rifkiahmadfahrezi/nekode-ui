@@ -34,7 +34,20 @@ function zodSource(field: FieldConfig): string {
       return field.required
         ? `z.array(z.string()).min(1, ${jsStringLiteral(`${label} is required`)})`
         : `z.array(z.string()).optional()`;
+    case "slider":
+      return `z.number()`;
+    case "range-slider":
+      return `z.tuple([z.number(), z.number()])`;
+    case "rating":
+      return field.required
+        ? `z.number().min(1, ${jsStringLiteral(`${label} is required`)})`
+        : `z.number().optional()`;
+    case "color-picker":
+      return field.required
+        ? `z.string().regex(/^#[0-9a-f]{6}$/i, ${jsStringLiteral(`${label} is required`)})`
+        : `z.string().optional()`;
     case "file":
+    case "image-dropzone":
       return field.required
         ? `z.array(z.instanceof(File)).min(1, ${jsStringLiteral(`${label} is required`)})`
         : `z.array(z.instanceof(File)).optional()`;
@@ -56,7 +69,14 @@ function defaultValueSource(field: FieldConfig): string {
     case "responsive-multi-select":
     case "checkbox-group":
     case "file":
+    case "image-dropzone":
       return "[]";
+    case "slider":
+      return "50";
+    case "range-slider":
+      return "[25, 75]";
+    case "rating":
+      return "0";
     case "checkbox":
     case "switch":
       return "false";
@@ -84,6 +104,10 @@ const KINDS_WITHOUT_PLACEHOLDER = new Set<FieldConfig["kind"]>([
   "switch",
   "time-picker",
   "file",
+  "image-dropzone",
+  "slider",
+  "range-slider",
+  "rating",
 ]);
 
 function fieldJsx(field: FieldConfig): string {
@@ -145,6 +169,30 @@ function fieldJsx(field: FieldConfig): string {
       valueProps = [
         `value={field.state.value}`,
         `onValueChange={field.handleChange}`,
+      ];
+      break;
+    case "image-dropzone":
+      valueProps = [
+        `accept="image/*"`,
+        `multiple`,
+        `previewLayout="grid"`,
+        `value={field.state.value}`,
+        `onValueChange={field.handleChange}`,
+      ];
+      break;
+    case "slider":
+    case "range-slider":
+      valueProps = [
+        `value={field.state.value}`,
+        `onValueChange={field.handleChange}`,
+      ];
+      break;
+    case "rating":
+    case "color-picker":
+      valueProps = [
+        `value={field.state.value}`,
+        `onValueChange={field.handleChange}`,
+        `onBlur={field.handleBlur}`,
       ];
       break;
     case "file":

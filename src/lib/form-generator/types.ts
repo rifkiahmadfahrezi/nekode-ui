@@ -17,7 +17,12 @@ export type FieldKind =
   | "date-range-picker"
   | "date-multi-picker"
   | "time-picker"
-  | "file";
+  | "file"
+  | "image-dropzone"
+  | "slider"
+  | "range-slider"
+  | "rating"
+  | "color-picker";
 
 export interface FieldOption {
   label: string;
