@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
+import { ComboboxField } from "@/components/ui/combobox-field";
 
 const frameworks = [
   { label: "Next.js", value: "nextjs" },
@@ -12,20 +12,22 @@ const frameworks = [
   { label: "TanStack Start", value: "tanstack-start" },
 ];
 
-export function ComboboxMultiFieldDemo() {
+export function ComboboxFieldMultipleDemo() {
   const [stacked, setStacked] = useState(["nextjs", "remix", "astro"]);
   const [hidden, setHidden] = useState(["nextjs", "remix", "astro", "nuxt"]);
 
   return (
     <div className="flex w-72 flex-col gap-6">
-      <ComboboxMultiField
+      <ComboboxField
+        multiple
         label="Frameworks (stack)"
         description="Selected items wrap onto new lines."
         options={frameworks}
         value={stacked}
         onValueChange={setStacked}
       />
-      <ComboboxMultiField
+      <ComboboxField
+        multiple
         label="Frameworks (hide)"
         description="Overflowing items collapse into a count."
         options={frameworks}

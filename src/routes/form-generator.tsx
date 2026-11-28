@@ -22,8 +22,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ComboboxField } from "@/components/ui/combobox-field";
-import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
-import { CurrencyField } from "@/components/ui/currency-field";
 import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { DateRangePickerField } from "@/components/ui/date-range-picker-field";
@@ -692,8 +690,9 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
       );
     case "combobox-multi":
       return (
-        <ComboboxMultiField
+        <ComboboxField
           {...common}
+          multiple
           placeholder={field.placeholder}
           options={field.options ?? []}
           value={formField.state.value ?? []}

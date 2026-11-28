@@ -11,10 +11,10 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import {
-  ComboboxMultiField,
-  type ComboboxMultiFieldOption,
-  type ComboboxMultiFieldProps,
-} from "@/components/ui/combobox-multi-field";
+  ComboboxField,
+  type ComboboxFieldMultipleProps,
+  type ComboboxFieldOption,
+} from "@/components/ui/combobox-field";
 import {
   Drawer,
   DrawerClose,
@@ -33,9 +33,10 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
-export type ResponsiveMultiSelectOption = ComboboxMultiFieldOption;
+export type ResponsiveMultiSelectOption = ComboboxFieldOption;
 
-export interface ResponsiveMultiSelectProps extends ComboboxMultiFieldProps {
+export interface ResponsiveMultiSelectProps
+  extends Omit<ComboboxFieldMultipleProps, "multiple"> {
   /** Drawer heading on mobile. Falls back to `label`, then `placeholder`. */
   drawerTitle?: string;
   /** Optional helper text under the drawer heading on mobile. */
@@ -53,7 +54,7 @@ const itemClassName =
   "py-2.5 data-selected:bg-primary/10 data-selected:font-medium data-selected:text-primary data-selected:data-highlighted:bg-primary/15 data-selected:data-highlighted:text-primary";
 
 /**
- * Searchable multi select. Renders `ComboboxMultiField` (chips + popover) on
+ * Searchable multi select. Renders `<ComboboxField multiple />` (chips + popover) on
  * desktop and a trigger that opens a bottom `Drawer` with the search list on
  * mobile.
  */
@@ -67,7 +68,7 @@ export const ResponsiveMultiSelect = React.forwardRef<
   ) => {
     const isMobile = useIsMobile();
 
-    if (!isMobile) return <ComboboxMultiField ref={ref} {...props} />;
+    if (!isMobile) return <ComboboxField ref={ref} {...props} multiple />;
 
     return (
       <ResponsiveMultiSelectDrawer
@@ -258,10 +259,10 @@ const ResponsiveMultiSelectDrawer = React.forwardRef<
               inline
               open={open}
               items={options}
-              itemToStringLabel={(item: ComboboxMultiFieldOption) => item.label}
-              itemToStringValue={(item: ComboboxMultiFieldOption) => item.value}
+              itemToStringLabel={(item: ComboboxFieldOption) => item.label}
+              itemToStringValue={(item: ComboboxFieldOption) => item.value}
               value={selectedItems}
-              onValueChange={(items: ComboboxMultiFieldOption[]) =>
+              onValueChange={(items: ComboboxFieldOption[]) =>
                 onValueChange(items.map((item) => item.value))
               }
               autoHighlight={autoHighlight}
@@ -279,7 +280,7 @@ const ResponsiveMultiSelectDrawer = React.forwardRef<
                 {emptyText}
               </ComboboxEmpty>
               <ComboboxList className="max-h-none min-h-0 flex-1 px-3 pt-2">
-                {(item: ComboboxMultiFieldOption) => (
+                {(item: ComboboxFieldOption) => (
                   <ComboboxItem
                     key={item.value}
                     value={item}

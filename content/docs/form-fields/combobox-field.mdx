@@ -1,9 +1,11 @@
 ---
 title: ComboboxField
-description: A searchable, labeled combobox with clear, loading, and async-friendly states, built on Base UI's Combobox primitives.
+description: A searchable, labeled combobox with clear, loading, and async-friendly states, built on Base UI's Combobox primitives. Pass `multiple` to select several options as chips.
 ---
 
 `ComboboxField` wraps Base UI's `Combobox` primitives with the same `Field` layout as `TextField`: a label, an optional description, and error handling in one piece. It behaves like `SelectField`, but the trigger is a real text input people can type into to filter `items`, plus a clear button and a `loading` state for when those items come from the network.
+
+Add the `multiple` prop to let people pick more than one option. The value becomes a `string[]` and each selection renders as a removable chip inside the input.
 
 ## Installation
 
@@ -21,6 +23,54 @@ Every prop that changes how `ComboboxField` looks or behaves is exposed here. To
 
 <ComboboxFieldPlaygroundDemo />
 
+## Multiple
+
+Pass `multiple` and the field switches to a chip input. `value` and `onValueChange` now work with `string[]`, and two extra props become available: `overflow` and `showAllSelectedLabel`.
+
+<ComponentPreview path="src/registry/demos/combobox-field-multiple-demo.tsx">
+  <ComboboxFieldMultipleDemo />
+</ComponentPreview>
+
+```tsx
+// Single (default): value is a string
+<ComboboxField
+  options={options}
+  value={country}
+  onValueChange={(value) => setCountry(value ?? "")}
+/>
+
+// Multiple: value is a string[]
+<ComboboxField
+  multiple
+  options={options}
+  value={countries}
+  onValueChange={setCountries}
+  overflow="hide"
+/>
+```
+
+### Type-safe props
+
+`ComboboxFieldProps` is a discriminated union on `multiple`, so TypeScript picks the right types for you and flags mismatches at compile time:
+
+| `multiple` | `value` | `onValueChange` | `overflow` / `showAllSelectedLabel` |
+|---|---|---|---|
+| omitted or `false` | `string` | `(value: string \| undefined) => void` | not allowed |
+| `true` | `string[]` | `(value: string[]) => void` | allowed |
+
+```tsx
+// ✅ OK
+<ComboboxField multiple value={["id"]} onValueChange={(v) => v.length} options={options} />
+
+// ❌ Type error: `multiple` needs a string[] value
+<ComboboxField multiple value="id" onValueChange={() => {}} options={options} />
+
+// ❌ Type error: `overflow` only exists with `multiple`
+<ComboboxField value="id" onValueChange={() => {}} overflow="hide" options={options} />
+```
+
+If you build a wrapper around `ComboboxField`, extend `ComboboxFieldSingleProps` or `ComboboxFieldMultipleProps` (both exported), or accept the full `ComboboxFieldProps` union and spread it through.
+
 ## Examples
 
 ### With TanStack Form and Zod
@@ -35,12 +85,28 @@ Two fields: `assignee` is required, `label` is optional and clearable. `Combobox
   `onValueChange` gives you `string | undefined`, never `""`. If a field is required, coerce the `undefined` case yourself — the demo above uses `field.handleChange(value ?? "")` on `assignee` so Zod's `.min(1, ...)` has a string to reject.
 </Callout>
 
+### Multiple with TanStack Form and Zod
+
+A required `skills` field that needs at least two picks. With `multiple`, `onValueChange` already hands back a `string[]`, so `field.handleChange` can be passed straight through.
+
+<ComponentPreview path="src/registry/demos/combobox-field-multiple-form-demo.tsx">
+  <ComboboxFieldMultipleFormDemo />
+</ComponentPreview>
+
 ## Behavior
 
 - **`items` is the full option list, not paged or async by itself.** `ComboboxField` filters client-side as the person types. If your options come from an API, fetch them yourself and pass `loading` while the request is in flight — the component doesn't fetch anything on its own.
 - **`loading` forces the clear button off**, regardless of `showClear`, and replaces it with a spinner. The two aren't meant to share the space.
 - **`loading` also disables the field**, same as `disabled` — there's no way to interact with a combobox while its options are still arriving.
 - **The value is matched against `items` by `value`, not held as free text.** If `value` doesn't match any item's `value` (e.g. the list hasn't loaded yet), the input shows as empty rather than showing a stale label.
+
+With `multiple`:
+
+- **`overflow="stack"`** (default) wraps chips onto as many lines as they need.
+- **`overflow="hide"`** keeps the chips on one line. Chips that don't fit, with room left for the search input, are replaced by "and N more...". The count updates when the field resizes.
+- **When every option is selected** and `showAllSelectedLabel` is on, the chips are replaced by "All N items are selected", where N is `options.length`. It defaults to on for `overflow="hide"` and off for `overflow="stack"`.
+- **The clear button clears every selection** at once and has `aria-label="Clear selection"`.
+- **The default placeholder is `"Select options"`**, and it hides once at least one chip is shown.
 
 ## Accessibility
 
@@ -66,11 +132,15 @@ Like `SelectField`, `ComboboxField`'s props aren't a superset of a native HTML e
 | `label` | `string` | — | Label rendered above (or beside) the input. |
 | `description` | `string` | — | Helper text shown below the input. Hidden automatically when `error` is set. |
 | `error` | `string` | — | Validation message. Switches the field into an invalid state and renders through `FieldError`. |
-| `placeholder` | `string` | `"Select an option"` | Shown in the input when no value is selected. |
+| `placeholder` | `string` | `"Select an option"` (`"Select options"` with `multiple`) | Shown in the input when no value is selected. |
 | `emptyText` | `string` | `"No results found."` | Shown in the list when filtering matches nothing. |
 | `options` | `ComboboxFieldOption[]` | — | **Required.** The full list of selectable options. |
-| `value` | `string` | — | Controlled value, matched against `options` by `value`. |
-| `onValueChange` | `(value: string \| undefined) => void` | — | Fires with the selected item's value, or `undefined` when cleared. |
+| `multiple` | `boolean` | `false` | Allow selecting several options. Changes the types of `value` and `onValueChange` (see [Type-safe props](#type-safe-props)). |
+| `value` | `string` (single) or `string[]` (`multiple`) | — | **Required.** Controlled value, matched against `options` by `value`. |
+| `onValueChange` | `(value: string \| undefined) => void` (single) or `(value: string[]) => void` (`multiple`) | — | **Required.** Fires with the selected value. In single mode it gets `undefined` when cleared. |
+| `overflow` | `"stack" \| "hide"` | `"stack"` | `multiple` only. Wrap chips onto new lines, or keep one line and show "and N more...". |
+| `showAllSelectedLabel` | `boolean` | `overflow === "hide"` | `multiple` only. Replace the chips with "All N items are selected" once every option is selected. |
+| `id` | `string` | auto | Input id. Generated when omitted. |
 | `name` | `string` | — | Forwarded to the underlying input, for native form submission. |
 | `loading` | `boolean` | `false` | Shows a spinner in place of the clear button and disables the field. Use while `items` is being fetched. |
 | `showClear` | `boolean` | `true` | Shows a clear ("×") button once a value is selected. Forced off while `loading`. |
@@ -78,7 +148,7 @@ Like `SelectField`, `ComboboxField`'s props aren't a superset of a native HTML e
 | `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the input. |
 | `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
 | `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
-| `inputClassName` | `string` | — | Class name applied to the `ComboboxInput`. |
+| `inputClassName` | `string` | — | Class name applied to the `ComboboxInput`, or to the chips container with `multiple`. |
 | `required` | `boolean` | `false` | Marks the field as required and adds the asterisk indicator. |
 | `disabled` | `boolean` | `false` | Disables the field and dims the label. |
 

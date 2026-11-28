@@ -3,7 +3,7 @@ title: ResponsiveMultiSelect
 description: A searchable multi select with chips and a popover on desktop, and a bottom drawer on mobile.
 ---
 
-`ResponsiveMultiSelect` keeps the desktop experience of [`ComboboxMultiField`](/docs/form-fields/combobox-multi-field) (removable chips inside the input, with a popover list) and swaps it for a touch-friendly trigger plus a shadcn `Drawer` on small screens. Inside the drawer, the search input and list are Base UI's `Combobox` in `multiple` mode rendered inline, so users can tick several options and close the drawer with **Done**.
+`ResponsiveMultiSelect` keeps the desktop experience of [`<ComboboxField multiple />`](/docs/form-fields/combobox-field#multiple) (removable chips inside the input, with a popover list) and swaps it for a touch-friendly trigger plus a shadcn `Drawer` on small screens. Inside the drawer, the search input and list are Base UI's `Combobox` in `multiple` mode rendered inline, so users can tick several options and close the drawer with **Done**.
 
 Resize your browser below `768px` (the `useIsMobile` breakpoint) to see the drawer.
 
@@ -27,7 +27,7 @@ Resize your browser below `768px` (the `useIsMobile` breakpoint) to see the draw
 
 ## Behavior
 
-- **Desktop (`≥ 768px`)** renders `ComboboxMultiField` with every prop forwarded, including `overflow` and `showAllSelectedLabel`.
+- **Desktop (`≥ 768px`)** renders `<ComboboxField multiple />` with every prop forwarded, including `overflow` and `showAllSelectedLabel`.
 - **Mobile (`< 768px`)** renders a button styled like an input that lists the selected options as chips. Tapping it opens a bottom drawer with a search input, the option list, and a footer with **Clear** and **Done (N)**.
 - **Selections apply immediately**: `onValueChange` fires on every tick, and the drawer stays open until the user taps **Done** or swipes it down.
 - **`overflow="hide"`** on mobile keeps the trigger on one line and shows the first chip plus "and N more...". `showAllSelectedLabel` shows "All N items are selected" once every option is picked.
@@ -46,7 +46,7 @@ Resize your browser below `768px` (the `useIsMobile` breakpoint) to see the draw
 
 ### ResponsiveMultiSelect
 
-Accepts every [`ComboboxMultiField`](/docs/form-fields/combobox-multi-field#api-reference) prop, plus the mobile-only props below.
+Accepts every [`ComboboxField`](/docs/form-fields/combobox-field#api-reference) prop for `multiple` mode, plus the mobile-only props below.
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
