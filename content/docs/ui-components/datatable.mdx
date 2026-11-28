@@ -5,7 +5,7 @@ description: A data table with sorting, selection, column pinning, and expandabl
 
 `DataTable` renders tabular data without you wiring up sorting, selection, or pagination by hand. The core wraps `Table` and `Checkbox`, and splits its internals into memoized pieces so toggling one row's selection doesn't re-render the other 500. Reach for it whenever a page needs more than a static table: bulk actions, a column pinned while the rest scrolls, or rows that expand into detail.
 
-Features that pull in heavier primitives are separate components you compose in only when you need them: [`DataTablePagination`](#datatablepagination), [`DataTableRecordsPerPage`](#datatablerecordsperpage) (uses `Select`), [`DataTableContextMenu`](#datatablecontextmenu) (uses `ContextMenu`), and [`DataTableAction`](#datatableaction) (uses `DropdownMenu`). A table that only renders a list never ships their code: the core is about 22 KB gzipped, versus about 74 KB with every part included.
+Features that pull in heavier primitives are separate components you compose in only when you need them: [`DataTablePagination`](#datatablepagination), [`DataTableRecordsPerPage`](#datatablerecordsperpage) (uses `Select`), [`DataTableContextMenu`](#datatablecontextmenu) (uses `ContextMenu`), and [`DataTableAction`](#datatableaction) (uses `DropdownMenu`), and [`DataTableVirtualBody`](#datatablevirtualbody) (uses `@tanstack/react-virtual`, installed separately). A table that only renders a list never ships their code: the core is about 22 KB gzipped, versus about 74 KB with every part included.
 
 ## Installation
 
@@ -138,6 +138,14 @@ The [ref props](#refs), `headerRef`, `bodyRef`, `tableRef`, and `scrollViewportR
 
 <ComponentPreview path="src/registry/demos/datatable-refs-demo.tsx" allowFullscreen>
   <DataTableRefsDemo />
+</ComponentPreview>
+
+### Virtualized rows for large datasets
+
+Add [`DataTableVirtualBody`](#datatablevirtualbody) as a child and give the table a `height`. Only the rows in view, plus a few above and below, are mounted, so 10,000 rows scroll as smoothly as 20. Selection, shift-click ranges, sorting, pinning and expandable rows keep working because every row still gets its real index in `data`. It's a separate registry item, so tables that don't use it never install `@tanstack/react-virtual`.
+
+<ComponentPreview path="src/registry/demos/datatable-virtual-demo.tsx" allowFullscreen>
+  <DataTableVirtualDemo />
 </ComponentPreview>
 
 ## Accessibility
@@ -317,6 +325,35 @@ const getRowActions = (user: User) => {
 | `pagination.onRecordsPerPageChange` / `recordsPerPageOptions` | `<DataTableRecordsPerPage value={recordsPerPage} onValueChange={...} options={...} />` inside `DataTablePagination` |
 | `rowContextMenu={getActions}` | wrap the table: `<DataTableContextMenu items={getActions}>…</DataTableContextMenu>` |
 | `footerRef={ref}` | `ref={ref}` on `DataTablePagination` |
+
+## DataTableVirtualBody
+
+Opt-in row virtualization, built on [`@tanstack/react-virtual`](https://tanstack.com/virtual). It lives in its own file and its own registry item, so the dependency is installed only when you add it:
+
+<InstallationTabs componentName="datatable-virtual" />
+
+Import it from its own file, not from the `datatable` index, so the core table stays free of the dependency:
+
+```tsx
+import { DataTable } from "@/components/ui/datatable";
+import { DataTableVirtualBody } from "@/components/ui/datatable/DataTableVirtualBody";
+
+<DataTable data={rows} columns={columns} idAccessor="id" height={480}>
+  <DataTableVirtualBody />
+</DataTable>
+```
+
+It must be a **direct** child of `DataTable`. Instead of rendering below the table like `DataTablePagination`, it takes over the `<tbody>`: it renders the visible rows between two spacer rows that keep the scrollbar the right size. Rows are measured after they render, so rows of different heights and expanded rows are handled; `estimateRowHeight` only matters before that first measurement.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `estimateRowHeight` | `number` | `41` | Row height in pixels used until a row has been measured. A closer guess means less scrollbar jump on the first scroll. |
+| `overscan` | `number` | `10` | Extra rows rendered above and below the visible area. |
+| `virtualizerRef` | `React.Ref<DataTableVirtualizer \| null>` | — | The underlying TanStack virtualizer, e.g. `ref.current?.scrollToIndex(500, { align: "center" })`. |
+
+<Callout type="info">
+  `height` is required. Without it the table doesn't scroll on its own, every row is rendered, and a warning is logged. Virtualize when you have a few thousand rows on the client; for bigger data sets, page on the server with `DataTablePagination` instead. Rows that aren't mounted can't be found with the browser's Ctrl+F.
+</Callout>
 
 ---
 

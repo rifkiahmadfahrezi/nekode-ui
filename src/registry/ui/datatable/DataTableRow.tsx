@@ -159,6 +159,7 @@ function DataTableRowInner<T>({
   const mainRow = (
     <TableRow
       ref={(el: HTMLTableRowElement | null) => rowRef?.(el, record, rowIndex)}
+      data-row-index={rowIndex}
       data-state={isSelected ? "selected" : undefined}
       className={rowShellClassName}
       style={rowStyle}
@@ -183,6 +184,7 @@ function DataTableRowInner<T>({
     <React.Fragment>
       {mainRow}
       <TableRow
+        data-subrow=""
         className={cn(
           "hover:bg-transparent",
           variant === "borderless" && "border-0",

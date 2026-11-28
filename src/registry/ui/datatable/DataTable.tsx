@@ -3,7 +3,12 @@
 import * as React from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { DataTableContext } from "./context";
+import {
+  DataTableBodyContext,
+  type DataTableBodyContextValue,
+  DataTableContext,
+  isDataTableBodySlot,
+} from "./context";
 import { DataTableEmptyState } from "./DataTableEmptyState";
 import { DataTableFooter } from "./DataTableFooter";
 import { DataTableHeader } from "./DataTableHeader";
@@ -444,6 +449,94 @@ export function DataTable<
     [variant, sticky, fetching],
   );
 
+  /* ------------------------------- Body slot ------------------------------- */
+
+  // A child like `DataTableVirtualBody` replaces the default row loop. It's
+  // found by a marker on its type, so this file never imports its code.
+  let bodySlot: React.ReactElement | null = null;
+  const belowChildren = React.Children.map(children, (child) => {
+    if (isDataTableBodySlot(child)) {
+      bodySlot = child;
+      return null;
+    }
+    return child;
+  });
+
+  // Set by a body slot that can scroll off-screen rows into view.
+  const scrollToRowIndexRef = React.useRef<((index: number) => void) | null>(
+    null,
+  );
+  const registerScrollToRowIndex = React.useCallback(
+    (fn: ((index: number) => void) | null) => {
+      scrollToRowIndexRef.current = fn;
+    },
+    [],
+  );
+
+  const renderRow = (rowIndex: number) => {
+    const record = data[rowIndex];
+    const rowId = getRecordId(record, idAccessor);
+    const isSelected = selectedIds.has(rowId);
+    const isExpanded = expandedSet.has(rowId);
+    const canExpand =
+      expandable && (rowExpandable ? rowExpandable(record, rowIndex) : true);
+    const resolvedRowClassName =
+      typeof rowClassName === "function"
+        ? rowClassName(record, rowIndex)
+        : rowClassName;
+    const resolvedRowStyle =
+      typeof rowStyle === "function" ? rowStyle(record, rowIndex) : rowStyle;
+
+    return (
+      <DataTableRow<T>
+        key={rowId}
+        record={record}
+        rowIndex={rowIndex}
+        columns={orderedColumns}
+        selectable={selectable}
+        expandable={expandable}
+        selectionColWidth={SELECTION_COL_WIDTH}
+        expandColWidth={EXPAND_COL_WIDTH}
+        isSelected={isSelected}
+        isExpanded={isExpanded}
+        canExpand={canExpand}
+        renderSubContent={renderRowSubContent}
+        onToggleSelect={handleToggleSelect}
+        onToggleExpand={toggleExpand}
+        onRowClick={onRowClick ? handleRowClick : undefined}
+        expandOnRowClick={expandOnRowClick}
+        highlightOnHover={highlightOnHover}
+        rowClassName={resolvedRowClassName}
+        rowStyle={resolvedRowStyle}
+        getColumnKey={getColumnKey}
+        pinnedCellStyle={pinnedCellStyle}
+        pinnedCellClassName={pinnedCellClassName}
+        leadingGutter={leadingGutter}
+        totalCols={totalCols}
+        variant={variant}
+        rowRef={rowRef ? handleRowRef : undefined}
+      />
+    );
+  };
+
+  // Stable per data/idAccessor so a virtualizer doesn't rebuild its
+  // measurements on every render.
+  const getRowKey = React.useCallback(
+    (index: number) => getRecordId(data[index], idAccessor),
+    [data, idAccessor],
+  );
+
+  const bodyContextValue: DataTableBodyContextValue = {
+    count: data.length,
+    height,
+    getRowKey,
+    renderRow,
+    totalCols,
+    scrollElementRef: scrollRef,
+    headerElementRef: headRef,
+    registerScrollToRowIndex,
+  };
+
   /* --------------------------------- Render --------------------------------- */
 
   return (
@@ -510,54 +603,12 @@ export function DataTable<
                   text={fetching ? "" : noRecordsText}
                   colSpan={totalCols}
                 />
+              ) : bodySlot ? (
+                <DataTableBodyContext.Provider value={bodyContextValue}>
+                  {bodySlot}
+                </DataTableBodyContext.Provider>
               ) : (
-                data.map((record, rowIndex) => {
-                  const rowId = getRecordId(record, idAccessor);
-                  const isSelected = selectedIds.has(rowId);
-                  const isExpanded = expandedSet.has(rowId);
-                  const canExpand =
-                    expandable &&
-                    (rowExpandable ? rowExpandable(record, rowIndex) : true);
-                  const resolvedRowClassName =
-                    typeof rowClassName === "function"
-                      ? rowClassName(record, rowIndex)
-                      : rowClassName;
-                  const resolvedRowStyle =
-                    typeof rowStyle === "function"
-                      ? rowStyle(record, rowIndex)
-                      : rowStyle;
-
-                  return (
-                    <DataTableRow<T>
-                      key={rowId}
-                      record={record}
-                      rowIndex={rowIndex}
-                      columns={orderedColumns}
-                      selectable={selectable}
-                      expandable={expandable}
-                      selectionColWidth={SELECTION_COL_WIDTH}
-                      expandColWidth={EXPAND_COL_WIDTH}
-                      isSelected={isSelected}
-                      isExpanded={isExpanded}
-                      canExpand={canExpand}
-                      renderSubContent={renderRowSubContent}
-                      onToggleSelect={handleToggleSelect}
-                      onToggleExpand={toggleExpand}
-                      onRowClick={onRowClick ? handleRowClick : undefined}
-                      expandOnRowClick={expandOnRowClick}
-                      highlightOnHover={highlightOnHover}
-                      rowClassName={resolvedRowClassName}
-                      rowStyle={resolvedRowStyle}
-                      getColumnKey={getColumnKey}
-                      pinnedCellStyle={pinnedCellStyle}
-                      pinnedCellClassName={pinnedCellClassName}
-                      leadingGutter={leadingGutter}
-                      totalCols={totalCols}
-                      variant={variant}
-                      rowRef={rowRef ? handleRowRef : undefined}
-                    />
-                  );
-                })
+                data.map((_, rowIndex) => renderRow(rowIndex))
               )}
             </TableBody>
 
@@ -578,9 +629,9 @@ export function DataTable<
         </div>
       </div>
 
-      {children != null && (
+      {belowChildren != null && belowChildren.length > 0 && (
         <DataTableContext.Provider value={contextValue}>
-          {children}
+          {belowChildren}
         </DataTableContext.Provider>
       )}
     </div>
