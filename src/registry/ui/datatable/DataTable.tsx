@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { DataTableContext } from "./context";
+import { DataTableContext, isToolbarSlot } from "./context";
 import { DataTableEmptyState } from "./DataTableEmptyState";
 import { DataTableFooter } from "./DataTableFooter";
 import { DataTableHeader } from "./DataTableHeader";
@@ -76,6 +76,8 @@ export function DataTable<
     rowRef,
     sortStatus,
     onSortStatusChange,
+    keyboardNavigation = false,
+    onActiveRowChange,
     children,
   } = props as BaseDataTableProps<T> & SortProps<T>;
 
@@ -444,7 +446,183 @@ export function DataTable<
     [variant, sticky, fetching],
   );
 
+  /* --------------------------- Keyboard navigation -------------------------- */
+
+  const bodyElRef = React.useRef<HTMLTableSectionElement>(null);
+  const mergedBodyRef = useMergedRef(bodyElRef, bodyRef);
+  // Virtualized bodies register a scroll-to-index here so keyboard nav can
+  // reach rows that aren't mounted yet.
+  const scrollToRowIndexRef = React.useRef<((index: number) => void) | null>(
+    null,
+  );
+  const [activeIndexState, setActiveIndex] = React.useState(0);
+  // Clamp instead of resetting so filtering keeps the cursor near where it was.
+  const activeIndex = Math.max(0, Math.min(activeIndexState, data.length - 1));
+  const focusFrame = React.useRef(0);
+  React.useEffect(() => () => cancelAnimationFrame(focusFrame.current), []);
+
+  const keepRowInView = React.useCallback(
+    (row: HTMLElement) => {
+      const viewport = scrollRef.current;
+      if (!sticky || !viewport) {
+        row.scrollIntoView?.({ block: "nearest" });
+        return;
+      }
+      // The sticky header/footer cover the viewport's edges, so plain
+      // scrollIntoView would leave the row underneath them.
+      const top = headRef.current?.getBoundingClientRect().height ?? 0;
+      const bottom =
+        tableElRef.current?.tFoot?.getBoundingClientRect().height ?? 0;
+      const v = viewport.getBoundingClientRect();
+      const r = row.getBoundingClientRect();
+      if (r.top < v.top + top) viewport.scrollTop -= v.top + top - r.top;
+      else if (r.bottom > v.bottom - bottom)
+        viewport.scrollTop += r.bottom - (v.bottom - bottom);
+    },
+    [sticky],
+  );
+
+  const focusRow = React.useCallback(
+    (index: number) => {
+      cancelAnimationFrame(focusFrame.current);
+      const find = () =>
+        bodyElRef.current?.querySelector<HTMLElement>(
+          `tr[data-row-index="${index}"]`,
+        );
+      const apply = (row: HTMLElement) => {
+        row.focus({ preventScroll: true });
+        keepRowInView(row);
+      };
+      const row = find();
+      if (row) return apply(row);
+      scrollToRowIndexRef.current?.(index);
+      // Give a virtualizer a few frames to mount the row.
+      let tries = 10;
+      const retry = () => {
+        const mounted = find();
+        if (mounted) apply(mounted);
+        else if (--tries > 0) focusFrame.current = requestAnimationFrame(retry);
+      };
+      focusFrame.current = requestAnimationFrame(retry);
+    },
+    [keepRowInView],
+  );
+
+  const activeChangeRef = React.useRef(onActiveRowChange);
+  React.useLayoutEffect(() => {
+    activeChangeRef.current = onActiveRowChange;
+  });
+  const lastReported = React.useRef<number | null>(null);
+  const reportActive = React.useCallback((index: number) => {
+    if (lastReported.current === index) return;
+    lastReported.current = index;
+    const record = latest.current.data[index];
+    if (record !== undefined) activeChangeRef.current?.(record, index);
+  }, []);
+
+  const moveTo = React.useCallback(
+    (index: number) => {
+      setActiveIndex(index);
+      reportActive(index);
+      focusRow(index);
+    },
+    [focusRow, reportActive],
+  );
+
+  const handleBodyFocus = React.useCallback(
+    (event: React.FocusEvent<HTMLTableSectionElement>) => {
+      const target = event.target as HTMLElement;
+      if (target.tagName !== "TR" || !target.dataset.rowIndex) return;
+      const index = Number(target.dataset.rowIndex);
+      setActiveIndex(index);
+      reportActive(index);
+    },
+    [reportActive],
+  );
+
+  const handleBodyKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement;
+    // Only keys pressed on the row itself; inputs/buttons in cells keep theirs.
+    if (target.tagName !== "TR" || !target.dataset.rowIndex) return;
+    const index = Number(target.dataset.rowIndex);
+    const record = data[index];
+    if (record === undefined) return;
+    const last = data.length - 1;
+    const canExpand =
+      expandable && (rowExpandable ? rowExpandable(record, index) : true);
+    const isExpanded = expandedSet.has(getRecordId(record, idAccessor));
+    const mod = event.ctrlKey || event.metaKey;
+
+    let handled = true;
+    switch (event.key) {
+      case "ArrowDown":
+        moveTo(Math.min(last, index + 1));
+        break;
+      case "ArrowUp":
+        moveTo(Math.max(0, index - 1));
+        break;
+      case "Home":
+        moveTo(0);
+        break;
+      case "End":
+        moveTo(last);
+        break;
+      case "PageDown":
+      case "PageUp": {
+        const step = Math.max(
+          1,
+          Math.floor(
+            (scrollRef.current?.clientHeight || window.innerHeight) /
+              Math.max(1, target.getBoundingClientRect().height || 40),
+          ) - 1,
+        );
+        moveTo(
+          event.key === "PageDown"
+            ? Math.min(last, index + step)
+            : Math.max(0, index - step),
+        );
+        break;
+      }
+      case "ArrowRight":
+        if (canExpand && !isExpanded) toggleExpand(record);
+        else handled = false;
+        break;
+      case "ArrowLeft":
+        if (canExpand && isExpanded) toggleExpand(record);
+        else handled = false;
+        break;
+      case "Enter":
+        if (canExpand && (expandOnRowClick || !onRowClick))
+          toggleExpand(record);
+        if (onRowClick) onRowClick(record, index);
+        else if (!canExpand) handled = false;
+        break;
+      case " ":
+        if (selectable) handleToggleSelect(record, index, event.shiftKey);
+        else handled = false;
+        break;
+      case "a":
+      case "A":
+        if (mod && selectable) {
+          if (!allChecked) handleToggleAll();
+        } else handled = false;
+        break;
+      default:
+        handled = false;
+    }
+    if (handled) event.preventDefault();
+  };
+
   /* --------------------------------- Render --------------------------------- */
+
+  const childArray = React.Children.toArray(children);
+  const toolbar = childArray.filter(isToolbarSlot);
+  const belowTable = toolbar.length
+    ? childArray.filter((c) => !isToolbarSlot(c))
+    : children;
+  const hasBelow = Array.isArray(belowTable)
+    ? belowTable.length > 0
+    : belowTable != null;
 
   return (
     <div
@@ -454,6 +632,11 @@ export function DataTable<
         className,
       )}
     >
+      {toolbar.length > 0 && (
+        <DataTableContext.Provider value={contextValue}>
+          {toolbar}
+        </DataTableContext.Provider>
+      )}
       <div className="relative">
         <DataTableLoader fetching={fetching} />
         <div
@@ -504,7 +687,13 @@ export function DataTable<
               variant={variant}
             />
 
-            <TableBody ref={bodyRef}>
+            <TableBody
+              ref={mergedBodyRef}
+              {...(keyboardNavigation && {
+                onKeyDown: handleBodyKeyDown,
+                onFocus: handleBodyFocus,
+              })}
+            >
               {data.length === 0 ? (
                 <DataTableEmptyState
                   text={fetching ? "" : noRecordsText}
@@ -555,6 +744,8 @@ export function DataTable<
                       totalCols={totalCols}
                       variant={variant}
                       rowRef={rowRef ? handleRowRef : undefined}
+                      focusable={keyboardNavigation}
+                      isActive={keyboardNavigation && rowIndex === activeIndex}
                     />
                   );
                 })
@@ -578,9 +769,9 @@ export function DataTable<
         </div>
       </div>
 
-      {children != null && (
+      {hasBelow && (
         <DataTableContext.Provider value={contextValue}>
-          {children}
+          {belowTable}
         </DataTableContext.Provider>
       )}
     </div>

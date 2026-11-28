@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { DataTable } from "./DataTable";
 import { DataTableContextMenu } from "./DataTableContextMenu";
 import { DataTablePagination } from "./DataTablePagination";
+import { DataTableSearch, DataTableToolbar } from "./DataTableToolbar";
 import type { DataTableColumn } from "./types";
 
 interface Row {
@@ -365,5 +366,133 @@ describe("DataTable", () => {
     expect(renders[1]).toBe(before[1] + 1);
     expect(renders[2]).toBe(before[2]);
     expect(renders[3]).toBe(before[3]);
+  });
+
+  describe("keyboard navigation", () => {
+    const dataRows = () => screen.getAllByRole("row").slice(1);
+
+    it("is off by default: rows are not focusable", () => {
+      render(<DataTable data={data} columns={columns} idAccessor="id" />);
+      for (const row of dataRows()) expect(row).not.toHaveAttribute("tabindex");
+    });
+
+    it("uses a roving tabindex and moves with arrow keys, Home and End", async () => {
+      const user = userEvent.setup();
+      const onActiveRowChange = vi.fn();
+      render(
+        <DataTable
+          data={data}
+          columns={columns}
+          idAccessor="id"
+          keyboardNavigation
+          onActiveRowChange={onActiveRowChange}
+        />,
+      );
+      const rows = dataRows();
+      expect(rows.map((r) => r.getAttribute("tabindex"))).toEqual([
+        "0",
+        "-1",
+        "-1",
+      ]);
+
+      await user.tab(); // sort button in the header
+      await user.tab(); // the active row: the body is a single Tab stop
+      expect(rows[0]).toHaveFocus();
+      await user.keyboard("{ArrowDown}");
+      expect(dataRows()[1]).toHaveFocus();
+      expect(dataRows()[1]).toHaveAttribute("tabindex", "0");
+      expect(dataRows()[0]).toHaveAttribute("tabindex", "-1");
+      await user.keyboard("{End}");
+      expect(dataRows()[2]).toHaveFocus();
+      await user.keyboard("{ArrowDown}");
+      expect(dataRows()[2]).toHaveFocus();
+      await user.keyboard("{Home}");
+      expect(dataRows()[0]).toHaveFocus();
+      expect(onActiveRowChange).toHaveBeenLastCalledWith(data[0], 0);
+    });
+
+    it("Enter clicks the row and Space toggles selection", async () => {
+      const user = userEvent.setup();
+      const onRowClick = vi.fn();
+      const onSelectedRecordsChange = vi.fn();
+      render(
+        <DataTable
+          data={data}
+          columns={columns}
+          idAccessor="id"
+          keyboardNavigation
+          onRowClick={onRowClick}
+          selectedRecords={[]}
+          onSelectedRecordsChange={onSelectedRecordsChange}
+        />,
+      );
+      dataRows()[0].focus();
+      await user.keyboard("{ArrowDown}{Enter}");
+      expect(onRowClick).toHaveBeenCalledWith(data[1], 1);
+      await user.keyboard(" ");
+      expect(onSelectedRecordsChange).toHaveBeenCalledWith([data[1]]);
+    });
+
+    it("ArrowRight/Left expand and collapse the focused row", async () => {
+      const user = userEvent.setup();
+      render(
+        <DataTable
+          data={data}
+          columns={columns}
+          idAccessor="id"
+          keyboardNavigation
+          renderRowSubContent={(r) => <p>Details of {r.name}</p>}
+        />,
+      );
+      dataRows()[0].focus();
+      await user.keyboard("{ArrowRight}");
+      expect(screen.getByText("Details of Ada")).toBeInTheDocument();
+      expect(dataRows()[0]).toHaveAttribute("aria-expanded", "true");
+      await user.keyboard("{ArrowLeft}");
+      expect(screen.queryByText("Details of Ada")).not.toBeInTheDocument();
+    });
+
+    it("leaves keys alone when they come from a control inside a cell", async () => {
+      const user = userEvent.setup();
+      const onRowClick = vi.fn();
+      render(
+        <DataTable
+          data={data}
+          columns={[
+            ...columns,
+            {
+              accessor: "edit",
+              render: (r) => <button type="button">Edit {r.name}</button>,
+            },
+          ]}
+          idAccessor="id"
+          keyboardNavigation
+          onRowClick={onRowClick}
+        />,
+      );
+      screen.getByRole("button", { name: "Edit Ada" }).focus();
+      await user.keyboard("{ArrowDown}");
+      expect(screen.getByRole("button", { name: "Edit Ada" })).toHaveFocus();
+    });
+  });
+
+  it("renders a DataTableToolbar child above the table, other children below", () => {
+    const { container } = render(
+      <DataTable data={data} columns={columns} idAccessor="id">
+        <DataTableToolbar>
+          <DataTableSearch value="" onValueChange={() => {}} />
+        </DataTableToolbar>
+        <p>below</p>
+      </DataTable>,
+    );
+    const toolbar = screen.getByRole("group", { name: "Table filters" });
+    const table = container.querySelector("table") as HTMLElement;
+    const below = screen.getByText("below");
+    expect(
+      toolbar.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      table.compareDocumentPosition(below) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

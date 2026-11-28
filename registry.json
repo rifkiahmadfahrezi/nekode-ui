@@ -333,7 +333,7 @@
       "name": "datatable",
       "type": "registry:ui",
       "title": "DataTable",
-      "description": "Data table with sorting, selection, column pinning, row expansion, and opt-in pagination and row context menu.",
+      "description": "Data table with sorting, selection, column pinning, row expansion, keyboard row navigation, and opt-in pagination, filter toolbar and row context menu.",
       "dependencies": [
         "@base-ui/react",
         "class-variance-authority",
@@ -345,7 +345,9 @@
         "context-menu",
         "select",
         "dropdown-menu",
-        "table"
+        "table",
+        "input",
+        "popover"
       ],
       "files": [
         {
@@ -367,6 +369,11 @@
           "path": "src/registry/ui/datatable/DataTableEmptyState.tsx",
           "type": "registry:ui",
           "target": "components/ui/datatable/DataTableEmptyState.tsx"
+        },
+        {
+          "path": "src/registry/ui/datatable/DataTableFacetedFilter.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableFacetedFilter.tsx"
         },
         {
           "path": "src/registry/ui/datatable/DataTableFooter.tsx",
@@ -399,9 +406,19 @@
           "target": "components/ui/datatable/DataTableRow.tsx"
         },
         {
+          "path": "src/registry/ui/datatable/DataTableToolbar.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/DataTableToolbar.tsx"
+        },
+        {
           "path": "src/registry/ui/datatable/context.ts",
           "type": "registry:ui",
           "target": "components/ui/datatable/context.ts"
+        },
+        {
+          "path": "src/registry/ui/datatable/filters.ts",
+          "type": "registry:ui",
+          "target": "components/ui/datatable/filters.ts"
         },
         {
           "path": "src/registry/ui/datatable/index.ts",
@@ -517,9 +534,7 @@
       "type": "registry:ui",
       "title": "Rich Text Field",
       "description": "Rich text editor composed with field label, description, and error for forms.",
-      "dependencies": [
-        "@base-ui/react"
-      ],
+      "dependencies": ["@base-ui/react"],
       "registryDependencies": [
         "field",
         "label",

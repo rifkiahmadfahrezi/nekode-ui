@@ -45,3 +45,20 @@ export interface DataTableRowMenuBridge {
 
 export const DataTableRowMenuContext =
   React.createContext<DataTableRowMenuBridge | null>(null);
+
+/**
+ * Marks a component as the table's toolbar slot. `DataTable` renders children
+ * carrying this marker above the table instead of below it, so
+ * `<DataTableToolbar>` can be composed in like any other opt-in part.
+ */
+export const DATATABLE_TOOLBAR_SLOT = Symbol.for("nekode.datatable.toolbar");
+
+export function isToolbarSlot(node: React.ReactNode): boolean {
+  return (
+    React.isValidElement(node) &&
+    typeof node.type !== "string" &&
+    (node.type as unknown as Record<symbol, unknown>)[
+      DATATABLE_TOOLBAR_SLOT
+    ] === true
+  );
+}

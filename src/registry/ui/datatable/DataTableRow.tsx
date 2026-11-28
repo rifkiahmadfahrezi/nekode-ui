@@ -42,6 +42,10 @@ interface DataTableRowProps<T> {
     record: T,
     rowIndex: number,
   ) => void;
+  /** Keyboard navigation is on: the row takes part in roving focus. */
+  focusable?: boolean;
+  /** The row that gets `tabIndex={0}` under keyboard navigation. */
+  isActive?: boolean;
 }
 
 function DataTableRowInner<T>({
@@ -70,6 +74,8 @@ function DataTableRowInner<T>({
   totalCols,
   variant,
   rowRef,
+  focusable = false,
+  isActive = false,
 }: DataTableRowProps<T>) {
   const shiftKeyRef = React.useRef(false);
   const menu = React.useContext(DataTableRowMenuContext);
@@ -83,6 +89,9 @@ function DataTableRowInner<T>({
     highlightOnHover && "hover:bg-muted/50",
     (onRowClick || (canExpand && expandOnRowClick)) && "cursor-pointer",
     variant === "borderless" && "border-0",
+    // Cells paint over a <tr> outline, so draw the focus ring on the cells.
+    focusable &&
+      "outline-hidden focus-visible:[&>td]:bg-muted focus-visible:[&>td]:shadow-[inset_0_2px_0_0_var(--color-ring),inset_0_-2px_0_0_var(--color-ring)] focus-visible:[&>td:first-child]:shadow-[inset_2px_2px_0_0_var(--color-ring),inset_0_-2px_0_0_var(--color-ring)] focus-visible:[&>td:last-child]:shadow-[inset_-2px_2px_0_0_var(--color-ring),inset_0_-2px_0_0_var(--color-ring)]",
     rowClassName,
   );
 
@@ -160,6 +169,12 @@ function DataTableRowInner<T>({
     <TableRow
       ref={(el: HTMLTableRowElement | null) => rowRef?.(el, record, rowIndex)}
       data-state={isSelected ? "selected" : undefined}
+      data-row-index={rowIndex}
+      {...(focusable && {
+        tabIndex: isActive ? 0 : -1,
+        "data-active": isActive ? "" : undefined,
+        "aria-expanded": canExpand ? isExpanded : undefined,
+      })}
       className={rowShellClassName}
       style={rowStyle}
       onClick={handleRowClick}
@@ -238,7 +253,9 @@ function propsAreEqual<T>(
     prev.leadingGutter === next.leadingGutter &&
     prev.totalCols === next.totalCols &&
     prev.variant === next.variant &&
-    prev.rowRef === next.rowRef
+    prev.rowRef === next.rowRef &&
+    prev.focusable === next.focusable &&
+    prev.isActive === next.isActive
   );
 }
 
