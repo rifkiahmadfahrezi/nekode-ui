@@ -49,6 +49,7 @@ export * from "./otp-field-variants-demo";
 export * from "./password-field-demo";
 export * from "./password-field-form-demo";
 export * from "./password-field-playground-demo";
+export * from "./phone-field-auto-detect-demo";
 export * from "./phone-field-demo";
 export * from "./phone-field-form-demo";
 export * from "./responsive-combobox-demo";

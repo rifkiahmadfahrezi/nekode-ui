@@ -95,6 +95,53 @@ describe("PhoneField", () => {
     ).toBeInTheDocument();
   });
 
+  it("auto-detects the country from a typed calling code", async () => {
+    const onValueChange = vi.fn();
+    render(
+      <PhoneField
+        label="Phone"
+        defaultCountry="US"
+        autoDetectCountry
+        onValueChange={onValueChange}
+      />,
+    );
+    const input = screen.getByLabelText(/Phone/);
+    await userEvent.type(input, "62812");
+    expect(screen.getByRole("button", { name: /Indonesia/ })).toBeVisible();
+    expect(input).toHaveValue("812");
+    expect(onValueChange).toHaveBeenLastCalledWith("+62812");
+  });
+
+  it("waits for the whole calling code and only detects once", async () => {
+    render(<PhoneField label="Phone" defaultCountry="ID" autoDetectCountry />);
+    const input = screen.getByLabelText(/Phone/);
+    await userEvent.type(input, "35");
+    expect(screen.getByRole("button", { name: /Indonesia/ })).toBeVisible();
+    await userEvent.type(input, "1");
+    expect(screen.getByRole("button", { name: /Portugal/ })).toBeVisible();
+    // The local number "91…" must not switch to India now.
+    await userEvent.type(input, "91234");
+    expect(screen.getByRole("button", { name: /Portugal/ })).toBeVisible();
+    expect(input).toHaveValue("91234");
+  });
+
+  it("switches country while a + code is typed, even without auto-detect", async () => {
+    const onValueChange = vi.fn();
+    render(<PhoneField label="Phone" onValueChange={onValueChange} />);
+    const input = screen.getByLabelText(/Phone/);
+    await userEvent.type(input, "+1");
+    expect(screen.getByRole("button", { name: /United States/ })).toBeVisible();
+    await userEvent.type(input, "4155550100");
+    expect(onValueChange).toHaveBeenLastCalledWith("+14155550100");
+  });
+
+  it("does not auto-detect unless asked", async () => {
+    render(<PhoneField label="Phone" defaultCountry="ID" />);
+    const input = screen.getByLabelText(/Phone/);
+    await userEvent.type(input, "81234");
+    expect(screen.getByRole("button", { name: /Indonesia/ })).toBeVisible();
+  });
+
   it("shows a controlled value", () => {
     render(<PhoneField label="Phone" value="+6591234567" />);
     expect(screen.getByLabelText(/Phone/)).toHaveValue("91234567");

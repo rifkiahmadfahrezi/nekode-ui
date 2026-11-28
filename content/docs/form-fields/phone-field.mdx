@@ -17,6 +17,18 @@ description: A phone number input with a searchable country code picker that han
 
 ## Examples
 
+### Detect the country from the calling code
+
+With `autoDetectCountry`, people can type the calling code first, without a `+`. Here the field starts on the United States: type `62812…` and it switches to Indonesia, keeping `812…` as the local number.
+
+<ComponentPreview path="src/registry/demos/phone-field-auto-detect-demo.tsx">
+  <PhoneFieldAutoDetectDemo />
+</ComponentPreview>
+
+<Callout type="warn">
+  It's off by default because a local number can start with a calling code too. With Indonesia selected, a local `81…` would switch to Japan (`+81`). Turn it on when people are likely to type international numbers. Typing or pasting a `+` always switches country, with or without this prop.
+</Callout>
+
 ### With TanStack Form and Zod
 
 The value is a plain string, so validate it with a regex. `^\+\d{8,15}$` checks the E.164 shape. For real per-country validation, run the value through a library like `libphonenumber-js` in a `.refine()`.
@@ -42,9 +54,10 @@ const asean = PHONE_COUNTRIES.filter((c) =>
 ## Behavior
 
 - **The trunk `0` is dropped from the value, not the screen.** Typing `0812…` with Indonesia selected shows `0812…` but reports `+62812…`.
-- **Pasting a full number switches the country.** Pasting `+44 20 7946 0958` selects the United Kingdom and keeps `2079460958` as the local part.
+- **A `+` switches the country.** Typing or pasting `+44 20 7946 0958` selects the United Kingdom and keeps `2079460958` as the local part. While only part of a code is typed (`+3`), the field reports `""`.
+- **`autoDetectCountry` does the same without the `+`**, but only for the first digits typed into an empty field. It waits for the whole code (`35` could still become `351` or `358`), and clearing the field lets it detect again.
 - **The value is `""` while the local part is empty**, even though a country is always selected. That keeps `required` checks simple.
-- **Shared calling codes** (like `+1` for the United States and Canada) resolve to the selected country, or to `defaultCountry`, when parsing a value.
+- **Shared calling codes** (like `+1` for the United States and Canada) resolve to the selected country when it fits, and otherwise to the United States (`+1`) or Russia (`+7`).
 - Only digits are kept, up to 15. Formatting the number for display is left to you.
 - `parsePhoneNumber(value, countries?, preferred?)` is exported for parsing stored numbers elsewhere.
 - Flags are emoji. Windows doesn't draw flag emoji, so there they show as the two-letter country code.
@@ -71,6 +84,7 @@ const asean = PHONE_COUNTRIES.filter((c) =>
 | `defaultValue` | `string` | — | Initial number for uncontrolled use. |
 | `onValueChange` | `(value: string) => void` | — | Fires with the international number, or `""` when the local part is empty. |
 | `defaultCountry` | `string` | `"ID"` | ISO code of the country selected until a value picks one. |
+| `autoDetectCountry` | `boolean` | `false` | Switches country from a calling code typed at the start, without a `+`. |
 | `onCountryChange` | `(country: PhoneCountry) => void` | — | Fires when the selected country changes. |
 | `countries` | `PhoneCountry[]` | `PHONE_COUNTRIES` | Countries offered in the picker. |
 | `placeholder` | `string` | `"812 3456 7890"` | Placeholder for the local number. |

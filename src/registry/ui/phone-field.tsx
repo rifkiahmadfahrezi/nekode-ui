@@ -100,9 +100,21 @@ function flagEmoji(code: string) {
 
 const digitsOnly = (s: string) => s.replace(/\D/g, "");
 
+/** Who gets a calling code shared by several countries, unless one is preferred. */
+const SHARED_CODE_OWNERS: Record<string, string> = { "1": "US", "7": "RU" };
+
+/** True while `digits` could still grow into a longer calling code ("35" -> "351"). */
+function isPartialDialCode(digits: string, countries: PhoneCountry[]) {
+  return countries.some((c) => {
+    const dial = digitsOnly(c.dialCode);
+    return dial.length > digits.length && dial.startsWith(digits);
+  });
+}
+
 /**
  * Splits an international number (`"+62812..."`) into a country and the
- * national part. `preferred` wins ties for shared codes like `+1`.
+ * national part. `preferred` wins ties for shared codes like `+1`; without
+ * it, `+1` is the United States.
  */
 export function parsePhoneNumber(
   value: string,
@@ -116,9 +128,11 @@ export function parsePhoneNumber(
     const dial = digitsOnly(c.dialCode);
     if (!digits.startsWith(dial)) continue;
     const bestLen = best ? digitsOnly(best.dialCode).length : 0;
+    const rank = (x: PhoneCountry) =>
+      x.code === preferred ? 2 : SHARED_CODE_OWNERS[dial] === x.code ? 1 : 0;
     if (
       dial.length > bestLen ||
-      (dial.length === bestLen && c.code === preferred)
+      (best && dial.length === bestLen && rank(c) > rank(best))
     ) {
       best = c;
     }
@@ -148,6 +162,14 @@ export interface PhoneFieldProps
   defaultCountry?: string;
   /** Called when the selected country changes. */
   onCountryChange?: (country: PhoneCountry) => void;
+  /**
+   * Switch country from the digits typed at the start, without a `+`.
+   * With the US selected, typing `62` selects Indonesia and the rest is the
+   * local number. Off by default because local numbers can start with a
+   * calling code too (an Indonesian `81…` would select Japan). A typed or
+   * pasted `+` always switches country, whatever this is set to.
+   */
+  autoDetectCountry?: boolean;
   /** Countries offered in the picker. Defaults to `PHONE_COUNTRIES`. */
   countries?: PhoneCountry[];
   /** Placeholder for the picker's search box. */
@@ -173,6 +195,7 @@ export const PhoneField = React.forwardRef<HTMLInputElement, PhoneFieldProps>(
       defaultCountry = "ID",
       onCountryChange,
       countries = PHONE_COUNTRIES,
+      autoDetectCountry = false,
       searchPlaceholder = "Search country...",
       emptyText = "No country found.",
       placeholder = "812 3456 7890",
@@ -231,8 +254,11 @@ export const PhoneField = React.forwardRef<HTMLInputElement, PhoneFieldProps>(
 
     const emit = (nextCountry: PhoneCountry, nextNational: string) => {
       // Drop the trunk prefix ("0812" -> "+62812") but keep it on screen so
-      // the field doesn't swallow the first key the user presses.
-      const subscriber = nextNational.replace(/^0+/, "");
+      // the field doesn't swallow the first key the user presses. A "+" that
+      // doesn't name a known calling code yet ("+6") isn't a number at all.
+      const subscriber = nextNational.startsWith("+")
+        ? ""
+        : nextNational.replace(/^0+/, "");
       const out = subscriber ? `${nextCountry.dialCode}${subscriber}` : "";
       setState({ country: nextCountry, national: nextNational });
       if (out !== emittedRef.current) {
@@ -241,26 +267,58 @@ export const PhoneField = React.forwardRef<HTMLInputElement, PhoneFieldProps>(
       }
     };
 
+    // Auto-detect only looks at the first digits typed into an empty field;
+    // after a switch (or once the number is longer than any calling code) the
+    // rest is the local number. Clearing the field re-arms it.
+    const detectArmedRef = React.useRef(national === "");
+
+    const switchTo = (next: PhoneCountry, nextNational: string) => {
+      if (next.code !== country.code) onCountryChange?.(next);
+      emit(next, nextNational);
+    };
+
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (
       event,
     ) => {
       const raw = event.target.value;
-      // Pasting "+44 20 7946 0958" switches the country too.
+      // "+44 20 7946 0958", typed or pasted, switches the country too.
       if (raw.trim().startsWith("+")) {
         const parsed = parsePhoneNumber(raw, countries, country.code);
-        if (parsed.country) {
-          if (parsed.country.code !== country.code)
-            onCountryChange?.(parsed.country);
-          emit(parsed.country, parsed.national);
+        const digits = digitsOnly(raw).slice(0, 15);
+        if (parsed.country && !isPartialDialCode(digits, countries)) {
+          detectArmedRef.current = false;
+          switchTo(parsed.country, parsed.national);
+        } else {
+          // Still typing the calling code: keep the "+" on screen.
+          emit(country, `+${digits}`);
+        }
+        return;
+      }
+
+      const digits = digitsOnly(raw).slice(0, 15);
+      if (digits === "") {
+        detectArmedRef.current = true;
+      } else if (autoDetectCountry && detectArmedRef.current) {
+        const { country: match, national: rest } = parsePhoneNumber(
+          `+${digits}`,
+          countries,
+          country.code,
+        );
+        // Wait for the whole code: "35" could still become "351" or "358".
+        if (match && rest === "" && !isPartialDialCode(digits, countries)) {
+          detectArmedRef.current = false;
+          switchTo(match, "");
           return;
         }
+        if (digits.length > 4 || digits.startsWith("0"))
+          detectArmedRef.current = false;
       }
-      emit(country, digitsOnly(raw).slice(0, 15));
+      emit(country, digits);
     };
 
     const selectCountry = (next: PhoneCountry) => {
-      if (next.code !== country.code) onCountryChange?.(next);
-      emit(next, national);
+      detectArmedRef.current = false;
+      switchTo(next, national.startsWith("+") ? "" : national);
     };
 
     return (
