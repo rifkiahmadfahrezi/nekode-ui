@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ComboboxField } from "@/components/ui/combobox-field";
+import { CurrencyField } from "@/components/ui/currency-field";
 import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { DateRangePickerField } from "@/components/ui/date-range-picker-field";
