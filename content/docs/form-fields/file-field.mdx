@@ -21,6 +21,16 @@ Toggle `multiple`, `disabled`, and set an error message to see how the dropzone 
 
 <FileFieldPlaygroundDemo />
 
+## Examples
+
+### Image grid previews
+
+Set `previewLayout="grid"` to show large square thumbnails instead of the compact list. It fits image uploads like product photos or galleries; non-image files get a file icon tile.
+
+<ComponentPreview path="src/registry/demos/file-field-grid-demo.tsx">
+  <FileFieldGridDemo />
+</ComponentPreview>
+
 ## Accessibility
 
 - The dropzone has `role="button"`, is keyboard-focusable, and opens the file picker on <kbd>Enter</kbd> or <kbd>Space</kbd> in addition to click.
@@ -53,6 +63,7 @@ Toggle `multiple`, `disabled`, and set an error message to see how the dropzone 
 | `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout direction for the label relative to the dropzone. |
 | `fieldClassName` | `string` | — | Class name passed to the underlying `Field` wrapper. |
 | `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+| `previewLayout` | `"list" \| "grid"` | `"list"` | `"list"` shows compact attachment rows; `"grid"` shows square thumbnails. |
 | `dropzoneClassName` | `string` | — | Class name applied to the dropzone, merged after `className`. |
 | `className` | `string` | — | Class name applied to the dropzone. |
 | `accept` | `string` | — | Native `accept` attribute; also filters files added via drag-and-drop. |

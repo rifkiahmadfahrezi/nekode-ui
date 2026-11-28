@@ -38,7 +38,27 @@ function zodTypeFor(field: FieldConfig): z.ZodTypeAny {
       const base = z.boolean();
       return field.required ? base : base.optional();
     }
-    case "file": {
+    case "slider":
+      return z.number();
+    case "range-slider":
+      return z.tuple([z.number(), z.number()]);
+    case "rating": {
+      const base = z.number();
+      return field.required
+        ? base.min(1, `${field.label || field.name} is required`)
+        : base.optional();
+    }
+    case "color-picker": {
+      const base = z.string();
+      return field.required
+        ? base.regex(
+            /^#[0-9a-f]{6}$/i,
+            `${field.label || field.name} is required`,
+          )
+        : base.optional();
+    }
+    case "file":
+    case "image-dropzone": {
       const base = z.array(z.instanceof(File));
       return field.required
         ? base.min(1, `${field.label || field.name} is required`)
@@ -65,7 +85,14 @@ export function defaultValueFor(field: FieldConfig): unknown {
     case "checkbox-group":
       return [];
     case "file":
+    case "image-dropzone":
       return [];
+    case "slider":
+      return 50;
+    case "range-slider":
+      return [25, 75];
+    case "rating":
+      return 0;
     case "checkbox":
     case "switch":
       return false;

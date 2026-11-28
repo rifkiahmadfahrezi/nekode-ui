@@ -593,6 +593,63 @@
       ]
     },
     {
+      "name": "color-picker-field",
+      "type": "registry:ui",
+      "title": "Color Picker Field",
+      "description": "A hex color input with a saturation/hue picker popover, preset swatches, and field label/description/error support.",
+      "registryDependencies": [
+        "field",
+        "input",
+        "label",
+        "popover"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/color-picker-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/color-picker-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "rating-field",
+      "type": "registry:ui",
+      "title": "Rating Field",
+      "description": "A star (or custom icon) rating input with hover preview, keyboard support, read-only mode, and field label/description/error support.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "field",
+        "label"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/rating-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/rating-field.tsx"
+        }
+      ]
+    },
+    {
+      "name": "slider-field",
+      "type": "registry:ui",
+      "title": "Slider Field",
+      "description": "A labeled slider (SliderField) and two-thumb range slider (RangeSliderField) with live value display and field description/error support.",
+      "registryDependencies": [
+        "field",
+        "label",
+        "slider"
+      ],
+      "files": [
+        {
+          "path": "./.registry-radix/src/registry/ui/slider-field.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/slider-field.tsx"
+        }
+      ]
+    },
+    {
       "name": "field-checkbox",
       "type": "registry:ui",
       "title": "Field Checkbox",

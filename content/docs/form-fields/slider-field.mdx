@@ -1,0 +1,71 @@
+---
+title: SliderField
+description: A labeled slider for picking one number, plus a two-thumb RangeSliderField for picking a min/max range.
+---
+
+`SliderField` and `RangeSliderField` wrap the shadcn `Slider` with a `Field` layout: a label with the live value on the right, an optional min/max hint under the track, and the usual description/error slots. Reach for them when the exact number matters less than its position in a range, such as volume, a price filter, or a budget.
+
+## Installation
+
+<InstallationTabs componentName="slider-field" />
+
+## Usage Example
+
+<ComponentPreview path="src/registry/demos/slider-field-demo.tsx">
+  <SliderFieldDemo />
+</ComponentPreview>
+
+## Examples
+
+### With TanStack Form and Zod
+
+`SliderField` works with a `number`, `RangeSliderField` with a `[number, number]` tuple, so they map directly onto `z.number()` and `z.tuple([z.number(), z.number()])`.
+
+<ComponentPreview path="src/registry/demos/slider-field-form-demo.tsx">
+  <SliderFieldFormDemo />
+</ComponentPreview>
+
+## Accessibility
+
+- Each thumb is a native `role="slider"` from the shadcn `Slider`, so arrow keys, <kbd>Page Up</kbd>/<kbd>Page Down</kbd>, and <kbd>Home</kbd>/<kbd>End</kbd> work out of the box.
+- The label gets an `id` and the slider root is linked with `aria-labelledby` (on the Base UI backend the thumbs inherit it).
+- `aria-describedby` points to the description, `aria-errormessage` to the error, and `aria-invalid` follows `error`.
+- The value shown next to the label is `aria-hidden`; screen readers announce the thumb's own value instead, so it isn't read twice.
+
+## API Reference
+
+### SliderField
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | — | Label rendered above the slider. |
+| `description` | `string` | — | Helper text below the slider. Hidden when `error` is set. |
+| `error` | `string` | — | Validation message. Switches the field into an invalid state. |
+| `value` | `number` | — | Controlled value. |
+| `defaultValue` | `number` | `min` | Initial value when uncontrolled. |
+| `onValueChange` | `(value: number) => void` | — | Called while the thumb moves. |
+| `min` | `number` | `0` | Lowest value. |
+| `max` | `number` | `100` | Highest value. |
+| `step` | `number` | `1` | Step between values. |
+| `showValue` | `boolean` | `true` | Show the current value next to the label. |
+| `formatValue` | `(value: number) => string` | `String` | Formats the shown value and the min/max hints, e.g. `` (v) => `${v}%` ``. |
+| `showMinMax` | `boolean` | `false` | Show `min` and `max` under the track. |
+| `name` | `string` | — | Name for the hidden input, so a plain `<form>` submit includes the value. |
+| `id` | `string` | auto | Base id for the slider and its label/description/error. |
+| `required` | `boolean` | `false` | Adds the required asterisk to the label. |
+| `disabled` | `boolean` | `false` | Disables the slider. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Layout of the label relative to the slider. |
+| `className` | `string` | — | Class name applied to the slider root. |
+| `fieldClassName` | `string` | — | Class name passed to the `Field` wrapper. |
+| `labelClassName` | `string` | — | Class name applied to the `FieldLabel`. |
+
+### RangeSliderField
+
+Takes every `SliderField` prop, with these differences:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `[number, number]` | — | Controlled `[from, to]` range. |
+| `defaultValue` | `[number, number]` | `[min, max]` | Initial range when uncontrolled. |
+| `onValueChange` | `(value: [number, number]) => void` | — | Called while either thumb moves. |
+| `separator` | `string` | `" – "` | Text between the two values next to the label. |

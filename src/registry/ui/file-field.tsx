@@ -51,6 +51,11 @@ export interface FileFieldProps
   fieldClassName?: string;
   labelClassName?: string;
   dropzoneClassName?: string;
+  /**
+   * How selected files are shown: `"list"` renders compact attachment rows,
+   * `"grid"` renders large square thumbnails (best for image uploads).
+   */
+  previewLayout?: "list" | "grid";
   orientation?: "vertical" | "horizontal" | "responsive";
 }
 
@@ -84,6 +89,18 @@ function fileKey(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
+function useObjectUrl(file: File) {
+  const [url, setUrl] = React.useState<string | null>(null);
+  const isImage = file.type.startsWith("image/");
+  React.useEffect(() => {
+    if (!isImage) return;
+    const next = URL.createObjectURL(file);
+    setUrl(next);
+    return () => URL.revokeObjectURL(next);
+  }, [file, isImage]);
+  return isImage ? url : null;
+}
+
 function FileAttachment({
   file,
   disabled,
@@ -93,15 +110,8 @@ function FileAttachment({
   disabled?: boolean;
   onRemove: () => void;
 }) {
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const previewUrl = useObjectUrl(file);
   const isImage = file.type.startsWith("image/");
-
-  React.useEffect(() => {
-    if (!isImage) return;
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file, isImage]);
 
   return (
     <Attachment size="sm">
@@ -129,6 +139,43 @@ function FileAttachment({
   );
 }
 
+function FileTile({
+  file,
+  disabled,
+  onRemove,
+}: {
+  file: File;
+  disabled?: boolean;
+  onRemove: () => void;
+}) {
+  const previewUrl = useObjectUrl(file);
+
+  return (
+    <li className="group/tile relative aspect-square overflow-hidden rounded-md border bg-muted/40">
+      {previewUrl ? (
+        <img src={previewUrl} alt="" className="size-full object-cover" />
+      ) : (
+        <div className="flex size-full flex-col items-center justify-center gap-1 p-2 text-muted-foreground">
+          <FileIcon aria-hidden="true" className="size-6" />
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pt-4 pb-1.5 text-white">
+        <p className="truncate text-xs font-medium">{file.name}</p>
+        <p className="text-[10px] opacity-80">{formatBytes(file.size)}</p>
+      </div>
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={`Remove ${file.name}`}
+        onClick={onRemove}
+        className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full bg-black/60 text-white opacity-100 outline-none transition-opacity hover:bg-black/80 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 sm:opacity-0 sm:group-hover/tile:opacity-100 sm:focus-visible:opacity-100"
+      >
+        <X aria-hidden="true" className="size-3.5" />
+      </button>
+    </li>
+  );
+}
+
 export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
   (
     {
@@ -145,6 +192,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
       fieldClassName,
       labelClassName,
       dropzoneClassName,
+      previewLayout = "list",
       orientation = "vertical",
       className,
       id,
@@ -329,7 +377,20 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
           {accept && <p className="text-xs">{accept}</p>}
         </div>
 
-        {files.length > 0 && (
+        {files.length > 0 && previewLayout === "grid" && (
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
+            {files.map((file, index) => (
+              <FileTile
+                key={fileKey(file)}
+                file={file}
+                disabled={disabled}
+                onRemove={() => removeFile(index)}
+              />
+            ))}
+          </ul>
+        )}
+
+        {files.length > 0 && previewLayout === "list" && (
           <AttachmentGroup>
             {files.map((file, index) => (
               <FileAttachment

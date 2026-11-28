@@ -8,6 +8,7 @@ import {
   CircleDot,
   Clock,
   Hash,
+  ImagePlus,
   KeyRound,
   LetterText,
   ListChecks,
@@ -15,21 +16,32 @@ import {
   ListTodo,
   type LucideIcon,
   MonitorSmartphone,
+  Paintbrush,
   Paperclip,
+  Ruler,
   Search,
+  SlidersHorizontal,
+  Star,
   TextCursorInput,
   ToggleLeft,
 } from "lucide-react";
 
 import type { FieldKind } from "./types";
 
-export type FieldKindGroup = "text" | "selection" | "choice" | "date" | "file";
+export type FieldKindGroup =
+  | "text"
+  | "selection"
+  | "choice"
+  | "range"
+  | "date"
+  | "file";
 
 /** Sidebar sections, in display order. Fields are sorted A-Z inside each. */
 export const FIELD_KIND_GROUPS: { id: FieldKindGroup; label: string }[] = [
   { id: "text", label: "Text input" },
   { id: "selection", label: "Selection" },
   { id: "choice", label: "Choice" },
+  { id: "range", label: "Slider & rating" },
   { id: "date", label: "Date & time" },
   { id: "file", label: "File" },
 ];
@@ -203,6 +215,46 @@ export const FIELD_KINDS: FieldKindMeta[] = [
     component: "FileField",
     importPath: "@/components/ui/file-field",
     icon: Paperclip,
+  },
+  {
+    kind: "image-dropzone",
+    group: "file",
+    label: "Image Dropzone",
+    component: "FileField",
+    importPath: "@/components/ui/file-field",
+    icon: ImagePlus,
+  },
+  {
+    kind: "slider",
+    group: "range",
+    label: "Slider",
+    component: "SliderField",
+    importPath: "@/components/ui/slider-field",
+    icon: Ruler,
+  },
+  {
+    kind: "range-slider",
+    group: "range",
+    label: "Range Slider",
+    component: "RangeSliderField",
+    importPath: "@/components/ui/slider-field",
+    icon: SlidersHorizontal,
+  },
+  {
+    kind: "rating",
+    group: "range",
+    label: "Rating",
+    component: "RatingField",
+    importPath: "@/components/ui/rating-field",
+    icon: Star,
+  },
+  {
+    kind: "color-picker",
+    group: "choice",
+    label: "Color Picker",
+    component: "ColorPickerField",
+    importPath: "@/components/ui/color-picker-field",
+    icon: Paintbrush,
   },
 ];
 

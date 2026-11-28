@@ -21,6 +21,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ColorPickerField } from "@/components/ui/color-picker-field";
 import { ComboboxField } from "@/components/ui/combobox-field";
 import { ComboboxMultiField } from "@/components/ui/combobox-multi-field";
 import { DateMultiPickerField } from "@/components/ui/date-multi-picker-field";
@@ -41,10 +42,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { RatingField } from "@/components/ui/rating-field";
 import { ResponsiveCombobox } from "@/components/ui/responsive-combobox";
 import { ResponsiveMultiSelect } from "@/components/ui/responsive-multi-select";
 import { RichTextField } from "@/components/ui/rich-text-field";
 import { SelectField } from "@/components/ui/select-field";
+import { RangeSliderField, SliderField } from "@/components/ui/slider-field";
 import { TextField } from "@/components/ui/text-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
@@ -754,6 +757,52 @@ function renderPreviewField(field: FieldConfig, formField: AnyFieldApi) {
           {...common}
           value={formField.state.value}
           onValueChange={formField.handleChange}
+        />
+      );
+    case "image-dropzone":
+      return (
+        <FileField
+          {...common}
+          accept="image/*"
+          multiple
+          previewLayout="grid"
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "slider":
+      return (
+        <SliderField
+          {...common}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "range-slider":
+      return (
+        <RangeSliderField
+          {...common}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+        />
+      );
+    case "rating":
+      return (
+        <RatingField
+          {...common}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+          onBlur={formField.handleBlur}
+        />
+      );
+    case "color-picker":
+      return (
+        <ColorPickerField
+          {...common}
+          placeholder={field.placeholder || undefined}
+          value={formField.state.value}
+          onValueChange={formField.handleChange}
+          onBlur={formField.handleBlur}
         />
       );
     default:
